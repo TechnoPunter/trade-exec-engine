@@ -1,1 +1,6 @@
 pyyaml
+numpy
+pandas
+pyotp
+NorenRestApiPy
+websocket
