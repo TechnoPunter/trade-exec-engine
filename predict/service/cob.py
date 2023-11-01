@@ -164,10 +164,10 @@ class CloseOfBusiness:
             send_df_email(df=trades, subject="COB Report", acct=self.acct)
 
     def run_cob(self):
+        self.__generate_reminders()
         self.__store_orders()
         self.__store_broker_trades()
         self.__store_bt_trades()
-        self.__generate_reminders()
 
 
 if __name__ == '__main__':
