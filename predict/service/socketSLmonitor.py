@@ -1,8 +1,4 @@
-import datetime
-import json
-import logging
 import os
-import time
 
 import numpy as np
 import pandas as pd
@@ -10,13 +6,10 @@ import pyotp
 from NorenRestApiPy.NorenApi import NorenApi, FeedType
 from websocket import WebSocketConnectionClosedException
 
-from predict.backtest.nova import Nova
 from predict.config.reader import cfg
-from predict.consts.consts import IST
-from predict.dataprovider.database import DatabaseEngine
-from predict.dataprovider.filereader import get_tick_data
-from predict.dataprovider.tvfeed import TvDatafeed, Interval
+from predict.service.cob import CloseOfBusiness
 from predict.utils.EmailAlert import send_email, send_df_email
+from predict.utils.Misc import *
 
 VALID_ORDER_STATUS = ['OPEN', 'TRIGGER_PENDING', 'COMPLETE', 'CANCELED']
 
@@ -27,7 +20,6 @@ MIS_PROD_TYPE = 'I'
 MKT_PRICE_TYPE = 'MKT'
 SL_PRICE_TYPE = "SL-MKT"
 TARGET_PRICE_TYPE = "LMT"
-TODAY = datetime.datetime.today().date()
 
 logger = logging.getLogger(__name__)
 pd.set_option('display.max_columns', None)
@@ -132,7 +124,7 @@ def api_get_order_hist(order_no):
     else:
         # Handle the off chance that order is pending
         order_rec = ord_hist.iloc[0]
-        order_type = __get_order_type(order_rec)
+        order_type = get_order_type(order_rec)
         if (order_rec.status == "PENDING") or (order_type == "ENTRY_LEG" and order_rec.status == "OPEN"):
             logger.warning(f"Order {order_no} is pending - Retrying")
             resp = api.single_order_history(orderno=order_no)
@@ -246,80 +238,6 @@ def api_cancel_order(order_no):
     return resp
 
 
-def __get_order_ref(row):
-    order_date = str(TODAY)
-    return ":".join([acct, row['model'], row['scrip'], order_date, str(row['index'])])
-
-
-def __get_epoch(date_string: str):
-    if date_string == '0':
-        return int(time.time())
-    else:
-        # Define the date string and format
-        date_format = '%d-%m-%Y %H:%M:%S'
-        return int(IST.localize(datetime.datetime.strptime(date_string, date_format)).timestamp())
-
-
-def __calc_sl(entry: float, signal: int, sl_factor: float, tick: float, scrip: str):
-    logger.debug(f"Entered Calc SL with SL Factor: {sl_factor}, Tick: {tick}, Scrip: {scrip}")
-    tick = float(tick)
-    sl = float(entry) - signal * float(entry) * sl_factor / 100
-    sl = format(round(sl / tick) * tick, ".2f")
-    logger.debug(f"{scrip}: Calc SL: {sl}")
-    return sl
-
-
-def __round_target(target: float, tick: float, scrip: str):
-    logger.debug(f"Entered Round Target with Target : {target}, Tick: {tick}, Scrip: {scrip}")
-    tick = float(tick)
-    target = format(round(target / tick) * tick, ".2f")
-    logger.debug(f"{scrip}: Calc Target: {target}")
-    return target
-
-
-def __get_order_type(message):
-    return message.get('remarks', 'NA').split(":")[0]
-
-
-def __get_order_index(message):
-    return int(message.split(":")[-1])
-
-
-def __get_new_sl(order: dict, ltp: float = None):
-    """
-
-    Args:
-        order:{
-                "order_no": 1234,
-                "scrip": "NSE_BANDHANBNK",
-                "direction": -1 (of the trade)
-                "open_qty": 10,
-                "sl_price": 201.25,
-                "entry_price": 200.05
-                "remarks" : "predict.strategies.gspcV2:NSE_RELIANCE:2023-09..."}
-        ltp: 200.55
-
-    Returns:
-
-    """
-    logger.debug(f"__get_new_sl: Update order for {order['scrip']} for SL Order ID: {order['sl_order_id']}")
-    direction = 1 if order['signal'] == 1 else -1
-
-    sl = order['sl_pct']
-    trail_sl = order['trail_sl_pct']
-    logger.debug(f"__get_new_sl: SL: {sl}; Trail SL: {trail_sl}")
-    logger.debug(
-        f"__get_new_sl: Validating if {abs(ltp - float(order['sl_price']))} > {ltp * float((sl + trail_sl) / 100)}")
-    if abs(ltp - float(order['sl_price'])) > ltp * float((sl + trail_sl) / 100):
-        new_sl = ltp - direction * ltp * float(sl / 100)
-        new_sl = format(round(new_sl / order['tick']) * order['tick'], ".2f")
-        logger.debug(f"__get_new_sl: Updated sl: {new_sl}")
-        return new_sl
-    else:
-        logger.info(f"__get_new_sl: Same sl for {order['scrip']} @ {ltp}")
-        return "0.0"
-
-
 def __get_signal_strength(df: pd.DataFrame, ltp: float):
     global params
     df['strength'] = df['signal'] * (df['target'] - ltp)
@@ -328,26 +246,6 @@ def __get_signal_strength(df: pd.DataFrame, ltp: float):
         params.loc[idx, 'active'] = 'N' if row['strength'] <= 0 else 'Y'
     logger.debug(f"Params with strength:\n{params}")
     return df
-
-
-def __get_contra_leg(order_id):
-    """
-    Get the SL leg if order_id is Target or vice-versa
-    Args:
-        order_id:
-
-    Returns: Other leg order_id
-
-    """
-    global params
-    # SL Leg?
-    rows = params.loc[(params.sl_order_id == order_id)]
-    for idx, row in rows.iterrows():
-        return idx, row['entry_order_id'], row['target_order_id'], 'SL-HIT'
-    # Target Leg?
-    rows = params.loc[(params.target_order_id == order_id)]
-    for idx, row in rows.iterrows():
-        return idx, row['entry_order_id'], row['sl_order_id'], 'TARGET-HIT'
 
 
 def __create_bracket_order(idx, row, data):
@@ -385,12 +283,12 @@ def __create_bracket_order(idx, row, data):
     cover_direction = 'S' if direction == "B" else 'B'
     # Create SL order
     sl_remarks = remarks.replace("ENTRY_LEG", "SL_LEG")
-    sl_price = __calc_sl(entry=price,
-                         signal=row['signal'],
-                         sl_factor=row['sl_pct'],
-                         tick=row['tick'],
-                         scrip=row['scrip']
-                         )
+    sl_price = calc_sl(entry=price,
+                       signal=row['signal'],
+                       sl_factor=row['sl_pct'],
+                       tick=row['tick'],
+                       scrip=row['scrip']
+                       )
     resp = api_place_order(buy_or_sell=cover_direction,
                            product_type=MIS_PROD_TYPE,
                            exchange=row.exchange,
@@ -418,7 +316,7 @@ def __create_bracket_order(idx, row, data):
     logger.debug(f"order_update: Post SL: Params\n{params}")
     # Create Target Order
     target_remarks = remarks.replace("ENTRY_LEG", "TARGET_LEG")
-    target = __round_target(target=row['target'], tick=row['tick'], scrip=row['scrip'])
+    target = round_target(target=row['target'], tick=row['tick'], scrip=row['scrip'])
     resp = api_place_order(buy_or_sell=cover_direction,
                            product_type=MIS_PROD_TYPE,
                            exchange=row.exchange,
@@ -503,8 +401,8 @@ def __load_params():
 
         orders.dropna(subset=['remarks'], inplace=True)
         if len(orders) > 0:
-            orders.loc[:, 'order_type'] = orders.apply(lambda x: __get_order_type(x), axis=1)
-            orders.loc[:, 'order_index'] = orders['remarks'].apply(__get_order_index)
+            orders.loc[:, 'order_type'] = orders.apply(lambda x: get_order_type(x), axis=1)
+            orders.loc[:, 'order_index'] = orders['remarks'].apply(get_order_index)
             orders.loc[:, 'norenordno'] = orders['norenordno'].astype(str)
             orders.loc[:, 'order_index'] = orders['order_index'].astype(int)
 
@@ -576,7 +474,7 @@ def event_handler_quote_update(data):
         if len(sl_entries) > 0:
             for index, order in sl_entries.iterrows():
                 logger.debug(f"SL_Update: About to update order\n{order}")
-                new_sl = __get_new_sl(dict(order), float(ltp))
+                new_sl = get_new_sl(dict(order), float(ltp))
                 if float(new_sl) > 0.0:
                     resp = api_modify_order(exchange=order.exchange,
                                             trading_symbol=order.symbol,
@@ -596,15 +494,15 @@ def event_handler_order_update(curr_order):
     logger.debug(f"order_update: Entered Order update Callback with {curr_order}")
     curr_order_id = curr_order['norenordno']
     curr_order_status = curr_order.get('status', 'NA')
-    order_type = __get_order_type(curr_order)
-    curr_order_ts = __get_epoch(curr_order.get('exch_tm', '0'))
+    order_type = get_order_type(curr_order)
+    curr_order_ts = get_epoch(curr_order.get('exch_tm', '0'))
     if curr_order_status == 'COMPLETE':
         if order_type == 'ENTRY_LEG':
             params.loc[(params.entry_order_id == curr_order_id), 'entry_order_status'] = curr_order_status
             logger.debug(f"order_update: Entry Leg completion notification for {curr_order['remarks']}; ignoring")
         else:
             # Either hit SL or Target need to cancel the other
-            curr_order_idx, entry_order, contra_order, hit_type = __get_contra_leg(curr_order_id)
+            curr_order_idx, entry_order, contra_order, hit_type = get_contra_leg(params, curr_order_id)
             if hit_type == 'SL-HIT':
                 params.loc[curr_order_idx, 'sl_order_status'] = 'COMPLETE'
                 params.loc[curr_order_idx, 'sl_ts'] = curr_order_ts
@@ -654,165 +552,6 @@ def event_handler_error(message):
     send_email(body=f"Error in websocket {message}", subject="Websocket Error!")
 
 
-def __store_orders(trader_db):
-    global params
-    global acct
-    df = params.copy()
-    order_date = str(TODAY)
-    trader_db.delete_recs(table='Order',
-                          predicate=f"m.Order.order_date.like('{order_date}%'), m.Order.order_ref.like('{acct}%')")
-
-    df = df.assign(o=df['entry_price'], h=df['entry_price'], l=df['entry_price'], c=df['entry_price'],
-                   t2=df['target_price'], order_date=order_date)
-    df['indicators'] = df.apply(lambda row: json.dumps(row.to_dict()), axis=1)
-    df.reset_index(inplace=True, names="index")
-    df['order_ref'] = df.apply(lambda row: __get_order_ref(row), axis=1)
-    df.rename(columns={"sl_price": "sl", "target_price": "t1", "quantity": "qty", "entry_ts": "ts"}, inplace=True)
-    trader_db.bulk_insert(table="Order", data=df)
-    logger.info(f"__store_orders: Orders created for {acct}:\n{df}")
-
-
-def __store_broker_trades(trader_db):
-    global params
-    global acct
-    df = params.copy()
-    ts_cols = ['entry_ts', 'sl_ts', 'target_ts']
-    df[ts_cols] = df[ts_cols].fillna(0).astype(int)
-    order_date = str(TODAY)
-    trader_db.delete_recs(table='BrokerTrade',
-                          predicate=f"m.BrokerTrade.trade_date.like('{order_date}%'),"
-                                    f"m.BrokerTrade.order_ref.like('{acct}%')")
-    df.reset_index(inplace=True, names="index")
-    df.dropna(subset=['entry_order_id', 'sl_order_id', 'target_order_id'], inplace=True)
-    df = df.loc[df.entry_order_status == 'COMPLETE']
-    if len(df) > 0:
-        df['order_ref'] = df.apply(lambda row: __get_order_ref(row), axis=1)
-        df["direction"] = df["signal"].apply(lambda x: "BUY" if x == 1 else "SELL")
-        df = df.assign(trade_date=order_date, remarks=acct)
-        df['trade_date'] = pd.to_datetime(df['entry_ts'], unit='s', utc=True)
-        df['trade_date'] = df['trade_date'].dt.tz_convert(IST)
-        df.rename(columns={"entry_price": "price", "quantity": "qty"}, inplace=True)
-        trader_db.bulk_insert(table="BrokerTrade", data=df)
-        logger.info(f"__store_broker_trades: Entry Trades created for {acct}:\n{df}")
-
-        # SL / Target Leg
-        df['sl_date'] = pd.to_datetime(df['sl_ts'], unit='s', utc=True)
-        df['sl_date'] = df['sl_date'].dt.tz_convert(IST)
-        df['target_date'] = pd.to_datetime(df['target_ts'], unit='s', utc=True)
-        df['target_date'] = df['target_date'].dt.tz_convert(IST)
-        df["direction"] = df["signal"].apply(lambda x: "SELL" if x == 1 else "BUY")
-        df["price"] = df.apply(lambda row:
-                               row['sl_price'] if row['sl_order_status'] == "COMPLETED" else row['target_price'],
-                               axis=1)
-        df['trade_date'] = df.apply(lambda row:
-                                    row['sl_date'] if row['sl_order_status'] == "COMPLETED" else row['target_date'],
-                                    axis=1)
-        df.dropna(subset=['trade_date'], inplace=True)
-        trader_db.bulk_insert(table="BrokerTrade", data=df)
-        logger.info(f"__store_broker_trades: Exit Trades created for {acct}:\n{df}")
-
-
-def __get_sl_thresholds(trader_db):
-    """
-    Read all data from stop_loss_thresholds
-    Returns: Dict { K: scrip + direction, V : sl, trail_sl}
-
-    """
-    result = {}
-    recs = trader_db.query("SlThresholds", "1==1")
-    for item in recs:
-        result[":".join([item.scrip, str(item.direction), item.strategy])] = item
-    return result
-
-
-def __store_bt_trades(trader_db):
-    global params
-    scrips = list(set(params.scrip))
-
-    order_date = str(TODAY)
-    trader_db.delete_recs(table='BacktestTrade',
-                          predicate=f"m.BacktestTrade.trade_date.like('{order_date}%')")
-    tv = TvDatafeed()
-    tv.get_tv_data(symbols=scrips, freq=Interval.in_1_minute, path=cfg['low-tf-data-dir-path'])
-
-    orders = trader_db.query(table='Order', predicate=f"m.Order.order_date >= '{str(TODAY)}',"
-                                                      f"m.Order.order_ref.like('{acct}%'),"
-                                                      f"m.Order.ts != None")
-    thresholds = __get_sl_thresholds(trader_db)
-    bt_params = {}
-    for order in orders:
-        if order.ts is not None:
-            pred_data = {
-                "time": order.ts,
-                "signal": order.signal,
-                "sl": order.sl,
-                "target": order.t1,
-                "t1": order.t1,
-                "t2": order.t2,
-                "open": order.o,
-                "high": order.h,
-                "low": order.l,
-                "close": order.c
-            }
-            pred_df = pd.DataFrame([pred_data])
-            # Round off time
-            new_time = pred_df.iloc[0].time - (pred_df.iloc[0].time % 60)
-            pred_df.loc[0, 'time'] = new_time
-            tick_data = get_tick_data(order.scrip)
-            threshold = thresholds.get(":".join([order.scrip, str(order.signal), order.model]), None)
-            if threshold is None:
-                logger.error(f"Couldn't find threshold for {order.symbol} and {order.signal}")
-                return
-            else:
-                sl = threshold.sl
-                trail_sl = threshold.trail_sl
-                logger.debug(f"SL: {sl}; Trail SL: {trail_sl}")
-                bt_params['sl'] = sl
-                bt_params['trail_sl'] = trail_sl
-                bt_params['target'] = order.t1
-
-                n = Nova(scrip=order.scrip, pred_df=pred_df, tick_df=tick_data)
-                trades = n.process_events(params=bt_params)
-
-                bt = {}
-                if len(trades) >= 1:
-                    trade = trades[0]
-
-                    bt['order_ref'] = order.order_ref
-                    bt['qty'] = trade['size']
-                    bt['trade_date'] = str(trade['datein'])
-                    bt['price'] = trade['pricein']
-                    bt['direction'] = trade['dir']
-                    trader_db.log_entry('BacktestTrade', bt)
-
-                    bt['trade_date'] = str(trade['dateout'])
-                    bt['price'] = trade['priceout']
-                    bt['direction'] = "SELL" if trade['dir'] == "BUY" else "BUY"
-                    trader_db.log_entry('BacktestTrade', bt)
-
-
-def __generate_reminders(trader_db):
-    global acct
-    global params
-    send_df_email(df=params, subject="COB Params", acct=acct)
-    cred = creds[acct]
-    if cred.get('expiry_date', datetime.date.today()) <= datetime.date.today():
-        send_email(body=f"Shoonya password expired for {acct} on {cred['expiry_date']}!!!",
-                   subject="ERROR: Password Change Needed")
-
-    trades = trader_db.run_query(tbl='daily_trade_report', predicate=f"account_id = '{acct}'")
-    if len(trades) > 0:
-        send_df_email(df=trades, subject="COB Report", acct=acct)
-
-
-def __run_post_proc():
-    trader_db = DatabaseEngine()
-    __store_orders(trader_db)
-    __store_broker_trades(trader_db)
-    __store_bt_trades(trader_db)
-    __generate_reminders(trader_db)
-
-
 def start(acct_param: str, post_proc: bool = True):
     """
 
@@ -856,7 +595,8 @@ def start(acct_param: str, post_proc: bool = True):
 
     __close_all_trades()
     if post_proc:
-        __run_post_proc()
+        cob = CloseOfBusiness(acct=acct, params=params)
+        cob.run_cob()
 
 
 if __name__ == "__main__":

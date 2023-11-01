@@ -6,3 +6,5 @@ NorenRestApiPy
 websocket-client
 pytest
 requests
+sqlalchemy
+psycopg2-binary

@@ -1,8 +1,9 @@
 import json
-import logging
 import os
 import unittest
 from unittest.mock import patch, Mock, ANY
+
+from predict.utils.Misc import *
 
 logger = logging.getLogger(__name__)
 
@@ -16,18 +17,7 @@ from predict.service import socketSLmonitor
 sm = socketSLmonitor
 
 """ Wrapper functions for 'private' """
-get_contra_leg = sm.__get_contra_leg
-get_new_sl = sm.__get_new_sl
-get_order_index = sm.__get_order_index
-get_order_type = sm.__get_order_type
-get_sl_thresholds = sm.__get_sl_thresholds
-get_signal_strength = sm.__get_signal_strength
 load_params = sm.__load_params
-round_target = sm.__round_target
-run_post_proc = sm.__run_post_proc
-store_broker_trades = sm.__store_broker_trades
-store_bt_trades = sm.__store_bt_trades
-store_orders = sm.__store_orders
 close_all_trades = sm.__close_all_trades
 
 if os.path.exists('/var/www/TraderV3/resources/test'):
@@ -282,7 +272,7 @@ class TestOperation(unittest.TestCase):
 
         mock_cancel.assert_called_once()
         hit_order = mock_cancel.call_args[0][0]
-        _, _, contra_order, _ = get_contra_leg(hit_order)
+        _, _, contra_order, _ = get_contra_leg(sm.params, hit_order)
         self.assertEqual(curr_order['norenordno'], contra_order)
 
         res_df = read_file("test4-params.json")
@@ -312,7 +302,7 @@ class TestOperation(unittest.TestCase):
 
         mock_cancel.assert_called_once()
         hit_order = mock_cancel.call_args[0][0]
-        _, _, contra_order, _ = get_contra_leg(hit_order)
+        _, _, contra_order, _ = get_contra_leg(sm.params, hit_order)
         self.assertEqual(curr_order['norenordno'], contra_order)
 
         res_df = read_file("test5-params.json")
@@ -408,6 +398,4 @@ class TestOperationEdgeCase(TestOperation):
 
 
 if __name__ == "__main__":
-    import predict.loggers.setup_logger
-
     unittest.main()

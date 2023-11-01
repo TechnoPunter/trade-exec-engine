@@ -1,3 +1,5 @@
+import datetime
+
 import pytz
 
 from predict.config.reader import cfg as _cfg
@@ -14,3 +16,4 @@ COLUMN_SEPARATOR = ","
 TRAIN_TEST_SPLIT_PCT = 0.99
 IST = pytz.timezone('Asia/Kolkata')
 MODEL_SAVE_FILE_NAME = '.sav'
+TODAY = datetime.datetime.today().date()
