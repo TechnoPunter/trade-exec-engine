@@ -316,7 +316,9 @@ def __create_bracket_order(idx, row, data):
     logger.debug(f"order_update: Post SL: Params\n{params}")
     # Create Target Order
     target_remarks = remarks.replace("ENTRY_LEG", "TARGET_LEG")
-    target = round_target(target=row['target'], tick=row['tick'], scrip=row['scrip'])
+    target = calc_target(org_target=row['target'], entry_price=price,
+                         direction=direction, target_range=row['strength'])
+    target = round_target(target=target, tick=row['tick'], scrip=row['scrip'])
     resp = api_place_order(buy_or_sell=cover_direction,
                            product_type=MIS_PROD_TYPE,
                            exchange=row.exchange,

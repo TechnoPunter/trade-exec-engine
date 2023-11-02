@@ -1,6 +1,6 @@
+import datetime
 import logging
 import time
-import datetime
 
 from predict.consts.consts import TODAY, IST
 
@@ -28,6 +28,18 @@ def calc_sl(entry: float, signal: int, sl_factor: float, tick: float, scrip: str
     sl = format(round(sl / tick) * tick, ".2f")
     logger.debug(f"{scrip}: Calc SL: {sl}")
     return sl
+
+
+def calc_target(org_target, entry_price, direction, target_range):
+    logger.debug(f"__calc_target: Org Target {org_target}, {entry_price}")
+    if direction == 'B' and entry_price >= org_target:
+        logger.info(f"__calc_target: Updated target {entry_price + target_range}")
+        return entry_price + target_range
+    elif direction == 'S' and entry_price <= org_target:
+        logger.info(f"__calc_target: Updated target {entry_price - target_range}")
+        return entry_price - target_range
+    else:
+        return org_target
 
 
 def round_target(target: float, tick: float, scrip: str):
