@@ -3,7 +3,4 @@ include:
   - path-params
   - secrets
   - trade-exec-params
-  - steps-config
   - alert
-#  - event-conditions
-#  - training-params
