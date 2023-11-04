@@ -12,9 +12,9 @@ import pytest
 
 os.environ["ACCOUNT"] = "Trader-V2-Pralhad"
 
-from exec.service import socketSLmonitor
+from exec.service import engine
 
-sm = socketSLmonitor
+sm = engine
 
 """ Wrapper functions for 'private' """
 load_params = sm.__load_params
