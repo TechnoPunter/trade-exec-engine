@@ -4,3 +4,4 @@ __pycache__/
 logs/
 resources/config/
 .pytest_cache
+predict/strategies
