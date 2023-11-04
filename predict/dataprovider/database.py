@@ -69,7 +69,7 @@ class DatabaseEngine:
 
         return result
 
-    def log_entry(self, table, data):
+    def single_insert(self, table, data):
         m = next((m for m in self.tables if m.__name__ == self.package_name + "." + table), None)
         assert m is not None, f"Invalid table name {table}"
         obj = eval(f"m.{table}(**data)")
@@ -84,12 +84,24 @@ class DatabaseEngine:
                 logger.error(f"Exception in inserting {obj}, exception {ex}")
 
     def query(self, table, predicate):
+        """
+
+        :param table:
+        :param predicate: Where clause as per SQL Alchemy syntax
+        :return:
+        """
         m = next((m for m in self.tables if m.__name__ == self.package_name + "." + table), None)
         assert m is not None, f"Invalid table name {table}"
         results = eval(f"self.session.query(m.{table}).filter({predicate}).all()")
         return results
 
     def run_query(self, tbl: str, predicate: str = None):
+        """
+
+        :param tbl:
+        :param predicate: Where clause as per SQL syntax
+        :return:
+        """
         query = f'SELECT * FROM {tbl}'
 
         if predicate is not None:

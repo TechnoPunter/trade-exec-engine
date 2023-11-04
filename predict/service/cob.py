@@ -146,12 +146,12 @@ class CloseOfBusiness:
                         bt['trade_date'] = str(trade['datein'])
                         bt['price'] = trade['pricein']
                         bt['direction'] = trade['dir']
-                        self.trader_db.log_entry('BacktestTrade', bt)
+                        self.trader_db.single_insert('BacktestTrade', bt)
 
                         bt['trade_date'] = str(trade['dateout'])
                         bt['price'] = trade['priceout']
                         bt['direction'] = "SELL" if trade['dir'] == "BUY" else "BUY"
-                        self.trader_db.log_entry('BacktestTrade', bt)
+                        self.trader_db.single_insert('BacktestTrade', bt)
 
     def __generate_reminders(self):
         send_df_email(df=self.params, subject="COB Params", acct=self.acct)
