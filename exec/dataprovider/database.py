@@ -7,7 +7,7 @@ import sqlalchemy
 from sqlalchemy import create_engine, Engine, insert
 from sqlalchemy.orm import sessionmaker
 
-from predict.config.reader import cfg
+from exec.config.reader import cfg
 
 # Create the base class for declarative models
 Base = sqlalchemy.orm.declarative_base()
@@ -34,7 +34,7 @@ class DatabaseEngine:
         self.engine = self.get_connection()
         self.Session = sessionmaker(bind=self.engine)
         self.session = self.Session()
-        self.package_name = 'predict.datamodels'
+        self.package_name = 'exec.datamodels'
         self.tables = self.load_tables('../../', self.package_name)
 
     def __del__(self):

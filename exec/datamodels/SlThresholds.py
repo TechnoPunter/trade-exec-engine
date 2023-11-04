@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Numeric
 
-from predict.dataprovider.database import Base
+from exec.dataprovider.database import Base
 
 
 class SlThresholds(Base):

@@ -2,7 +2,7 @@ import datetime
 import logging
 import time
 
-from predict.consts.consts import TODAY, IST
+from exec.consts.consts import TODAY, IST
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +69,7 @@ def get_new_sl(order: dict, ltp: float = None):
                 "open_qty": 10,
                 "sl_price": 201.25,
                 "entry_price": 200.05
-                "remarks" : "predict.strategies.gspcV2:NSE_RELIANCE:2023-09..."}
+                "remarks" : "exec.strategies.gspcV2:NSE_RELIANCE:2023-09..."}
         ltp: 200.55
 
     Returns:

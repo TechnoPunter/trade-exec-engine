@@ -6,10 +6,10 @@ import pyotp
 from NorenRestApiPy.NorenApi import NorenApi, FeedType
 from websocket import WebSocketConnectionClosedException
 
-from predict.config.reader import cfg
-from predict.service.cob import CloseOfBusiness
-from predict.utils.EmailAlert import send_email, send_df_email
-from predict.utils.Misc import *
+from exec.config.reader import cfg
+from exec.service.cob import CloseOfBusiness
+from exec.utils.EmailAlert import send_email, send_df_email
+from exec.utils.Misc import *
 
 VALID_ORDER_STATUS = ['OPEN', 'TRIGGER_PENDING', 'COMPLETE', 'CANCELED']
 

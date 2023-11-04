@@ -12,3 +12,4 @@ tabulate
 progressbar2
 matplotlib
 pandasql
+pytz

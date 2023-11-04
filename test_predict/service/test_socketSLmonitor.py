@@ -3,7 +3,7 @@ import os
 import unittest
 from unittest.mock import patch, Mock, ANY
 
-from predict.utils.Misc import *
+from exec.utils.Misc import *
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +12,7 @@ import pytest
 
 os.environ["ACCOUNT"] = "Trader-V2-Pralhad"
 
-from predict.service import socketSLmonitor
+from exec.service import socketSLmonitor
 
 sm = socketSLmonitor
 
@@ -90,7 +90,7 @@ class TestApis(unittest.TestCase):
         mock_api.assert_called_with("https://api.shoonya.com/NorenWClientTP//OrderBook", data=ANY)
         self.assertEqual(function_resp, resp)
 
-    @patch('predict.service.socketSLmonitor.api.single_order_history')
+    @patch('exec.service.socketSLmonitor.api.single_order_history')
     def test_order_hist_with_retry(self, mock_order_hist_api):
         """Check if bracket order is created when we get a quote for one of the scrips"""
         global sm
@@ -119,8 +119,8 @@ class TestLoadParams(unittest.TestCase):
         self.sm = sm
         self.sm.api_login()
 
-    @patch.dict('predict.service.socketSLmonitor.cfg', {"generated": TEST_RESOURCE_DIR})
-    @patch('predict.service.socketSLmonitor.api_get_order_book')
+    @patch.dict('exec.service.socketSLmonitor.cfg', {"generated": TEST_RESOURCE_DIR})
+    @patch('exec.service.socketSLmonitor.api_get_order_book')
     def test_load_params(self, mock_api):
         mock_response = Mock()
         file_path = os.path.join(TEST_RESOURCE_DIR, "test1-order-book.json")
@@ -143,8 +143,8 @@ class TestLoadParams(unittest.TestCase):
 class TestOperation(unittest.TestCase):
 
     @pytest.fixture(autouse=True)
-    @patch.dict('predict.service.socketSLmonitor.cfg', {"generated": TEST_RESOURCE_DIR})
-    @patch('predict.service.socketSLmonitor.api_get_order_book')
+    @patch.dict('exec.service.socketSLmonitor.cfg', {"generated": TEST_RESOURCE_DIR})
+    @patch('exec.service.socketSLmonitor.api_get_order_book')
     @patch('requests.post')
     def setup(self, mock_api, mock_orders):
         """ Gives a logged-in session of Socket SL Monitor under self.sm"""
@@ -208,8 +208,8 @@ class TestOperation(unittest.TestCase):
             else:
                 return json.loads(result)
 
-    @patch('predict.service.socketSLmonitor.api.single_order_history')
-    @patch('predict.service.socketSLmonitor.api_place_order')
+    @patch('exec.service.socketSLmonitor.api.single_order_history')
+    @patch('exec.service.socketSLmonitor.api_place_order')
     def test_entry_order(self, mock_order_api, mock_order_hist_api):
         """Check if bracket order is created when we get a quote for one of the scrips"""
         global sm
@@ -233,7 +233,7 @@ class TestOperation(unittest.TestCase):
         res_df['sl_update_cnt'] = res_df['sl_update_cnt'].astype(int)
         pd.testing.assert_frame_equal(sm.params, res_df)
 
-    @patch('predict.service.socketSLmonitor.api_modify_order')
+    @patch('exec.service.socketSLmonitor.api_modify_order')
     def test_sl_update(self, mock_order_api):
         """Check if SL is updated when we get a quote for one of the scrips"""
         global sm
@@ -254,7 +254,7 @@ class TestOperation(unittest.TestCase):
         res_df['strength'] = res_df['strength'].astype(float)
         pd.testing.assert_frame_equal(sm.params, res_df)
 
-    @patch('predict.service.socketSLmonitor.api_cancel_order')
+    @patch('exec.service.socketSLmonitor.api_cancel_order')
     def test_target_order_hit(self, mock_cancel):
         """Check if SL order is cancelled when we get a Target Order completion for on of the scrips"""
         global sm
@@ -284,7 +284,7 @@ class TestOperation(unittest.TestCase):
         sm.params['target_ts'] = sm.params['target_ts'].astype(str)
         pd.testing.assert_frame_equal(sm.params, res_df)
 
-    @patch('predict.service.socketSLmonitor.api_cancel_order')
+    @patch('exec.service.socketSLmonitor.api_cancel_order')
     def test_sl_order_hit(self, mock_cancel):
         """Check if Target order is cancelled when we get an SL Order completion for on of the scrips"""
         global sm
@@ -315,9 +315,9 @@ class TestOperation(unittest.TestCase):
         pd.testing.assert_frame_equal(sm.params, res_df)
 
     @patch("time.time", Mock(return_value="1234"))
-    @patch('predict.service.socketSLmonitor.api_unsubscribe', Mock(side_effect=None))
-    @patch('predict.service.socketSLmonitor.api_modify_order')
-    @patch('predict.service.socketSLmonitor.api_cancel_order')
+    @patch('exec.service.socketSLmonitor.api_unsubscribe', Mock(side_effect=None))
+    @patch('exec.service.socketSLmonitor.api_modify_order')
+    @patch('exec.service.socketSLmonitor.api_cancel_order')
     def test_close_all(self, mock_cancel, mock_modify):
         """Check if all orders are cancelled / modified at COB"""
         global sm
@@ -369,8 +369,8 @@ class TestOperationEdgeCase(TestOperation):
             quote_data = file.read()
         return json.loads(quote_data)
 
-    @patch('predict.service.socketSLmonitor.api.single_order_history')
-    @patch('predict.service.socketSLmonitor.api_place_order')
+    @patch('exec.service.socketSLmonitor.api.single_order_history')
+    @patch('exec.service.socketSLmonitor.api_place_order')
     def test_entry_order_with_retry(self, mock_order_api, mock_order_hist_api):
         """Check if bracket order is created when we get a quote for one of the scrips"""
         global sm

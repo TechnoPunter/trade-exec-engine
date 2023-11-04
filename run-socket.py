@@ -1,5 +1,5 @@
-from predict.loggers.setup_logger import setup_logging
-import predict.service.socketSLmonitor as slm
+from exec.loggers.setup_logger import setup_logging
+import exec.service.socketSLmonitor as slm
 import logging
 import time
 

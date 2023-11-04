@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Numeric, Integer
 
-from predict.dataprovider.database import Base
+from exec.dataprovider.database import Base
 
 
 class TrainingResult(Base):

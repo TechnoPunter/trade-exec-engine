@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, String, Numeric
 
-from predict.dataprovider.database import Base
+from exec.dataprovider.database import Base
 
 
-class BacktestTrade(Base):
-    __tablename__ = 'bt_trade'
+class BrokerTrade(Base):
+    __tablename__ = 'broker_trade'
 
     trade_id = Column(Integer, primary_key=True)
     order_ref = Column(String)
@@ -12,3 +12,4 @@ class BacktestTrade(Base):
     price = Column(Numeric)
     direction = Column(Integer)
     qty = Column(Numeric)
+    remarks = Column(String)

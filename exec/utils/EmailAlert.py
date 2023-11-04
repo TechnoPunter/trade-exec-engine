@@ -1,7 +1,7 @@
 import pandas as pd
 import requests
 
-from predict.config.reader import cfg
+from exec.config.reader import cfg
 
 headers = {
     'Content-Type': 'application/x-www-form-urlencoded'

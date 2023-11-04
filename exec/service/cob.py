@@ -4,14 +4,14 @@ import logging
 
 import pandas as pd
 
-from predict.backtest.nova import Nova
-from predict.config.reader import cfg
-from predict.consts.consts import TODAY, IST
-from predict.dataprovider.database import DatabaseEngine
-from predict.dataprovider.filereader import get_tick_data
-from predict.dataprovider.tvfeed import TvDatafeed, Interval
-from predict.utils.EmailAlert import send_df_email, send_email
-from predict.utils.Misc import get_order_ref
+from exec.backtest.nova import Nova
+from exec.config.reader import cfg
+from exec.consts.consts import TODAY, IST
+from exec.dataprovider.database import DatabaseEngine
+from exec.dataprovider.filereader import get_tick_data
+from exec.dataprovider.tvfeed import TvDatafeed, Interval
+from exec.utils.EmailAlert import send_df_email, send_email
+from exec.utils.Misc import get_order_ref
 
 logger = logging.getLogger(__name__)
 

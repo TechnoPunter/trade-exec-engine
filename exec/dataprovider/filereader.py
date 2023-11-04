@@ -3,7 +3,7 @@ import fnmatch
 import pandas as pd
 import os
 
-from predict.config.reader import cfg as config
+from exec.config.reader import cfg as config
 
 
 def _file_combiner(data_dir_path: [str], scrip_name: str = None):

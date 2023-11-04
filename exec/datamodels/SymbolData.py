@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String
 
-from predict.dataprovider.database import Base
+from exec.dataprovider.database import Base
 
 
 class SymbolData(Base):
