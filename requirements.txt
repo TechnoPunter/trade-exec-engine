@@ -9,3 +9,6 @@ requests
 sqlalchemy
 psycopg2-binary
 tabulate
+progressbar2
+matplotlib
+pandasql
