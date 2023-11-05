@@ -1,4 +1,4 @@
-15    9   * * 1-5 sh  /var/www/trade-exec-engine/scripts/exec-socket.sh Trader-V2-Alan
-15    9   * * 1-5 sh  /var/www/trade-exec-engine/scripts/exec-socket.sh Trader-V2-Pralhad
-15    9   * * 1-5 sh  /var/www/trade-exec-engine/scripts/exec-socket.sh Trader-V2-Sundar
-00   19   * * 1-5 sh  /var/www/trade-exec-engine/scripts/logs-cleanup.sh
+15    9   * * 1-5 sh  /var/www/trade-exec-engine/scripts/exec-engine.sh Trader-V2-Alan
+15    9   * * 1-5 sh  /var/www/trade-exec-engine/scripts/exec-engine.sh Trader-V2-Pralhad
+15    9   * * 1-5 sh  /var/www/trade-exec-engine/scripts/exec-engine.sh Trader-V2-Sundar
+00   16   * * 1-5 sh  /var/www/trade-exec-engine/scripts/logs-cleanup.sh
