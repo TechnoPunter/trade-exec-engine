@@ -1,3 +1,4 @@
+import json
 import os
 
 import numpy as np
@@ -161,7 +162,7 @@ def api_place_order(buy_or_sell,
     logger.debug(f"api_place_order: About to call api.place_order with {remarks}")
     if MOCK:
         logger.debug("api_place_order: Sending Mock Response")
-        return '{"request_time": "09:15:01 01-01-2023", "stat": "Ok", "norenordno": "1234"}'
+        return dict(json.loads('{"request_time": "09:15:01 01-01-2023", "stat": "Ok", "norenordno": "1234"}'))
     resp = api.place_order(buy_or_sell=buy_or_sell,
                            product_type=product_type,
                            exchange=exchange,
@@ -200,7 +201,7 @@ def api_modify_order(order_no, exchange, trading_symbol, new_quantity, new_price
 
     if MOCK:
         logger.debug("api_modify_order: Sending Mock Response")
-        return '{"request_time": "09:15:01 01-01-2023", "stat": "Ok", "result": "1234"}'
+        return dict(json.loads('{"request_time": "09:15:01 01-01-2023", "stat": "Ok", "result": "1234"}'))
 
     resp = api.modify_order(orderno=order_no,
                             exchange=exchange,
@@ -228,7 +229,7 @@ def api_cancel_order(order_no):
     logger.debug(f"api_cancel_order: About to call api.cancel_order for {order_no}")
     if MOCK:
         logger.debug("api_cancel_order: Sending Mock Response")
-        return '{"request_time": "09:15:01 01-01-2023", "stat": "Ok", "result": "1234"}'
+        return dict(json.loads('{"request_time": "09:15:01 01-01-2023", "stat": "Ok", "result": "1234"}'))
     resp = api.cancel_order(order_no)
     if resp is None:
         logger.error(f"api_cancel_order: Retrying! for {order_no}")
@@ -602,7 +603,7 @@ def start(acct_param: str, post_proc: bool = True):
 
 
 if __name__ == "__main__":
-    import predict.loggers.setup_logger
+    import exec.loggers.setup_logger
 
     MOCK = True
     start(acct_param='Trader-V2-Pralhad')
