@@ -33,5 +33,5 @@ read -p "Please Enter Dropbox Path: E.g. /Users/user/Dropbox:" -r dropbox
 ln -sf "$dropbox"/Trader .
 ln -sf "$dropbox"/Trader/secret .
 cd logs || exit 1
-ln -sf "$dropbox"/Trader/traderv3/logs/archive .
+ln -sf "$dropbox"/Trader/trade-exec-engine-V1/logs/archive .
 

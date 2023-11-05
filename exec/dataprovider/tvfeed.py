@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 
 base_path = cfg['base-data-dir-path']
 tick_path = cfg['low-tf-data-dir-path']
-nifty50_symbols = cfg['steps']['scrips']
 
 
 class Interval(enum.Enum):
@@ -322,7 +321,7 @@ class TvDatafeed:
 
         return symbols_list
 
-    def get_tv_data(self, symbols: list[str] = nifty50_symbols, start: int = 10000, freq: Interval = Interval.in_daily,
+    def get_tv_data(self, symbols: list[str], start: int = 10000, freq: Interval = Interval.in_daily,
                     path: [str] = base_path):
         for symbol in symbols:
             print(f"Downloading: {symbol}; TF: {freq}")
@@ -345,7 +344,7 @@ class TvDatafeed:
             data = data.reindex(columns=["time", "open", "high", "low", "close"])
             data.to_csv(f"{path[0]}{symbol}, {freq.value}.csv", index=False)
 
-    def retrieve_tv_data(self, symbols: list[str] = nifty50_symbols, start: int = 10000,
+    def retrieve_tv_data(self, symbols: list[str], start: int = 10000,
                          freq: Interval = Interval.in_daily):
         result = {}
         for symbol in symbols:
