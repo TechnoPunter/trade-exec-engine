@@ -25,6 +25,9 @@ virtualenv --python=/usr/bin/python3.10 .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
+TRAINER_GEN_PATH="$CURR_PATH"/../model-trainer/generated
+ln -sf "$TRAINER_GEN_PATH" .
+
 mkdir logs
 mkdir tv-data
 mkdir tv-data/low-tf-data
