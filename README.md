@@ -9,6 +9,7 @@ Takes care of order execution, management &amp; reporting
 ```commandline
 sh scripts/dev-setup.sh
 ```
+3. Create secrets-local.yaml file in resources/config directory
 
 
 
@@ -19,3 +20,4 @@ sh scripts/dev-setup.sh
 ```commandline
 sh scripts/prod-setup.sh
 ```
+4. Create secrets-local.yaml file in resources/config directory
