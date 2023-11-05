@@ -46,3 +46,11 @@ ln -sf "$dropbox"/Trader/secret .
 cd logs || exit 1
 ln -sf "$dropbox"/Trader/trade-exec-engine-V1/logs/archive .
 
+
+FILE=resources/config/secrets-local.yaml
+if [[ -f $FILE ]]; then
+  echo "Done!"
+else
+  echo "Please create / check secrets-local.yaml file in resources/config directory!"
+fi
+
