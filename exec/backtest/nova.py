@@ -247,7 +247,7 @@ class Nova:
 
 
 if __name__ == "__main__":
-    from exec.dataprovider.filereader import get_tick_data
+    from commons.dataprovider.filereader import get_tick_data
 
     path = '../../generated/'
     pred_file = path + "trainer.strategies.gspcV2.NSE_RELIANCE_Result.csv"
