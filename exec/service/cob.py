@@ -5,7 +5,7 @@ import logging
 import pandas as pd
 
 from exec.backtest.nova import Nova
-from exec.config.reader import cfg
+from commons.config.reader import cfg
 from exec.consts.consts import TODAY, IST
 from exec.dataprovider.database import DatabaseEngine
 from exec.dataprovider.filereader import get_tick_data

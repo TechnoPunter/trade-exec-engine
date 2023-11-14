@@ -1,4 +1,4 @@
-from exec.loggers.setup_logger import setup_logging
+from commons.loggers.setup_logger import setup_logging
 import exec.service.engine as slm
 import logging
 import time

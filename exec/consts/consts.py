@@ -2,7 +2,7 @@ import datetime
 
 import pytz
 
-from exec.config.reader import cfg as _cfg
+from commons.config.reader import cfg as _cfg
 
 GENERATED_DATA_PATH = _cfg['generated']
 MODELS_PATH = GENERATED_DATA_PATH + "models/"

@@ -7,7 +7,7 @@ import pyotp
 from NorenRestApiPy.NorenApi import NorenApi, FeedType
 from websocket import WebSocketConnectionClosedException
 
-from exec.config.reader import cfg
+from commons.config.reader import cfg
 from exec.service.cob import CloseOfBusiness
 from exec.utils.EmailAlert import send_email, send_df_email
 from exec.utils.Misc import *
@@ -603,7 +603,7 @@ def start(acct_param: str, post_proc: bool = True):
 
 
 if __name__ == "__main__":
-    import exec.loggers.setup_logger
+    import commons.loggers.setup_logger
 
     MOCK = True
     start(acct_param='Trader-V2-Pralhad')

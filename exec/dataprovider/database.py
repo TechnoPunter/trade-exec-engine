@@ -7,7 +7,7 @@ import sqlalchemy
 from sqlalchemy import create_engine, Engine, insert
 from sqlalchemy.orm import sessionmaker
 
-from exec.config.reader import cfg
+from commons.config.reader import cfg
 
 # Create the base class for declarative models
 Base = sqlalchemy.orm.declarative_base()

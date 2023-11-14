@@ -10,7 +10,7 @@ import pandas as pd
 import requests
 from websocket import create_connection
 
-from exec.config.reader import cfg
+from commons.config.reader import cfg
 
 logger = logging.getLogger(__name__)
 
