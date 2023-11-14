@@ -2,7 +2,7 @@ import datetime
 import logging
 import time
 
-from exec.consts.consts import TODAY, IST
+from commons.consts.consts import TODAY, IST
 
 logger = logging.getLogger(__name__)
 

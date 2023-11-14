@@ -30,7 +30,7 @@ from exec.backtest.nova_event import EventManager, EventCondition
 from exec.backtest.nova_order import OrderBook
 from exec.backtest.nova_trades import TradeBook, Trade
 from commons.config.reader import cfg
-from exec.consts.consts import IST, GENERATED_DATA_PATH
+from commons.consts.consts import IST, GENERATED_DATA_PATH
 import logging
 
 logger = logging.getLogger(__name__)

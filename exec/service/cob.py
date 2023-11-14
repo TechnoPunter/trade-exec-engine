@@ -6,7 +6,7 @@ import pandas as pd
 
 from exec.backtest.nova import Nova
 from commons.config.reader import cfg
-from exec.consts.consts import TODAY, IST
+from commons.consts.consts import TODAY, IST
 from exec.dataprovider.database import DatabaseEngine
 from exec.dataprovider.filereader import get_tick_data
 from exec.dataprovider.tvfeed import TvDatafeed, Interval
