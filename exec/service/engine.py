@@ -5,11 +5,12 @@ import numpy as np
 import pandas as pd
 import pyotp
 from NorenRestApiPy.NorenApi import NorenApi, FeedType
+from commons.config.reader import cfg
+from commons.utils.EmailAlert import send_email, send_df_email
+from commons.utils.Misc import get_epoch, calc_sl, get_new_sl, round_price
 from websocket import WebSocketConnectionClosedException
 
-from commons.config.reader import cfg
 from exec.service.cob import CloseOfBusiness
-from exec.utils.EmailAlert import send_email, send_df_email
 from exec.utils.Misc import *
 
 VALID_ORDER_STATUS = ['OPEN', 'TRIGGER_PENDING', 'COMPLETE', 'CANCELED']
@@ -319,7 +320,7 @@ def __create_bracket_order(idx, row, data):
     target_remarks = remarks.replace("ENTRY_LEG", "TARGET_LEG")
     target = calc_target(org_target=row['target'], entry_price=price,
                          direction=direction, target_range=row['strength'])
-    target = round_target(target=target, tick=row['tick'], scrip=row['scrip'])
+    target = round_price(price=target, tick=row['tick'], scrip=row['scrip'])
     resp = api_place_order(buy_or_sell=cover_direction,
                            product_type=MIS_PROD_TYPE,
                            exchange=row.exchange,
@@ -603,7 +604,9 @@ def start(acct_param: str, post_proc: bool = True):
 
 
 if __name__ == "__main__":
-    import commons.loggers.setup_logger
+    from commons.loggers.setup_logger import setup_logging
+
+    setup_logging()
 
     MOCK = True
     start(acct_param='Trader-V2-Pralhad')
