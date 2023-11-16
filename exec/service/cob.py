@@ -11,7 +11,7 @@ from commons.dataprovider.database import DatabaseEngine
 from commons.dataprovider.filereader import get_tick_data
 from commons.dataprovider.tvfeed import TvDatafeed, Interval
 from commons.utils.EmailAlert import send_df_email, send_email
-from exec.utils.Misc import get_order_ref
+from exec.utils.EngineUtils import get_order_ref
 
 logger = logging.getLogger(__name__)
 

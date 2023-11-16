@@ -11,7 +11,7 @@ from commons.utils.Misc import get_epoch, calc_sl, get_new_sl, round_price
 from websocket import WebSocketConnectionClosedException
 
 from exec.service.cob import CloseOfBusiness
-from exec.utils.Misc import *
+from exec.utils.EngineUtils import *
 
 VALID_ORDER_STATUS = ['OPEN', 'TRIGGER_PENDING', 'COMPLETE', 'CANCELED']
 
@@ -554,6 +554,8 @@ def event_handler_order_update(curr_order):
 def event_handler_error(message):
     logger.error(f"Error message {message}")
     send_email(body=f"Error in websocket {message}", subject="Websocket Error!")
+    api_unsubscribe()
+    api_start_websocket()
 
 
 def start(acct_param: str, post_proc: bool = True):
