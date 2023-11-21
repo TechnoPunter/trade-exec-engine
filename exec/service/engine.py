@@ -22,6 +22,7 @@ MOCK = False
 
 SCRIP_MAP = {'BAJAJ_AUTO-EQ': 'BAJAJ-AUTO-EQ', 'M_M-EQ': 'M&M-EQ'}
 MIS_PROD_TYPE = 'I'
+BO_PROD_TYPE = 'B'
 MKT_PRICE_TYPE = 'MKT'
 SL_PRICE_TYPE = "SL-MKT"
 TARGET_PRICE_TYPE = "LMT"
@@ -160,7 +161,9 @@ def api_place_order(buy_or_sell,
                     price,
                     trigger_price,
                     retention,
-                    remarks):
+                    remarks,
+                    sl_price=0.0,
+                    target=0.0):
     global api
     global acct
     logger.debug(f"api_place_order: About to call api.place_order with {remarks}")
@@ -177,7 +180,10 @@ def api_place_order(buy_or_sell,
                            price=price,
                            trigger_price=trigger_price,
                            retention=retention,
-                           remarks=remarks
+                           remarks=remarks,
+                           bookloss_price=sl_price,
+                           bookprofit_price=target,
+                           trail_price=0.0
                            )
     if resp is None:
         logger.error(f"api_place_order: Retrying! for {remarks}")
@@ -253,101 +259,138 @@ def __get_signal_strength(df: pd.DataFrame, ltp: float):
     return df
 
 
-def __create_bracket_order(idx, row, data):
+def __create_bracket_order(idx, row, data, mode: str = "MANUAL", ltp: float = 0.0):
     global params
     logger.debug(f"__create_bracket_order: Creating bracket order for {row.model}, {row.scrip}, {str(idx)}")
     params.loc[idx, 'entry_order_id'] = -1
     direction = 'B' if row.signal == 1 else 'S'
     remarks = ":".join(["ENTRY_LEG", row.model, row.scrip, str(idx)])
-    resp = api_place_order(buy_or_sell=direction,
-                           product_type=MIS_PROD_TYPE,
-                           exchange=row.exchange,
-                           trading_symbol=row.symbol,
-                           quantity=row.quantity,
-                           disclose_qty=0,
-                           price_type=MKT_PRICE_TYPE,
-                           price=0.00,
-                           trigger_price=None,
-                           retention='DAY',
-                           remarks=remarks
+    if mode == "BRACKET":
+        sl_price = calc_sl(entry=ltp,
+                           signal=row['signal'],
+                           sl_factor=row['sl_pct'],
+                           tick=row['tick'],
+                           scrip=row['scrip']
                            )
-    logger.debug(f"__create_bracket_order: Entry_Leg: Entry order Resp: {resp}")
-    if resp is None:
-        logger.error("__create_bracket_order: Error in creating entry leg")
-        return
-    status, reason, price = api_get_order_hist(resp["norenordno"])
-    params.loc[idx, 'entry_order_status'] = status
-    if status == 'REJECTED':
-        logger.error(f"__create_bracket_order: Entry leg REJECTED with: {reason}")
-        params.loc[idx, 'active'] = 'N'
-        return
-    params.loc[idx, 'entry_order_id'] = resp['norenordno']
-    params.loc[idx, 'entry_price'] = price
-    params.loc[idx, 'entry_ts'] = data.get('ft', int(time.time()))
-    logger.debug(f"__create_bracket_order: Entry_Leg: Post Entry: Params\n{params}")
-    cover_direction = 'S' if direction == "B" else 'B'
-    # Create SL order
-    sl_remarks = remarks.replace("ENTRY_LEG", "SL_LEG")
-    sl_price = calc_sl(entry=price,
-                       signal=row['signal'],
-                       sl_factor=row['sl_pct'],
-                       tick=row['tick'],
-                       scrip=row['scrip']
-                       )
-    resp = api_place_order(buy_or_sell=cover_direction,
-                           product_type=MIS_PROD_TYPE,
-                           exchange=row.exchange,
-                           trading_symbol=row.symbol,
-                           quantity=row.quantity,
-                           disclose_qty=0,
-                           price_type=SL_PRICE_TYPE,
-                           price=0.00,
-                           trigger_price=sl_price,
-                           retention='DAY',
-                           remarks=sl_remarks
+        sl_range = abs(ltp - sl_price)
+        target = calc_target(org_target=row['target'], entry_price=ltp,
+                             direction=direction, target_range=row['strength'])
+        target = round_price(price=target, tick=row['tick'], scrip=row['scrip'])
+        target_range = abs(ltp - target)
+        resp = api_place_order(buy_or_sell=direction,
+                               product_type=BO_PROD_TYPE,
+                               exchange=row.exchange,
+                               trading_symbol=row.symbol,
+                               quantity=row.quantity,
+                               disclose_qty=0,
+                               price_type=MKT_PRICE_TYPE,
+                               price=0.00,
+                               trigger_price=0,
+                               retention='DAY',
+                               remarks=remarks,
+                               sl_price=sl_range,
+                               target=target_range
+                               )
+        logger.debug(f"__create_bracket_order: Entry_Leg: Entry order Resp: {resp}")
+        if resp is None:
+            logger.error("__create_bracket_order: Error in creating entry leg")
+            return
+        status, reason, _ = api_get_order_hist(resp["norenordno"])
+        params.loc[idx, 'target_order_status'] = status
+        if status == 'REJECTED':
+            logger.error(f"__create_bracket_order: Target leg REJECTED with: {reason}")
+            params.loc[idx, 'active'] = 'N'
+            return
+    else:
+        resp = api_place_order(buy_or_sell=direction,
+                               product_type=MIS_PROD_TYPE,
+                               exchange=row.exchange,
+                               trading_symbol=row.symbol,
+                               quantity=row.quantity,
+                               disclose_qty=0,
+                               price_type=MKT_PRICE_TYPE,
+                               price=0.00,
+                               trigger_price=None,
+                               retention='DAY',
+                               remarks=remarks
+                               )
+        logger.debug(f"__create_bracket_order: Entry_Leg: Entry order Resp: {resp}")
+        if resp is None:
+            logger.error("__create_bracket_order: Error in creating entry leg")
+            return
+        status, reason, price = api_get_order_hist(resp["norenordno"])
+        params.loc[idx, 'entry_order_status'] = status
+        if status == 'REJECTED':
+            logger.error(f"__create_bracket_order: Entry leg REJECTED with: {reason}")
+            params.loc[idx, 'active'] = 'N'
+            return
+        params.loc[idx, 'entry_order_id'] = resp['norenordno']
+        params.loc[idx, 'entry_price'] = price
+        params.loc[idx, 'entry_ts'] = data.get('ft', int(time.time()))
+        logger.debug(f"__create_bracket_order: Entry_Leg: Post Entry: Params\n{params}")
+        cover_direction = 'S' if direction == "B" else 'B'
+        # Create SL order
+        sl_remarks = remarks.replace("ENTRY_LEG", "SL_LEG")
+        sl_price = calc_sl(entry=price,
+                           signal=row['signal'],
+                           sl_factor=row['sl_pct'],
+                           tick=row['tick'],
+                           scrip=row['scrip']
                            )
-    logger.debug(f"__create_bracket_order: SL Order Creation Resp: {resp}")
-    if resp is None:
-        logger.error(f"__create_bracket_order: Error in creating SL order for message: {sl_remarks}")
-        return
-    status, reason, _ = api_get_order_hist(resp["norenordno"])
-    params.loc[idx, 'sl_order_status'] = status
-    if status == 'REJECTED':
-        logger.error(f"__create_bracket_order: SL leg REJECTED with: {reason}")
-        params.loc[idx, 'active'] = 'N'
-        return
-    params.loc[idx, 'sl_order_id'] = resp['norenordno']
-    params.loc[idx, 'sl_price'] = float(sl_price)
-    logger.debug(f"order_update: Post SL: Params\n{params}")
-    # Create Target Order
-    target_remarks = remarks.replace("ENTRY_LEG", "TARGET_LEG")
-    target = calc_target(org_target=row['target'], entry_price=price,
-                         direction=direction, target_range=row['strength'])
-    target = round_price(price=target, tick=row['tick'], scrip=row['scrip'])
-    resp = api_place_order(buy_or_sell=cover_direction,
-                           product_type=MIS_PROD_TYPE,
-                           exchange=row.exchange,
-                           trading_symbol=row.symbol,
-                           quantity=row.quantity,
-                           disclose_qty=0,
-                           price_type=TARGET_PRICE_TYPE,
-                           price=target,
-                           trigger_price=target,
-                           retention='DAY',
-                           remarks=target_remarks
-                           )
-    logger.debug(f"__create_bracket_order: Target Order Creation Resp: {resp}")
-    if resp is None:
-        logger.error(f"__create_bracket_order: Error in creating Target order for message: {target_remarks}")
-        return
-    status, reason, _ = api_get_order_hist(resp["norenordno"])
-    params.loc[idx, 'target_order_status'] = status
-    if status == 'REJECTED':
-        logger.error(f"__create_bracket_order: Target leg REJECTED with: {reason}")
-        params.loc[idx, 'active'] = 'N'
-        return
-    params.loc[idx, 'target_order_id'] = resp['norenordno']
-    params.loc[idx, 'target_price'] = float(target)
+        resp = api_place_order(buy_or_sell=cover_direction,
+                               product_type=MIS_PROD_TYPE,
+                               exchange=row.exchange,
+                               trading_symbol=row.symbol,
+                               quantity=row.quantity,
+                               disclose_qty=0,
+                               price_type=SL_PRICE_TYPE,
+                               price=0.00,
+                               trigger_price=sl_price,
+                               retention='DAY',
+                               remarks=sl_remarks
+                               )
+        logger.debug(f"__create_bracket_order: SL Order Creation Resp: {resp}")
+        if resp is None:
+            logger.error(f"__create_bracket_order: Error in creating SL order for message: {sl_remarks}")
+            return
+        status, reason, _ = api_get_order_hist(resp["norenordno"])
+        params.loc[idx, 'sl_order_status'] = status
+        if status == 'REJECTED':
+            logger.error(f"__create_bracket_order: SL leg REJECTED with: {reason}")
+            params.loc[idx, 'active'] = 'N'
+            return
+        params.loc[idx, 'sl_order_id'] = resp['norenordno']
+        params.loc[idx, 'sl_price'] = float(sl_price)
+        logger.debug(f"order_update: Post SL: Params\n{params}")
+        # Create Target Order
+        target_remarks = remarks.replace("ENTRY_LEG", "TARGET_LEG")
+        target = calc_target(org_target=row['target'], entry_price=price,
+                             direction=direction, target_range=row['strength'])
+        target = round_price(price=target, tick=row['tick'], scrip=row['scrip'])
+        resp = api_place_order(buy_or_sell=cover_direction,
+                               product_type=MIS_PROD_TYPE,
+                               exchange=row.exchange,
+                               trading_symbol=row.symbol,
+                               quantity=row.quantity,
+                               disclose_qty=0,
+                               price_type=TARGET_PRICE_TYPE,
+                               price=target,
+                               trigger_price=target,
+                               retention='DAY',
+                               remarks=target_remarks
+                               )
+        logger.debug(f"__create_bracket_order: Target Order Creation Resp: {resp}")
+        if resp is None:
+            logger.error(f"__create_bracket_order: Error in creating Target order for message: {target_remarks}")
+            return
+        status, reason, _ = api_get_order_hist(resp["norenordno"])
+        params.loc[idx, 'target_order_status'] = status
+        if status == 'REJECTED':
+            logger.error(f"__create_bracket_order: Target leg REJECTED with: {reason}")
+            params.loc[idx, 'active'] = 'N'
+            return
+        params.loc[idx, 'target_order_id'] = resp['norenordno']
+        params.loc[idx, 'target_price'] = float(target)
     logger.debug(f"__create_bracket_order: Post Target: Params\n{params}")
 
 
@@ -467,7 +510,7 @@ def event_handler_quote_update(data):
         if len(entries) > 0:
             for idx, row in __get_signal_strength(entries, ltp).iterrows():
                 if row['strength'] > 0:
-                    __create_bracket_order(idx, row, data)
+                    __create_bracket_order(idx, row, data, mode="BRACKET", ltp=ltp)
                 else:
                     # Invalid Signal for the day
                     params.loc[idx, 'active'] = 'N'
