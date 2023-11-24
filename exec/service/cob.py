@@ -72,6 +72,15 @@ class CloseOfBusiness:
 
     def __store_broker_trades(self):
         orders = self.api.get_order_book()
+        if orders is None:
+            logger.error("__store_broker_trades: Retrying!")
+            self.api.login(userid=self.creds['user'],
+                           password=self.creds['pwd'],
+                           twoFA=pyotp.TOTP(self.creds['token']).now(),
+                           vendor_code=self.creds['vc'],
+                           api_secret=self.creds['apikey'],
+                           imei=self.creds['imei'])
+            orders = self.api.get_order_book()
         if len(orders) > 0:
             order_date = str(TODAY)
             log_entry(trader_db=self.trader_db, log_type=BROKER_TRADE_LOG_TYPE, keys=["COB", order_date, self.acct],
