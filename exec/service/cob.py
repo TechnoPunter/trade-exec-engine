@@ -1,19 +1,16 @@
 import datetime
 import logging
 
-import numpy as np
 import pandas as pd
 import pyotp
 from NorenRestApiPy.NorenApi import NorenApi
+from commons.backtest.fastBT import FastBT
 from commons.config.reader import cfg
-from commons.consts.consts import TODAY, PARAMS_LOG_TYPE, BROKER_TRADE_LOG_TYPE
+from commons.consts.consts import TODAY, PARAMS_LOG_TYPE, BROKER_TRADE_LOG_TYPE, S_TODAY, BT_TRADE_LOG_TYPE
 from commons.dataprovider.database import DatabaseEngine
-from commons.dataprovider.filereader import get_tick_data
 from commons.dataprovider.tvfeed import TvDatafeed, Interval
 from commons.utils.EmailAlert import send_df_email, send_email
 from commons.utils.Misc import log_entry
-
-from exec.backtest.nova import Nova
 
 logger = logging.getLogger(__name__)
 
@@ -88,67 +85,16 @@ class CloseOfBusiness:
 
     def __store_bt_trades(self):
         scrips = list(set(self.params.scrip))
+        df = self.params
+        df.loc[:, 'trade_date'] = S_TODAY
 
-        order_date = str(TODAY)
-        self.trader_db.delete_recs(table='BacktestTrade',
-                                   predicate=f"m.BacktestTrade.trade_date.like('{order_date}%')")
         tv = TvDatafeed()
         tv.get_tv_data(symbols=scrips, freq=Interval.in_1_minute, path=cfg['low-tf-data-dir-path'])
 
-        orders = self.trader_db.query(table='Order', predicate=f"m.Order.order_date >= '{str(TODAY)}',"
-                                                               f"m.Order.order_ref.like('{self.acct}%'),"
-                                                               f"m.Order.ts != None")
-        thresholds = self.__get_sl_thresholds()
-        bt_params = {}
-        for order in orders:
-            if order.ts is not None:
-                pred_data = {
-                    "time": order.ts,
-                    "signal": order.signal,
-                    "sl": order.sl,
-                    "target": order.t1,
-                    "t1": order.t1,
-                    "t2": order.t2,
-                    "open": order.o,
-                    "high": order.h,
-                    "low": order.l,
-                    "close": order.c
-                }
-                pred_df = pd.DataFrame([pred_data])
-                # Round off time
-                new_time = pred_df.iloc[0].time - (pred_df.iloc[0].time % 60)
-                pred_df.loc[0, 'time'] = new_time
-                tick_data = get_tick_data(order.scrip)
-                threshold = thresholds.get(":".join([order.scrip, str(order.signal), order.model]), None)
-                if threshold is None:
-                    logger.error(f"Couldn't find threshold for {order.symbol} and {order.signal}")
-                    return
-                else:
-                    sl = threshold.sl
-                    trail_sl = threshold.trail_sl
-                    logger.debug(f"SL: {sl}; Trail SL: {trail_sl}")
-                    bt_params['sl'] = sl
-                    bt_params['trail_sl'] = trail_sl
-                    bt_params['target'] = order.t1
-
-                    n = Nova(scrip=order.scrip, pred_df=pred_df, tick_df=tick_data)
-                    trades = n.process_events(params=bt_params)
-
-                    bt = {}
-                    if len(trades) >= 1:
-                        trade = trades[0]
-
-                        bt['order_ref'] = order.order_ref
-                        bt['qty'] = trade['size']
-                        bt['trade_date'] = str(trade['datein'])
-                        bt['price'] = trade['pricein']
-                        bt['direction'] = trade['dir']
-                        self.trader_db.single_insert('BacktestTrade', bt)
-
-                        bt['trade_date'] = str(trade['dateout'])
-                        bt['price'] = trade['priceout']
-                        bt['direction'] = "SELL" if trade['dir'] == "BUY" else "BUY"
-                        self.trader_db.single_insert('BacktestTrade', bt)
+        f = FastBT()
+        bt_trades, _ = f.run_cob_accuracy(params=df)
+        log_entry(trader_db=self.trader_db, log_type=BT_TRADE_LOG_TYPE, keys=["COB"],
+                  data=bt_trades, log_date=S_TODAY, acct=self.acct)
 
     def __generate_reminders(self):
         send_df_email(df=self.params, subject="COB Params", acct=self.acct)
@@ -168,5 +114,7 @@ class CloseOfBusiness:
 
 
 if __name__ == '__main__':
-    c = CloseOfBusiness(acct='Trader-V2-Pralhad', params=pd.DataFrame([{"x": "1", "y": np.NaN}]))
+    params_df = pd.read_json(
+        "/Users/pralhad/Documents/99-src/98-trading/trade-exec-engine/resources/test/cob/cob-params.json")
+    c = CloseOfBusiness(acct='Trader-V2-Pralhad', params=params_df)
     c.run_cob()
