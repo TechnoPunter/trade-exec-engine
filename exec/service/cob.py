@@ -6,7 +6,7 @@ import pandas as pd
 import pyotp
 from NorenRestApiPy.NorenApi import NorenApi
 from commons.config.reader import cfg
-from commons.consts.consts import TODAY
+from commons.consts.consts import TODAY, PARAMS_LOG_TYPE, BROKER_TRADE_LOG_TYPE
 from commons.dataprovider.database import DatabaseEngine
 from commons.dataprovider.filereader import get_tick_data
 from commons.dataprovider.tvfeed import TvDatafeed, Interval
@@ -16,9 +16,6 @@ from commons.utils.Misc import log_entry
 from exec.backtest.nova import Nova
 
 logger = logging.getLogger(__name__)
-
-PARAMS_LOG_TYPE = "Params"
-BROKER_TRADE_LOG_TYPE = "BrokerTrades"
 
 
 class CloseOfBusiness:
@@ -64,8 +61,8 @@ class CloseOfBusiness:
     def __store_orders(self):
         order_date = str(TODAY)
         if len(self.params) > 0:
-            log_entry(trader_db=self.trader_db, log_type=PARAMS_LOG_TYPE, keys=["COB", order_date, self.acct],
-                      data=self.params)
+            log_entry(trader_db=self.trader_db, log_type=PARAMS_LOG_TYPE, keys=["COB"],
+                      data=self.params, log_date=order_date, acct=self.acct)
             logger.info(f"__store_orders: Orders created for {self.acct}")
         else:
             logger.error(f"__store_orders: No Params found to store")
@@ -83,8 +80,8 @@ class CloseOfBusiness:
             orders = self.api.get_order_book()
         if len(orders) > 0:
             order_date = str(TODAY)
-            log_entry(trader_db=self.trader_db, log_type=BROKER_TRADE_LOG_TYPE, keys=["COB", order_date, self.acct],
-                      data=orders)
+            log_entry(trader_db=self.trader_db, log_type=BROKER_TRADE_LOG_TYPE, keys=["COB"],
+                      data=orders, log_date=order_date, acct=self.acct)
             logger.info(f"__store_broker_trades: Broker Trades created for {self.acct}")
         else:
             logger.error(f"__store_broker_trades: No Broker orders to store")

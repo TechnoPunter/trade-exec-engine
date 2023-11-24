@@ -440,7 +440,7 @@ def __load_params():
         else:
             logger.info("__load_params: No orders to stitch to params.")
 
-    log_entry(trader_db=trader_db, log_type=PARAMS_LOG_TYPE, keys=["BOD", S_TODAY, acct], data=params)
+    log_entry(trader_db=trader_db, log_type=PARAMS_LOG_TYPE, keys=["BOD"], data=params, acct=acct, log_date=S_TODAY)
     logger.info(f"__load_params: Params:\n{params}")
 
 
@@ -602,7 +602,8 @@ def start(acct_param: str, post_proc: bool = True):
 
     while datetime.datetime.now(IST).time() <= target_time_ist:
         if alert_pending and datetime.datetime.now(IST).time() >= alert_time_ist:
-            log_entry(trader_db=trader_db, log_type=PARAMS_LOG_TYPE, keys=["Post-BOD", S_TODAY, acct], data=params)
+            log_entry(trader_db=trader_db, log_type=PARAMS_LOG_TYPE, keys=["Post-BOD"], data=params,
+                      acct=acct, log_date=S_TODAY)
             send_df_email(df=params, subject="BOD Params", acct=acct)
             alert_pending = False
         time.sleep(1)
