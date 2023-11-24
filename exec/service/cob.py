@@ -1,7 +1,7 @@
 import datetime
 import logging
-import time
 
+import numpy as np
 import pandas as pd
 import pyotp
 from NorenRestApiPy.NorenApi import NorenApi
@@ -11,6 +11,7 @@ from commons.dataprovider.database import DatabaseEngine
 from commons.dataprovider.filereader import get_tick_data
 from commons.dataprovider.tvfeed import TvDatafeed, Interval
 from commons.utils.EmailAlert import send_df_email, send_email
+from commons.utils.Misc import log_entry
 
 from exec.backtest.nova import Nova
 
@@ -62,21 +63,22 @@ class CloseOfBusiness:
 
     def __store_orders(self):
         order_date = str(TODAY)
-        key = f"{PARAMS_LOG_TYPE}_COB_{order_date}"
-        self.trader_db.delete_recs(table='LogStore', predicate=f"m.LogStore.log_key == '{key}'")
-        data = {"log_key": key, "log_type": PARAMS_LOG_TYPE, "log_data": self.params.to_dict(orient="records"),
-                "log_time": int(time.time())}
-        self.trader_db.single_insert("LogStore", data)
-        logger.info(f"__store_orders: Orders created for {self.acct}")
+        if len(self.params) > 0:
+            log_entry(trader_db=self.trader_db, log_type=PARAMS_LOG_TYPE, keys=["COB", order_date, self.acct],
+                      data=self.params)
+            logger.info(f"__store_orders: Orders created for {self.acct}")
+        else:
+            logger.error(f"__store_orders: No Params found to store")
 
     def __store_broker_trades(self):
         orders = self.api.get_order_book()
-        order_date = str(TODAY)
-        key = f"{BROKER_TRADE_LOG_TYPE}_COB_{order_date}"
-        self.trader_db.delete_recs(table='LogStore', predicate=f"m.LogStore.log_key == '{key}'")
-        data = {"log_key": key, "log_type": BROKER_TRADE_LOG_TYPE, "log_data": orders, "log_time": int(time.time())}
-        self.trader_db.single_insert("LogStore", data)
-        logger.info(f"__store_broker_trades: Broker Trades created for {self.acct}")
+        if len(orders) > 0:
+            order_date = str(TODAY)
+            log_entry(trader_db=self.trader_db, log_type=BROKER_TRADE_LOG_TYPE, keys=["COB", order_date, self.acct],
+                      data=orders)
+            logger.info(f"__store_broker_trades: Broker Trades created for {self.acct}")
+        else:
+            logger.error(f"__store_broker_trades: No Broker orders to store")
 
     def __store_bt_trades(self):
         scrips = list(set(self.params.scrip))
@@ -160,5 +162,5 @@ class CloseOfBusiness:
 
 
 if __name__ == '__main__':
-    c = CloseOfBusiness(acct='Trader-V2-Pralhad', params=pd.DataFrame([{"x": "1"}]))
+    c = CloseOfBusiness(acct='Trader-V2-Pralhad', params=pd.DataFrame([{"x": "1", "y": np.NaN}]))
     c.run_cob()
