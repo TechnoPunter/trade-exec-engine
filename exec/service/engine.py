@@ -8,9 +8,10 @@ import pandas as pd
 import pyotp
 from NorenRestApiPy.NorenApi import NorenApi, FeedType
 from commons.config.reader import cfg
-from commons.consts.consts import IST
+from commons.consts.consts import IST, S_TODAY, PARAMS_LOG_TYPE
+from commons.dataprovider.database import DatabaseEngine
 from commons.utils.EmailAlert import send_email, send_df_email
-from commons.utils.Misc import get_epoch, calc_sl, get_new_sl, round_price
+from commons.utils.Misc import get_epoch, calc_sl, get_new_sl, round_price, log_entry
 from websocket import WebSocketConnectionClosedException
 
 from exec.service.cob import CloseOfBusiness
@@ -37,6 +38,7 @@ params = pd.DataFrame()
 api = NorenApi(host='https://api.shoonya.com/NorenWClientTP/',
                websocket='wss://api.shoonya.com/NorenWSTP/')
 acct = os.environ.get('ACCOUNT')
+trader_db = DatabaseEngine()
 instruments = []
 
 creds = cfg['shoonya']
@@ -438,6 +440,7 @@ def __load_params():
         else:
             logger.info("__load_params: No orders to stitch to params.")
 
+    log_entry(trader_db=trader_db, log_type=PARAMS_LOG_TYPE, keys=["BOD", S_TODAY, acct], data=params)
     logger.info(f"__load_params: Params:\n{params}")
 
 
@@ -599,6 +602,7 @@ def start(acct_param: str, post_proc: bool = True):
 
     while datetime.datetime.now(IST).time() <= target_time_ist:
         if alert_pending and datetime.datetime.now(IST).time() >= alert_time_ist:
+            log_entry(trader_db=trader_db, log_type=PARAMS_LOG_TYPE, keys=["Post-BOD", S_TODAY, acct], data=params)
             send_df_email(df=params, subject="BOD Params", acct=acct)
             alert_pending = False
         time.sleep(1)
