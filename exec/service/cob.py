@@ -1,28 +1,53 @@
 import datetime
-import json
 import logging
 
+import numpy as np
 import pandas as pd
-
-from exec.backtest.nova import Nova
+import pyotp
+from NorenRestApiPy.NorenApi import NorenApi
 from commons.config.reader import cfg
-from commons.consts.consts import TODAY, IST
+from commons.consts.consts import TODAY
 from commons.dataprovider.database import DatabaseEngine
 from commons.dataprovider.filereader import get_tick_data
 from commons.dataprovider.tvfeed import TvDatafeed, Interval
 from commons.utils.EmailAlert import send_df_email, send_email
-from exec.utils.EngineUtils import get_order_ref
+from commons.utils.Misc import log_entry
+
+from exec.backtest.nova import Nova
 
 logger = logging.getLogger(__name__)
 
+PARAMS_LOG_TYPE = "Params"
+BROKER_TRADE_LOG_TYPE = "BrokerTrades"
+
 
 class CloseOfBusiness:
+    api: NorenApi
+    """
+    This provides post process functions i.e. After all open orders are closed
+    1. self.__generate_reminders() - Password expiry checks
+    2. self.__store_params() - Store Params to DB
+    3. self.__store_orders() - Get the orders from Shoonya and store them in the DB
+    4. self.__store_broker_trades() - Store Trades to DB
+    5. self.__store_bt_trades()
+    """
 
     def __init__(self, acct: str, params: pd.DataFrame):
         self.acct = acct
         self.params = params
         self.trader_db = DatabaseEngine()
         self.creds = cfg['shoonya'][self.acct]
+        self.api = NorenApi(host='https://api.shoonya.com/NorenWClientTP/',
+                            websocket='wss://api.shoonya.com/NorenWSTP/')
+
+        logger.debug(f"api_login: About to call api.login with {self.creds}")
+        resp = self.api.login(userid=self.creds['user'],
+                              password=self.creds['pwd'],
+                              twoFA=pyotp.TOTP(self.creds['token']).now(),
+                              vendor_code=self.creds['vc'],
+                              api_secret=self.creds['apikey'],
+                              imei=self.creds['imei'])
+        logger.debug(f"api_login: Post api.login; Resp: {resp}")
 
     def __get_sl_thresholds(self):
         """
@@ -37,57 +62,23 @@ class CloseOfBusiness:
         return result
 
     def __store_orders(self):
-        df = self.params.copy()
         order_date = str(TODAY)
-        self.trader_db.delete_recs(table='Order',
-                                   predicate=f"m.Order.order_date.like('{order_date}%'), "
-                                             f"m.Order.order_ref.like('{self.acct}%')")
-
-        df = df.assign(o=df['entry_price'], h=df['entry_price'], l=df['entry_price'], c=df['entry_price'],
-                       t2=df['target_price'], order_date=order_date)
-        df['indicators'] = df.apply(lambda row: json.dumps(row.to_dict()), axis=1)
-        df.reset_index(inplace=True, names="index")
-        df['order_ref'] = df.apply(lambda row: get_order_ref(self.acct, row), axis=1)
-        df.rename(columns={"sl_price": "sl", "target_price": "t1", "quantity": "qty", "entry_ts": "ts"}, inplace=True)
-        self.trader_db.bulk_insert(table="Order", data=df)
-        logger.info(f"__store_orders: Orders created for {self.acct}:\n{df}")
+        if len(self.params) > 0:
+            log_entry(trader_db=self.trader_db, log_type=PARAMS_LOG_TYPE, keys=["COB", order_date, self.acct],
+                      data=self.params)
+            logger.info(f"__store_orders: Orders created for {self.acct}")
+        else:
+            logger.error(f"__store_orders: No Params found to store")
 
     def __store_broker_trades(self):
-        df = self.params.copy()
-        ts_cols = ['entry_ts', 'sl_ts', 'target_ts']
-        df[ts_cols] = df[ts_cols].fillna(0).astype(int)
-        order_date = str(TODAY)
-        self.trader_db.delete_recs(table='BrokerTrade',
-                                   predicate=f"m.BrokerTrade.trade_date.like('{order_date}%'),"
-                                             f"m.BrokerTrade.order_ref.like('{self.acct}%')")
-        df.reset_index(inplace=True, names="index")
-        df.dropna(subset=['entry_order_id', 'sl_order_id', 'target_order_id'], inplace=True)
-        df = df.loc[df.entry_order_status == 'COMPLETE']
-        if len(df) > 0:
-            df['order_ref'] = df.apply(lambda row: get_order_ref(self.acct, row), axis=1)
-            df["direction"] = df["signal"].apply(lambda x: "BUY" if x == 1 else "SELL")
-            df = df.assign(trade_date=order_date, remarks=self.acct)
-            df['trade_date'] = pd.to_datetime(df['entry_ts'], unit='s', utc=True)
-            df['trade_date'] = df['trade_date'].dt.tz_convert(IST)
-            df.rename(columns={"entry_price": "price", "quantity": "qty"}, inplace=True)
-            self.trader_db.bulk_insert(table="BrokerTrade", data=df)
-            logger.info(f"__store_broker_trades: Entry Trades created for {self.acct}:\n{df}")
-
-            # SL / Target Leg
-            df['sl_date'] = pd.to_datetime(df['sl_ts'], unit='s', utc=True)
-            df['sl_date'] = df['sl_date'].dt.tz_convert(IST)
-            df['target_date'] = pd.to_datetime(df['target_ts'], unit='s', utc=True)
-            df['target_date'] = df['target_date'].dt.tz_convert(IST)
-            df["direction"] = df["signal"].apply(lambda x: "SELL" if x == 1 else "BUY")
-            df["price"] = df.apply(lambda row:
-                                   row['sl_price'] if row['sl_order_status'] == "COMPLETED" else row['target_price'],
-                                   axis=1)
-            df['trade_date'] = df.apply(lambda row:
-                                        row['sl_date'] if row['sl_order_status'] == "COMPLETED" else row['target_date'],
-                                        axis=1)
-            df.dropna(subset=['trade_date'], inplace=True)
-            self.trader_db.bulk_insert(table="BrokerTrade", data=df)
-            logger.info(f"__store_broker_trades: Exit Trades created for {self.acct}:\n{df}")
+        orders = self.api.get_order_book()
+        if len(orders) > 0:
+            order_date = str(TODAY)
+            log_entry(trader_db=self.trader_db, log_type=BROKER_TRADE_LOG_TYPE, keys=["COB", order_date, self.acct],
+                      data=orders)
+            logger.info(f"__store_broker_trades: Broker Trades created for {self.acct}")
+        else:
+            logger.error(f"__store_broker_trades: No Broker orders to store")
 
     def __store_bt_trades(self):
         scrips = list(set(self.params.scrip))
@@ -171,5 +162,5 @@ class CloseOfBusiness:
 
 
 if __name__ == '__main__':
-    c = CloseOfBusiness(acct='Trader-V2-Pralhad', params=pd.DataFrame())
+    c = CloseOfBusiness(acct='Trader-V2-Pralhad', params=pd.DataFrame([{"x": "1", "y": np.NaN}]))
     c.run_cob()
