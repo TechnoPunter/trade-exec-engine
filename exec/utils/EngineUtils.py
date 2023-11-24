@@ -1,4 +1,5 @@
 import logging
+import math
 
 from commons.consts.consts import TODAY
 
@@ -23,11 +24,19 @@ def calc_target(org_target, entry_price, direction, target_range):
 
 
 def get_order_type(message):
-    return message.get('remarks', 'NA').split(":")[0]
+    if message.get('pcode') == 'B' or message.get('prd') == 'B':
+        # Bracket Order
+        if math.isnan(float(message.get('snonum', 'nan'))):
+            return "ENTRY_LEG"
+        else:
+            return "SL_LEG" if message.get('snoordt', '-1') == '1' else "TARGET_LEG"
+    else:
+        # Manual Bracket Order
+        return message.get('remarks', 'NA').split(":")[0]
 
 
 def get_order_index(message):
-    return int(message.split(":")[-1])
+    return message.get('remarks', 'NA').split(":")[-1]
 
 
 def get_contra_leg(params, order_id):
