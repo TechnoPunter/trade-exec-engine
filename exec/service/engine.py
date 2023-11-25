@@ -20,6 +20,7 @@ from exec.utils.EngineUtils import *
 VALID_ORDER_STATUS = ['OPEN', 'TRIGGER_PENDING', 'COMPLETE', 'CANCELED']
 
 MOCK = False
+RECONNECT_COUNTER = 0
 
 SCRIP_MAP = {'BAJAJ_AUTO-EQ': 'BAJAJ-AUTO-EQ', 'M_M-EQ': 'M&M-EQ'}
 MIS_PROD_TYPE = 'I'
@@ -610,8 +611,10 @@ def event_handler_order_update(curr_order):
 
 
 def event_handler_error(message):
+    global RECONNECT_COUNTER
     logger.error(f"Error message {message}")
-    send_email(body=f"Error in websocket {message}", subject="Websocket Error!")
+    RECONNECT_COUNTER += 1
+    send_email(body=f"Attempt: {RECONNECT_COUNTER} Error in websocket {message}", subject=f"Websocket Error! - {acct}")
     api_unsubscribe()
     api_start_websocket()
 
