@@ -15,11 +15,10 @@ from exec.service.cob import CloseOfBusiness
 from exec.utils.EngineUtils import *
 
 MOCK = False
+RECONNECT_COUNTER = 0
 
-MIS_PROD_TYPE = 'I'
 MKT_PRICE_TYPE = 'MKT'
 SL_PRICE_TYPE = "SL-MKT"
-TARGET_PRICE_TYPE = "LMT"
 
 logger = logging.getLogger(__name__)
 pd.set_option('display.max_columns', None)
@@ -50,18 +49,18 @@ def __create_bracket_order(idx, row, ltp):
     logger.debug(f"__create_bracket_order: Creating bracket order for {row.model}, {row.scrip}, {str(idx)}")
     params.loc[idx, 'entry_order_id'] = -1
     direction = 'B' if row.signal == 1 else 'S'
-    remarks = ":".join(["ENTRY_LEG", row.model, row.scrip, str(idx)])
+    remarks = ":".join(["BO", row.model, row.scrip, str(idx)])
     sl_price = calc_sl(entry=ltp,
                        signal=row['signal'],
                        sl_factor=row['sl_pct'],
                        tick=row['tick'],
                        scrip=row['scrip']
                        )
-    sl_range = abs(ltp - sl_price)
+    sl_range = abs(ltp - float(sl_price))
     target = round_price(price=row['target'], tick=row['tick'], scrip=row['scrip'])
-    target_range = abs(ltp - target)
+    target_range = abs(ltp - float(target))
     resp = api.api_place_order(buy_or_sell=direction,
-                               product_type=MIS_PROD_TYPE,
+                               product_type='B',
                                exchange=row.exchange,
                                trading_symbol=row.symbol,
                                quantity=row.quantity,
@@ -92,18 +91,9 @@ def __close_all_trades():
     logger.info(f"__close_all_trades: Will now close open trades:\n{open_params}")
     for idx, order in open_params.iterrows():
         logger.debug(f"__close_all_trades: About to close\n{order}")
-        # Exiting all SL-MKT orders by making them MKT orders.
-        resp = api.api_modify_order(order_no=order['sl_order_id'],
-                                    exchange=order['exchange'],
-                                    trading_symbol=order['symbol'],
-                                    new_quantity=order['quantity'],
-                                    new_price_type=MKT_PRICE_TYPE)
-        logger.debug(f"__close_all_trades: Closed SL Order: {order['sl_order_id']}, Resp: {resp}")
-        resp = api.api_cancel_order(order['target_order_id'])
-        logger.debug(f"__close_all_trades: Cancelled Target Order: {order['target_order_id']}, Resp: {resp}")
-        params.loc[idx, 'target_order_status'] = 'CANCELLED'
-        params.loc[idx, 'target_ts'] = int(time.time())
-        params.loc[idx, 'active'] = 'N'
+        # Exiting all Bracket orders by making them MKT orders.
+        resp = api.api_close_bracket_order(order_no=order['entry_order_id'])
+        logger.debug(f"__close_all_trades: Closed BO: {order['entry_order_id']}, Resp: {resp}")
     logger.info(f"__close_all_trades: Post Close params:\n{params}")
 
 
@@ -284,7 +274,7 @@ def event_handler_order_update(curr_order):
     curr_order_ts = get_epoch(curr_order.get('exch_tm', '0'))
     if order_idx != -1:
         if order_type == 'ENTRY_LEG':
-            price = curr_order.get("avgprc", "prc")
+            price = float(curr_order.get("avgprc", curr_order.get("prc")))
             params.loc[order_idx, ['entry_order_id', 'entry_order_status', 'entry_ts', 'entry_price']] = (
                 curr_order_id, curr_order_status, curr_order_ts, price)
             logger.debug(f"order_update: Updated Entry Params:\n{params}")
@@ -292,7 +282,7 @@ def event_handler_order_update(curr_order):
                 params.loc[order_idx, 'active'] = 'N'
                 logger.debug(f"order_update: Updated Entry Rejection Status Params:\n{params}")
         elif order_type == 'SL_LEG':
-            price = curr_order.get("trgprc", -1)
+            price = float(curr_order.get("trgprc", -1))
             params.loc[order_idx, ['sl_order_id', 'sl_order_status', 'sl_ts', 'sl_price']] = (
                 curr_order_id, curr_order_status, curr_order_ts, price)
             logger.debug(f"order_update: Updated SL Params:\n{params}")
@@ -303,7 +293,7 @@ def event_handler_order_update(curr_order):
                 params.loc[order_idx, 'sl_update_cnt'] += 1
                 logger.debug(f"order_update: Updated SL Update Count Params:\n{params}")
         elif order_type == 'TARGET_LEG':
-            price = curr_order.get("prc", -1)
+            price = float(curr_order.get("prc", -1))
             params.loc[order_idx, ['target_order_id', 'target_order_status', 'target_ts', 'target_price']] = (
                 curr_order_id, curr_order_status, curr_order_ts, price)
             logger.debug(f"order_update: Updated Target Params:\n{params}")
@@ -315,9 +305,11 @@ def event_handler_order_update(curr_order):
 
 
 def event_handler_error(message):
+    global RECONNECT_COUNTER
     global instruments
     logger.error(f"Error message {message}")
-    send_email(body=f"Error in websocket {message}", subject="Websocket Error!")
+    RECONNECT_COUNTER += 1
+    send_email(body=f"Attempt: {RECONNECT_COUNTER} Error in websocket {message}", subject=f"Websocket Error! - {acct}")
     api.api_unsubscribe(instruments)
     api.api_start_websocket(subscribe_callback=event_handler_quote_update,
                             socket_open_callback=event_handler_open_callback,

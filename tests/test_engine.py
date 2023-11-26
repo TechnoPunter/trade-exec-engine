@@ -79,6 +79,9 @@ class TestEngine(unittest.TestCase):
         result = read_file("order_update/expected-params.json", ret_type="DF")
         result['target_pct'] = np.NaN
         result['strength'] = np.NaN
+        result['entry_price'] = result['entry_price'].astype(float)
+        result['sl_price'] = result['sl_price'].astype(float)
+        result['target_price'] = result['target_price'].astype(float)
         output = sm.params
         output['entry_ts'] = output['entry_ts'].astype(float)
         output['sl_ts'] = output['sl_ts'].astype(float)
