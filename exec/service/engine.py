@@ -169,7 +169,61 @@ def __close_all_trades():
     logger.info(f"__close_all_trades: Post Close params:\n{params}")
 
 
-def __load_params():
+def __extract_order_book_params(df: pd.DataFrame):
+    if len(df) == 0:
+        return pd.DataFrame()
+    orders = df.copy()
+    orders = orders[['norenordno', 'status', 'ordenttm', 'prc', 'avgprc', 'trgprc', 'tp_order_num', 'tp_order_type']]
+    entry_orders = orders.loc[orders.tp_order_type == 'ENTRY_LEG']
+    if len(entry_orders) > 0:
+        entry_orders.rename(columns={
+            'norenordno': 'entry_order_id',
+            'status': 'entry_order_status',
+            'ordenttm': 'entry_ts',
+            'avgprc': 'entry_price'}, inplace=True)
+        entry_orders.drop(['prc', 'trgprc', 'tp_order_type'], axis=1, inplace=True)
+    sl_orders = orders.loc[orders.tp_order_type == 'SL_LEG']
+    if len(sl_orders) > 0:
+        sl_orders.rename(columns={
+            'norenordno': 'sl_order_id',
+            'status': 'sl_order_status',
+            'ordenttm': 'sl_ts',
+            'trgprc': 'sl_price'}, inplace=True)
+        sl_orders.drop(['avgprc', 'prc', 'tp_order_type'], axis=1, inplace=True)
+    target_orders = orders.loc[orders.tp_order_type == 'TARGET_LEG']
+    if len(target_orders) > 0:
+        target_orders.rename(columns={
+            'norenordno': 'target_order_id',
+            'status': 'target_order_status',
+            'ordenttm': 'target_ts',
+            'prc': 'target_price'}, inplace=True)
+        target_orders.drop(['trgprc', 'avgprc', 'tp_order_type'], axis=1, inplace=True)
+    if len(entry_orders) > 0:
+        param_orders = pd.merge(left=entry_orders, right=sl_orders, how="left", left_on="tp_order_num",
+                                right_on="tp_order_num")
+        param_orders = pd.merge(left=param_orders, right=target_orders, how="left", left_on="tp_order_num",
+                                right_on="tp_order_num")
+        param_orders['tp_order_num'] = param_orders['tp_order_num'].astype(int)
+        param_orders['entry_price'] = param_orders['entry_price'].astype(float)
+        param_orders['sl_price'] = param_orders['sl_price'].astype(float)
+        param_orders['target_price'] = param_orders['target_price'].astype(float)
+        param_orders.loc[(params.target_order_status != 'OPEN') |
+                         (params.sl_order_status != 'TRIGGER_PENDING'), 'active'] = 'N'
+        param_orders.set_index("tp_order_num", inplace=True)
+        return param_orders
+    else:
+        pd.DataFrame()
+
+
+def load_params():
+    """
+    1. Reads Entries file
+    2. Gets Order Book
+    3. Overlays order type
+    4. Join Order book with Entries
+    5. Populate Global Params
+    :return:
+    """
     global params
     global api
     global acct
@@ -191,42 +245,27 @@ def __load_params():
     params['active'] = 'Y'
     params['sl_update_cnt'] = 0
     params['token'] = params['token'].astype(str)
-    orders = pd.DataFrame(api.api_get_order_book())
+    ob = api.api_get_order_book()
+    marked_ob = api.get_order_type_order_book(ob)
+    orders = pd.DataFrame(marked_ob)
 
     logger.debug(f"__load_params: Orders: {orders}")
 
     if len(orders) > 0:
-        orders = orders.loc[(orders.prd == 'I') &
+        orders = orders.loc[(orders.prd == 'B') &
                             (orders.status.isin(['OPEN', 'TRIGGER_PENDING', 'COMPLETE', 'CANCELED']))]
 
         orders.dropna(subset=['remarks'], inplace=True)
         if len(orders) > 0:
-            orders.loc[:, 'order_type'] = orders.apply(lambda x: get_order_type(x), axis=1)
-            orders.loc[:, 'order_index'] = orders['remarks'].apply(get_order_index)
-            orders.loc[:, 'norenordno'] = orders['norenordno'].astype(str)
-            orders.loc[:, 'order_index'] = orders['order_index'].astype(int)
+            orders = __extract_order_book_params(orders)
+            order_cols = ['entry_order_id', 'sl_order_id', 'target_order_id',
+                          'entry_order_status', 'sl_order_status', 'target_order_status',
+                          'entry_ts', 'sl_ts', 'target_ts',
+                          'entry_price', 'sl_price', 'target_price',
+                          'active']
+            params.loc[orders.index, order_cols] = orders[order_cols]
+            params.loc[orders.index, 'strength'] = abs(params['target'] - params['entry_price'])
 
-            for idx, row in orders.iterrows():
-                if row['order_type'] == 'ENTRY_LEG':
-                    params.loc[row.order_index, 'entry_order_id'] = row["norenordno"]
-                    params.loc[row.order_index, 'entry_price'] = float(row["avgprc"])
-                    params.loc[row.order_index, 'entry_order_status'] = row["status"]
-                    params.loc[row.order_index, 'entry_ts'] = row["ordenttm"]
-                elif row['order_type'] == 'SL_LEG':
-                    params.loc[row.order_index, 'sl_order_id'] = row["norenordno"]
-                    params.loc[row.order_index, 'sl_price'] = float(row["trgprc"])
-                    params.loc[row.order_index, 'sl_order_status'] = row["status"]
-                    params.loc[row.order_index, 'sl_ts'] = row["ordenttm"]
-                    params.loc[row.order_index, 'sl_update_cnt'] = int(row["kidid"])
-                    if row["status"] == 'COMPLETE':
-                        params.loc[row.order_index, 'active'] = 'N'
-                elif row['order_type'] == 'TARGET_LEG':
-                    params.loc[row.order_index, 'target_order_id'] = row["norenordno"]
-                    params.loc[row.order_index, 'target_price'] = float(row["prc"])
-                    params.loc[row.order_index, 'target_order_status'] = row["status"]
-                    params.loc[row.order_index, 'target_ts'] = row["ordenttm"]
-                    if row["status"] == 'COMPLETE':
-                        params.loc[row.order_index, 'active'] = 'N'
         else:
             logger.info("__load_params: No orders to stitch to params.")
 
@@ -383,7 +422,7 @@ def start(acct_param: str, post_proc: bool = True):
     if ret is None:
         raise Exception("Unable to login to broker API")
 
-    __load_params()
+    load_params()
 
     if len(params) == 0:
         logger.error("No Params entries")

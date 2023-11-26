@@ -1,0 +1,6 @@
+close,signal,target,scrip,model,exchange,symbol,token,target_pct,sl_pct,trail_sl_pct,tick,type,risk,quantity
+212.35,-1,212.23,NSE_BANDHANBNK,trainer.strategies.gspcV2,NSE,BANDHANBNK-EQ,2263,,2.0,0.85,0.05,Fixed,0,250
+1195.45,1,1196.58,NSE_SUNPHARMA,trainer.strategies.gspcV2,NSE,SUNPHARMA-EQ,3351,,1.5,0.1,0.05,Fixed,0,2
+212.35,1,213.04,NSE_BANDHANBNK,trainer.strategies.rfcV2,NSE,BANDHANBNK-EQ,2263,,2.2,0.85,0.05,Fixed,0,56
+1195.45,1,1195.78,NSE_SUNPHARMA,trainer.strategies.rfcV2,NSE,SUNPHARMA-EQ,3351,,1.1,0.35,0.05,Fixed,0,2
+
