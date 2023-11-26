@@ -1,27 +1,21 @@
 import datetime
-import json
 import os
 import time
 
 import numpy as np
 import pandas as pd
-import pyotp
-from NorenRestApiPy.NorenApi import NorenApi, FeedType
+from commons.broker.Shoonya import Shoonya
 from commons.config.reader import cfg
 from commons.consts.consts import IST, S_TODAY, PARAMS_LOG_TYPE
 from commons.dataprovider.database import DatabaseEngine
 from commons.utils.EmailAlert import send_email, send_df_email
 from commons.utils.Misc import get_epoch, calc_sl, get_new_sl, round_price, log_entry
-from websocket import WebSocketConnectionClosedException
 
 from exec.service.cob import CloseOfBusiness
 from exec.utils.EngineUtils import *
 
-VALID_ORDER_STATUS = ['OPEN', 'TRIGGER_PENDING', 'COMPLETE', 'CANCELED']
-
 MOCK = False
 
-SCRIP_MAP = {'BAJAJ_AUTO-EQ': 'BAJAJ-AUTO-EQ', 'M_M-EQ': 'M&M-EQ'}
 MIS_PROD_TYPE = 'I'
 MKT_PRICE_TYPE = 'MKT'
 SL_PRICE_TYPE = "SL-MKT"
@@ -35,215 +29,10 @@ pd.options.mode.chained_assignment = None
 
 socket_opened = False
 params = pd.DataFrame()
-api = NorenApi(host='https://api.shoonya.com/NorenWClientTP/',
-               websocket='wss://api.shoonya.com/NorenWSTP/')
 acct = os.environ.get('ACCOUNT')
+api = Shoonya(acct)
 trader_db = DatabaseEngine()
 instruments = []
-
-creds = cfg['shoonya']
-if creds is None:
-    raise Exception(f'Unable to find creds for')
-
-
-def api_login():
-    global api
-    global creds
-    global acct
-    cred = creds[acct]
-    logger.debug(f"api_login: About to call api.login with {cred}")
-    resp = api.login(userid=cred['user'],
-                     password=cred['pwd'],
-                     twoFA=pyotp.TOTP(cred['token']).now(),
-                     vendor_code=cred['vc'],
-                     api_secret=cred['apikey'],
-                     imei=cred['imei'])
-    logger.debug(f"api_login: Post api.login; Resp: {resp}")
-    return resp
-
-
-def api_start_websocket():
-    global api
-    global acct
-    try:
-        logger.debug(f"api_start_websocket: About to start api.start_websocket")
-        api.start_websocket(subscribe_callback=event_handler_quote_update,
-                            socket_open_callback=event_handler_open_callback,
-                            socket_error_callback=event_handler_error,
-                            order_update_callback=event_handler_order_update
-                            )
-    except Exception as ex:
-        logger.error(f"api_start_websocket: Exception {ex}")
-        api_login()
-        api.start_websocket(subscribe_callback=event_handler_quote_update,
-                            socket_open_callback=event_handler_open_callback,
-                            socket_error_callback=event_handler_error,
-                            order_update_callback=event_handler_order_update
-                            )
-
-
-def api_unsubscribe():
-    global instruments
-    logger.info(f"api_unsubscribe: About to unsubscribe")
-    try:
-        api.unsubscribe(instruments)
-    except WebSocketConnectionClosedException:
-        pass
-
-
-def api_get_order_book():
-    global api
-    global acct
-    logger.debug(f"api_get_order_book: About to call api.get_order_book")
-    if MOCK:
-        logger.debug("api_get_order_book: Sending Mock Response")
-        return None
-    resp = api.get_order_book()
-    if resp is None:
-        logger.error("api_get_order_book: Retrying!")
-        api_login()
-        resp = api.get_order_book()
-    logger.debug(f"api_get_order_book: Resp from api.get_order_book {resp}")
-    return resp
-
-
-def api_get_order_hist(order_no):
-    global api
-    global acct
-    logger.debug(f"api_get_order_hist: About to call api.api_get_order_hist for {order_no}")
-    if MOCK:
-        logger.debug("api_get_order_hist: Sending Mock Response")
-        return "COMPLETE", "NA", 123.45
-    resp = api.single_order_history(orderno=order_no)
-    if resp is None:
-        logger.error("api_get_order_hist: Retrying!")
-        api_login()
-        resp = api.single_order_history(orderno=order_no)
-    if len(resp) == 0:
-        logger.error(f"api_get_order_hist: Unable to get response from single_order_history")
-        return "REJECTED", "NA", float(0.0)
-    logger.debug(f"api_get_order_hist: Resp from api.single_order_history {resp}")
-    ord_hist = pd.DataFrame(resp)
-    rej = ord_hist.loc[ord_hist['status'] == 'REJECTED']
-    if len(rej) > 0:
-        order_status = "REJECTED"
-        reject_reason = ord_hist.loc[ord_hist['status'] == 'REJECTED'].iloc[0]['rejreason']
-        price = float(0.0)
-    else:
-        # Handle the off chance that order is pending
-        order_rec = ord_hist.iloc[0]
-        order_type = get_order_type(order_rec)
-        if (order_rec.status == "PENDING") or (order_type == "ENTRY_LEG" and order_rec.status == "OPEN"):
-            logger.warning(f"Order {order_no} is pending - Retrying")
-            resp = api.single_order_history(orderno=order_no)
-            ord_hist = pd.DataFrame(resp)
-        if len(resp) == 0:
-            logger.error(f"api_get_order_hist: Unable to get response from single_order_history")
-            return "REJECTED", "NA", float(0.0)
-        valid = ord_hist.loc[ord_hist.status.isin(VALID_ORDER_STATUS)]
-        if len(valid) > 0:
-            order_status = valid.iloc[0].status
-            reject_reason = "NA"
-            price = float(valid.iloc[0].get('avgprc', 0))
-        else:
-            order_status = "REJECTED"
-            reject_reason = 'NA'
-            price = float(0.0)
-    logger.debug(f"api_get_order_hist: Status: {order_status}, Reason: {reject_reason}")
-    return order_status, reject_reason, price
-
-
-def api_place_order(buy_or_sell,
-                    product_type,
-                    exchange,
-                    trading_symbol,
-                    quantity,
-                    disclose_qty,
-                    price_type,
-                    price,
-                    trigger_price,
-                    retention,
-                    remarks):
-    global api
-    global acct
-    logger.debug(f"api_place_order: About to call api.place_order with {remarks}")
-    if MOCK:
-        logger.debug("api_place_order: Sending Mock Response")
-        return dict(json.loads('{"request_time": "09:15:01 01-01-2023", "stat": "Ok", "norenordno": "1234"}'))
-    resp = api.place_order(buy_or_sell=buy_or_sell,
-                           product_type=product_type,
-                           exchange=exchange,
-                           tradingsymbol=SCRIP_MAP.get(trading_symbol, trading_symbol),
-                           quantity=quantity,
-                           discloseqty=disclose_qty,
-                           price_type=price_type,
-                           price=price,
-                           trigger_price=trigger_price,
-                           retention=retention,
-                           remarks=remarks
-                           )
-    if resp is None:
-        logger.error(f"api_place_order: Retrying! for {remarks}")
-        api_login()
-        resp = api.place_order(buy_or_sell=buy_or_sell,
-                               product_type=product_type,
-                               exchange=exchange,
-                               tradingsymbol=SCRIP_MAP.get(trading_symbol, trading_symbol),
-                               quantity=quantity,
-                               discloseqty=disclose_qty,
-                               price_type=price_type,
-                               price=price,
-                               trigger_price=trigger_price,
-                               retention=retention,
-                               remarks=remarks
-                               )
-    logger.debug(f"api_place_order: Resp from api.place_order {resp} with {remarks}")
-    return resp
-
-
-def api_modify_order(order_no, exchange, trading_symbol, new_quantity, new_price_type, new_trigger_price=None):
-    global acct
-    logger.debug(f"api_modify_order: About to call api.modify_order for {trading_symbol} with "
-                 f"{new_price_type} @ {new_trigger_price}")
-
-    if MOCK:
-        logger.debug("api_modify_order: Sending Mock Response")
-        return dict(json.loads('{"request_time": "09:15:01 01-01-2023", "stat": "Ok", "result": "1234"}'))
-
-    resp = api.modify_order(orderno=order_no,
-                            exchange=exchange,
-                            tradingsymbol=SCRIP_MAP.get(trading_symbol, trading_symbol),
-                            newquantity=new_quantity,
-                            newprice_type=new_price_type,
-                            newtrigger_price=new_trigger_price)
-    if resp is None:
-        logger.error(f"api_modify_order: Retrying! for {trading_symbol} with {new_price_type} @ {new_trigger_price}")
-        api_login()
-        resp = api.modify_order(orderno=order_no,
-                                exchange=exchange,
-                                tradingsymbol=SCRIP_MAP.get(trading_symbol, trading_symbol),
-                                newquantity=new_quantity,
-                                newprice_type=new_price_type,
-                                newtrigger_price=new_trigger_price)
-    logger.debug(f"api_modify_order: Resp from api.modify_order for {trading_symbol} with  "
-                 f"{new_price_type} @ {new_trigger_price} : {resp}")
-    return resp
-
-
-def api_cancel_order(order_no):
-    global api
-    global acct
-    logger.debug(f"api_cancel_order: About to call api.cancel_order for {order_no}")
-    if MOCK:
-        logger.debug("api_cancel_order: Sending Mock Response")
-        return dict(json.loads('{"request_time": "09:15:01 01-01-2023", "stat": "Ok", "result": "1234"}'))
-    resp = api.cancel_order(order_no)
-    if resp is None:
-        logger.error(f"api_cancel_order: Retrying! for {order_no}")
-        api_login()
-        resp = api.cancel_order(order_no)
-    logger.debug(f"api_cancel_order: Resp from api.cancel_order {resp} for {order_no}")
-    return resp
 
 
 def __get_signal_strength(df: pd.DataFrame, ltp: float):
@@ -262,23 +51,23 @@ def __create_bracket_order(idx, row, data):
     params.loc[idx, 'entry_order_id'] = -1
     direction = 'B' if row.signal == 1 else 'S'
     remarks = ":".join(["ENTRY_LEG", row.model, row.scrip, str(idx)])
-    resp = api_place_order(buy_or_sell=direction,
-                           product_type=MIS_PROD_TYPE,
-                           exchange=row.exchange,
-                           trading_symbol=row.symbol,
-                           quantity=row.quantity,
-                           disclose_qty=0,
-                           price_type=MKT_PRICE_TYPE,
-                           price=0.00,
-                           trigger_price=None,
-                           retention='DAY',
-                           remarks=remarks
-                           )
+    resp = api.api_place_order(buy_or_sell=direction,
+                               product_type=MIS_PROD_TYPE,
+                               exchange=row.exchange,
+                               trading_symbol=row.symbol,
+                               quantity=row.quantity,
+                               disclose_qty=0,
+                               price_type=MKT_PRICE_TYPE,
+                               price=0.00,
+                               trigger_price=None,
+                               retention='DAY',
+                               remarks=remarks
+                               )
     logger.debug(f"__create_bracket_order: Entry_Leg: Entry order Resp: {resp}")
     if resp is None:
         logger.error("__create_bracket_order: Error in creating entry leg")
         return
-    status, reason, price = api_get_order_hist(resp["norenordno"])
+    status, reason, price = api.api_get_order_hist(resp["norenordno"])
     params.loc[idx, 'entry_order_status'] = status
     if status == 'REJECTED':
         logger.error(f"__create_bracket_order: Entry leg REJECTED with: {reason}")
@@ -297,23 +86,23 @@ def __create_bracket_order(idx, row, data):
                        tick=row['tick'],
                        scrip=row['scrip']
                        )
-    resp = api_place_order(buy_or_sell=cover_direction,
-                           product_type=MIS_PROD_TYPE,
-                           exchange=row.exchange,
-                           trading_symbol=row.symbol,
-                           quantity=row.quantity,
-                           disclose_qty=0,
-                           price_type=SL_PRICE_TYPE,
-                           price=0.00,
-                           trigger_price=sl_price,
-                           retention='DAY',
-                           remarks=sl_remarks
-                           )
+    resp = api.api_place_order(buy_or_sell=cover_direction,
+                               product_type=MIS_PROD_TYPE,
+                               exchange=row.exchange,
+                               trading_symbol=row.symbol,
+                               quantity=row.quantity,
+                               disclose_qty=0,
+                               price_type=SL_PRICE_TYPE,
+                               price=0.00,
+                               trigger_price=sl_price,
+                               retention='DAY',
+                               remarks=sl_remarks
+                               )
     logger.debug(f"__create_bracket_order: SL Order Creation Resp: {resp}")
     if resp is None:
         logger.error(f"__create_bracket_order: Error in creating SL order for message: {sl_remarks}")
         return
-    status, reason, _ = api_get_order_hist(resp["norenordno"])
+    status, reason, _ = api.api_get_order_hist(resp["norenordno"])
     params.loc[idx, 'sl_order_status'] = status
     if status == 'REJECTED':
         logger.error(f"__create_bracket_order: SL leg REJECTED with: {reason}")
@@ -327,23 +116,23 @@ def __create_bracket_order(idx, row, data):
     target = calc_target(org_target=row['target'], entry_price=price,
                          direction=direction, target_range=row['strength'])
     target = round_price(price=target, tick=row['tick'], scrip=row['scrip'])
-    resp = api_place_order(buy_or_sell=cover_direction,
-                           product_type=MIS_PROD_TYPE,
-                           exchange=row.exchange,
-                           trading_symbol=row.symbol,
-                           quantity=row.quantity,
-                           disclose_qty=0,
-                           price_type=TARGET_PRICE_TYPE,
-                           price=target,
-                           trigger_price=target,
-                           retention='DAY',
-                           remarks=target_remarks
-                           )
+    resp = api.api_place_order(buy_or_sell=cover_direction,
+                               product_type=MIS_PROD_TYPE,
+                               exchange=row.exchange,
+                               trading_symbol=row.symbol,
+                               quantity=row.quantity,
+                               disclose_qty=0,
+                               price_type=TARGET_PRICE_TYPE,
+                               price=target,
+                               trigger_price=target,
+                               retention='DAY',
+                               remarks=target_remarks
+                               )
     logger.debug(f"__create_bracket_order: Target Order Creation Resp: {resp}")
     if resp is None:
         logger.error(f"__create_bracket_order: Error in creating Target order for message: {target_remarks}")
         return
-    status, reason, _ = api_get_order_hist(resp["norenordno"])
+    status, reason, _ = api.api_get_order_hist(resp["norenordno"])
     params.loc[idx, 'target_order_status'] = status
     if status == 'REJECTED':
         logger.error(f"__create_bracket_order: Target leg REJECTED with: {reason}")
@@ -355,9 +144,10 @@ def __create_bracket_order(idx, row, data):
 
 
 def __close_all_trades():
+    global instruments
     global params
     global api
-    api_unsubscribe()
+    api.api_unsubscribe(instruments)
     open_params = params.loc[params.active == 'Y']
     # Remove non-executed entries
     open_params.dropna(subset=['entry_ts'], inplace=True)
@@ -365,13 +155,13 @@ def __close_all_trades():
     for idx, order in open_params.iterrows():
         logger.debug(f"__close_all_trades: About to close\n{order}")
         # Exiting all SL-MKT orders by making them MKT orders.
-        resp = api_modify_order(order_no=order['sl_order_id'],
-                                exchange=order['exchange'],
-                                trading_symbol=order['symbol'],
-                                new_quantity=order['quantity'],
-                                new_price_type=MKT_PRICE_TYPE)
+        resp = api.api_modify_order(order_no=order['sl_order_id'],
+                                    exchange=order['exchange'],
+                                    trading_symbol=order['symbol'],
+                                    new_quantity=order['quantity'],
+                                    new_price_type=MKT_PRICE_TYPE)
         logger.debug(f"__close_all_trades: Closed SL Order: {order['sl_order_id']}, Resp: {resp}")
-        resp = api_cancel_order(order['target_order_id'])
+        resp = api.api_cancel_order(order['target_order_id'])
         logger.debug(f"__close_all_trades: Cancelled Target Order: {order['target_order_id']}, Resp: {resp}")
         params.loc[idx, 'target_order_status'] = 'CANCELLED'
         params.loc[idx, 'target_ts'] = int(time.time())
@@ -401,7 +191,7 @@ def __load_params():
     params['active'] = 'Y'
     params['sl_update_cnt'] = 0
     params['token'] = params['token'].astype(str)
-    orders = pd.DataFrame(api_get_order_book())
+    orders = pd.DataFrame(api.api_get_order_book())
 
     logger.debug(f"__load_params: Orders: {orders}")
 
@@ -452,8 +242,8 @@ def event_handler_open_callback():
     socket_opened = True
     instruments = list(set(params.apply(lambda row: f"{row['exchange']}|{row['token']}", axis=1)))
     logger.info(f"Subscribed instruments: {instruments}")
-    api.subscribe(instruments, feed_type=FeedType.SNAPQUOTE)
-    api.subscribe_orders()
+    api.api_subscribe(instruments)
+    api.api_subscribe_orders()
 
 
 def event_handler_quote_update(data):
@@ -487,13 +277,13 @@ def event_handler_quote_update(data):
                 logger.debug(f"SL_Update: About to update order\n{order}")
                 new_sl = get_new_sl(dict(order), float(ltp))
                 if float(new_sl) > 0.0:
-                    resp = api_modify_order(exchange=order.exchange,
-                                            trading_symbol=order.symbol,
-                                            order_no=order.sl_order_id,
-                                            new_quantity=order.quantity,
-                                            new_price_type=SL_PRICE_TYPE,
-                                            new_trigger_price=new_sl
-                                            )
+                    resp = api.api_modify_order(exchange=order.exchange,
+                                                trading_symbol=order.symbol,
+                                                order_no=order.sl_order_id,
+                                                new_quantity=order.quantity,
+                                                new_price_type=SL_PRICE_TYPE,
+                                                new_trigger_price=new_sl
+                                                )
                     logger.debug(f"SL_Update: Modify order Resp: {resp}")
                     params.loc[index, 'sl_price'] = float(new_sl)
                     logger.info(f"SL_Update: Post SL Update for {order}\nParams:\n{params}")
@@ -521,7 +311,7 @@ def event_handler_order_update(curr_order):
                 params.loc[curr_order_idx, 'target_order_status'] = 'COMPLETE'
                 params.loc[curr_order_idx, 'target_ts'] = curr_order_ts
             logger.debug(f"order_update: About to cancel {entry_order}'s contra order: {contra_order}")
-            resp = api_cancel_order(contra_order)
+            resp = api.api_cancel_order(contra_order)
             logger.debug(f"order_update: Response from cancel {resp}")
             if resp.get('stat', 0) == 'Ok':
                 logger.debug(f"About to inactivate {entry_order}")
@@ -559,10 +349,15 @@ def event_handler_order_update(curr_order):
 
 
 def event_handler_error(message):
+    global instruments
     logger.error(f"Error message {message}")
     send_email(body=f"Error in websocket {message}", subject="Websocket Error!")
-    api_unsubscribe()
-    api_start_websocket()
+    api.api_unsubscribe(instruments)
+    api.api_start_websocket(subscribe_callback=event_handler_quote_update,
+                            socket_open_callback=event_handler_open_callback,
+                            socket_error_callback=event_handler_error,
+                            order_update_callback=event_handler_order_update
+                            )
 
 
 def start(acct_param: str, post_proc: bool = True):
@@ -583,7 +378,7 @@ def start(acct_param: str, post_proc: bool = True):
     alert_time_ist = IST.localize(datetime.datetime.strptime("09:30", "%H:%M")).time()
     alert_pending = True
 
-    ret = api_login()
+    ret = api.api_login()
     logger.info(f"API Login: {ret}")
     if ret is None:
         raise Exception("Unable to login to broker API")
@@ -598,7 +393,11 @@ def start(acct_param: str, post_proc: bool = True):
         logger.error("No Active Params entries")
         return
 
-    api_start_websocket()
+    api.api_start_websocket(subscribe_callback=event_handler_quote_update,
+                            socket_open_callback=event_handler_open_callback,
+                            socket_error_callback=event_handler_error,
+                            order_update_callback=event_handler_order_update
+                            )
 
     while datetime.datetime.now(IST).time() <= target_time_ist:
         if alert_pending and datetime.datetime.now(IST).time() >= alert_time_ist:
@@ -617,7 +416,7 @@ def start(acct_param: str, post_proc: bool = True):
 if __name__ == "__main__":
     from commons.loggers.setup_logger import setup_logging
 
-    setup_logging()
+    setup_logging("engine.log")
 
     MOCK = True
     start(acct_param='Trader-V2-Pralhad')
