@@ -1,0 +1,18 @@
+{
+  "uid": "FA100282",
+  "actid": "FA100282",
+  "exch": "NSE",
+  "tsym": "M%26M-EQ",
+  "qty": "1",
+  "prc": "1553.2",
+  "prd": "B",
+  "trantype": "B",
+  "prctyp": "LMT",
+  "ret": "DAY",
+  "blprc": "10",
+  "bpprc": "12",
+  "channel": "MacOS",
+  "usr_agent": "BrowserAgent.EdgeChromium",
+  "app_inst_id": "a67e5937-fed4-498d-9813-9260c1fedd0b",
+  "ordersource": "WEB"
+}
