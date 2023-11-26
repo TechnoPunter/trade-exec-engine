@@ -1,22 +1,19 @@
-import datetime
 import logging
 
 import pandas as pd
-import pyotp
-from NorenRestApiPy.NorenApi import NorenApi
 from commons.backtest.fastBT import FastBT
-from commons.config.reader import cfg
+from commons.broker.Shoonya import Shoonya
 from commons.consts.consts import TODAY, PARAMS_LOG_TYPE, BROKER_TRADE_LOG_TYPE, S_TODAY, BT_TRADE_LOG_TYPE
 from commons.dataprovider.database import DatabaseEngine
-from commons.dataprovider.tvfeed import TvDatafeed, Interval
-from commons.utils.EmailAlert import send_df_email, send_email
+from commons.loggers.setup_logger import setup_logging
+from commons.service.ScripDataService import ScripDataService
+from commons.utils.EmailAlert import send_df_email
 from commons.utils.Misc import log_entry
 
 logger = logging.getLogger(__name__)
 
 
 class CloseOfBusiness:
-    api: NorenApi
     """
     This provides post process functions i.e. After all open orders are closed
     1. self.__generate_reminders() - Password expiry checks
@@ -30,18 +27,8 @@ class CloseOfBusiness:
         self.acct = acct
         self.params = params
         self.trader_db = DatabaseEngine()
-        self.creds = cfg['shoonya'][self.acct]
-        self.api = NorenApi(host='https://api.shoonya.com/NorenWClientTP/',
-                            websocket='wss://api.shoonya.com/NorenWSTP/')
-
-        logger.debug(f"api_login: About to call api.login with {self.creds}")
-        resp = self.api.login(userid=self.creds['user'],
-                              password=self.creds['pwd'],
-                              twoFA=pyotp.TOTP(self.creds['token']).now(),
-                              vendor_code=self.creds['vc'],
-                              api_secret=self.creds['apikey'],
-                              imei=self.creds['imei'])
-        logger.debug(f"api_login: Post api.login; Resp: {resp}")
+        self.shoonya = Shoonya(self.acct)
+        self.sds = ScripDataService(shoonya=self.shoonya, trader_db=self.trader_db)
 
     def __get_sl_thresholds(self):
         """
@@ -65,16 +52,7 @@ class CloseOfBusiness:
             logger.error(f"__store_orders: No Params found to store")
 
     def __store_broker_trades(self):
-        orders = self.api.get_order_book()
-        if orders is None:
-            logger.error("__store_broker_trades: Retrying!")
-            self.api.login(userid=self.creds['user'],
-                           password=self.creds['pwd'],
-                           twoFA=pyotp.TOTP(self.creds['token']).now(),
-                           vendor_code=self.creds['vc'],
-                           api_secret=self.creds['apikey'],
-                           imei=self.creds['imei'])
-            orders = self.api.get_order_book()
+        orders = self.shoonya.api_get_order_book()
         if len(orders) > 0:
             order_date = str(TODAY)
             log_entry(trader_db=self.trader_db, log_type=BROKER_TRADE_LOG_TYPE, keys=["COB"],
@@ -88,19 +66,15 @@ class CloseOfBusiness:
         df = self.params
         df.loc[:, 'trade_date'] = S_TODAY
 
-        tv = TvDatafeed()
-        tv.get_tv_data(symbols=scrips, freq=Interval.in_1_minute, path=cfg['low-tf-data-dir-path'])
+        self.sds.load_scrips_data(scrip_names=scrips, opts=["TICK"])
 
-        f = FastBT()
+        f = FastBT(trader_db=self.trader_db)
         bt_trades, _ = f.run_cob_accuracy(params=df)
         log_entry(trader_db=self.trader_db, log_type=BT_TRADE_LOG_TYPE, keys=["COB"],
                   data=bt_trades, log_date=S_TODAY, acct=self.acct)
 
     def __generate_reminders(self):
         send_df_email(df=self.params, subject="COB Params", acct=self.acct)
-        if self.creds.get('expiry_date', datetime.date.today()) <= datetime.date.today():
-            send_email(body=f"Shoonya password expired for {self.acct} on {self.creds['expiry_date']}!!!",
-                       subject="ERROR: Password Change Needed")
 
         trades = self.trader_db.run_query(tbl='daily_trade_report', predicate=f"account_id = '{self.acct}'")
         if len(trades) > 0:
@@ -114,6 +88,7 @@ class CloseOfBusiness:
 
 
 if __name__ == '__main__':
+    setup_logging()
     params_df = pd.read_json(
         "/Users/pralhad/Documents/99-src/98-trading/trade-exec-engine/resources/test/cob/cob-params.json")
     c = CloseOfBusiness(acct='Trader-V2-Pralhad', params=params_df)
