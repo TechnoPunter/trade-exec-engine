@@ -64,3 +64,24 @@ class TestEngine(unittest.TestCase):
         result['target_pct'] = np.NaN
 
         pd.testing.assert_frame_equal(sm.params, result)
+
+    @patch.dict('exec.service.engine.cfg', {"generated": os.path.join(TEST_RESOURCE_DIR, 'order_update')})
+    @patch('exec.service.engine.api.api_get_order_book')
+    def test_event_handler_order_update(self, mock_api):
+        mock_response = Mock()
+        mock_response.return_value = None
+        mock_api.return_value = mock_response.return_value
+        sm.load_params()
+        recs = read_file("order_update/bo-entry-order-update.json", ret_type="JSON")
+        for message in recs:
+            sm.event_handler_order_update(curr_order=message)
+
+        result = read_file("order_update/expected-params.json", ret_type="DF")
+        result['target_pct'] = np.NaN
+        result['strength'] = np.NaN
+        output = sm.params
+        output['entry_ts'] = output['entry_ts'].astype(float)
+        output['sl_ts'] = output['sl_ts'].astype(float)
+        output['target_ts'] = output['target_ts'].astype(float)
+
+        pd.testing.assert_frame_equal(sm.params, result)

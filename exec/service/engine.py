@@ -246,10 +246,14 @@ def load_params():
     params['sl_update_cnt'] = 0
     params['token'] = params['token'].astype(str)
     ob = api.api_get_order_book()
-    marked_ob = api.get_order_type_order_book(ob)
-    orders = pd.DataFrame(marked_ob)
-
-    logger.debug(f"__load_params: Orders: {orders}")
+    if ob is None:
+        orders = []
+    elif len(ob) > 0:
+        marked_ob = api.get_order_type_order_book(ob)
+        orders = pd.DataFrame(marked_ob)
+        logger.debug(f"__load_params: Orders: {orders}")
+    else:
+        orders = []
 
     if len(orders) > 0:
         orders = orders.loc[(orders.prd == 'B') &
@@ -266,8 +270,8 @@ def load_params():
             params.loc[orders.index, order_cols] = orders[order_cols]
             params.loc[orders.index, 'strength'] = abs(params['target'] - params['entry_price'])
 
-        else:
-            logger.info("__load_params: No orders to stitch to params.")
+    else:
+        logger.info("__load_params: No orders to stitch to params.")
 
     log_entry(trader_db=trader_db, log_type=PARAMS_LOG_TYPE, keys=["BOD"], data=params, acct=acct, log_date=S_TODAY)
     logger.info(f"__load_params: Params:\n{params}")
@@ -334,57 +338,40 @@ def event_handler_order_update(curr_order):
     logger.debug(f"order_update: Entered Order update Callback with {curr_order}")
     curr_order_id = curr_order['norenordno']
     curr_order_status = curr_order.get('status', 'NA')
-    order_type = get_order_type(curr_order)
+    upd_order = api.get_order_type_order_update(curr_order)
+    order_idx = int(upd_order.get('tp_order_num', -1))
+    order_type = upd_order.get('tp_order_type', 'X')
     curr_order_ts = get_epoch(curr_order.get('exch_tm', '0'))
-    if curr_order_status == 'COMPLETE':
+    if order_idx != -1:
         if order_type == 'ENTRY_LEG':
-            params.loc[(params.entry_order_id == curr_order_id), 'entry_order_status'] = curr_order_status
-            logger.debug(f"order_update: Entry Leg completion notification for {curr_order['remarks']}; ignoring")
-        else:
-            # Either hit SL or Target need to cancel the other
-            curr_order_idx, entry_order, contra_order, hit_type = get_contra_leg(params, curr_order_id)
-            if hit_type == 'SL-HIT':
-                params.loc[curr_order_idx, 'sl_order_status'] = 'COMPLETE'
-                params.loc[curr_order_idx, 'sl_ts'] = curr_order_ts
-            else:
-                params.loc[curr_order_idx, 'target_order_status'] = 'COMPLETE'
-                params.loc[curr_order_idx, 'target_ts'] = curr_order_ts
-            logger.debug(f"order_update: About to cancel {entry_order}'s contra order: {contra_order}")
-            resp = api.api_cancel_order(contra_order)
-            logger.debug(f"order_update: Response from cancel {resp}")
-            if resp.get('stat', 0) == 'Ok':
-                logger.debug(f"About to inactivate {entry_order}")
-                params.loc[curr_order_idx, 'active'] = 'N'
-                if hit_type == 'SL-HIT':
-                    params.loc[curr_order_idx, 'target_order_status'] = 'CANCELLED'
-                    params.loc[curr_order_idx, 'target_ts'] = curr_order_ts
-                else:
-                    params.loc[curr_order_idx, 'sl_order_status'] = 'CANCELLED'
-                    params.loc[curr_order_idx, 'sl_ts'] = curr_order_ts
-            logger.info(f"order_update: Post Order Cancellation: Params\n{params}")
-    elif curr_order_status == 'TRIGGER_PENDING' and order_type == 'SL_LEG':
-        # SL Leg
-        recs = params.loc[params.sl_order_id == curr_order_id]
-        idx = recs.index[0]
-        params.loc[idx, 'sl_order_status'] = curr_order['status']
-        params.loc[idx, 'sl_price'] = float(curr_order['trgprc'])
-        params.loc[idx, 'sl_ts'] = curr_order_ts
-        params.loc[idx, 'sl_update_cnt'] += 1
-        logger.info(f"order_update: Updated SL Params:\n{params}")
-    elif curr_order_status == 'OPEN' and order_type == 'TARGET_LEG':
-        # Target Leg
-        recs = params.loc[params.target_order_id == curr_order_id]
-        idx = recs.index[0]
-        params.loc[idx, 'target_order_status'] = curr_order['status']
-        params.loc[idx, 'target_price'] = float(curr_order['prc'])
-        params.loc[idx, 'target_ts'] = curr_order_ts
-        logger.info(f"order_update: Updated Target Params:\n{params}")
-    elif curr_order_status == 'REJECTED' and order_type == 'ENTRY_LEG':
-        recs = params.loc[params.entry_order_id == curr_order_id]
-        if len(recs) > 0:
-            idx = recs.index[0]
-            params.loc[idx, 'entry_order_status'] = curr_order_status
-            logger.info(f"order_update: Updated Reject Params:\n{params}")
+            price = curr_order.get("avgprc", "prc")
+            params.loc[order_idx, ['entry_order_id', 'entry_order_status', 'entry_ts', 'entry_price']] = (
+                curr_order_id, curr_order_status, curr_order_ts, price)
+            logger.debug(f"order_update: Updated Entry Params:\n{params}")
+            if curr_order_status == 'REJECTED':
+                params.loc[order_idx, 'active'] = 'N'
+                logger.debug(f"order_update: Updated Entry Rejection Status Params:\n{params}")
+        elif order_type == 'SL_LEG':
+            price = curr_order.get("trgprc", -1)
+            params.loc[order_idx, ['sl_order_id', 'sl_order_status', 'sl_ts', 'sl_price']] = (
+                curr_order_id, curr_order_status, curr_order_ts, price)
+            logger.debug(f"order_update: Updated SL Params:\n{params}")
+            if curr_order_status == 'COMPLETE':
+                params.loc[order_idx, 'active'] = 'N'
+                logger.debug(f"order_update: Updated SL Completion Status Params:\n{params}")
+            elif curr_order_status == 'TRIGGER_PENDING':
+                params.loc[order_idx, 'sl_update_cnt'] += 1
+                logger.debug(f"order_update: Updated SL Update Count Params:\n{params}")
+        elif order_type == 'TARGET_LEG':
+            price = curr_order.get("prc", -1)
+            params.loc[order_idx, ['target_order_id', 'target_order_status', 'target_ts', 'target_price']] = (
+                curr_order_id, curr_order_status, curr_order_ts, price)
+            logger.debug(f"order_update: Updated Target Params:\n{params}")
+            if curr_order_status == 'COMPLETE':
+                params.loc[order_idx, 'active'] = 'N'
+                logger.debug(f"order_update: Updated Target Completion Status Params:\n{params}")
+    else:
+        logger.debug(f"Skipping order update for {curr_order_id}")
 
 
 def event_handler_error(message):
