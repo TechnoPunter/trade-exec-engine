@@ -1,0 +1,761 @@
+[2023-11-27 09:41:00,436] | [DEBUG] commons.broker.Shoonya |            api_login() | [MainThread] | api_login: About to call api.login with {'user': 'FA175610', 'pwd': 'Mhkc#334', 'vc': 'FA175610_U', 'apikey': '8cc6ce651e21f37c91e37361e896cad3', 'imei': 'abc1234', 'token': 'OBPB3Q377377ZBUS2T2T667ORXXJGF46', 'expiry_date': datetime.date(2023, 12, 25)}
+[2023-11-27 09:41:00,436] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [MainThread] | https://api.shoonya.com/NorenWClientTP//QuickAuth
+[2023-11-27 09:41:00,436] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [MainThread] | Req:jData={"source": "API", "apkversion": "1.0.0", "uid": "FA175610", "pwd": "23bc6cf3e186a4860a150b9b9790016cf5ced8cbdad955c2e0f63c8eb4b7b08f", "factor2": "652757", "vc": "FA175610_U", "appkey": "2c20c41cdd54cf4a5e94fa03e81ce203b438874ebb44b0ebe71a371d909c8a4c", "imei": "abc1234"}
+[2023-11-27 09:41:00,439] | [DEBUG] urllib3.connectionpool |            _new_conn() | [MainThread] | Starting new HTTPS connection (1): api.shoonya.com:443
+[2023-11-27 09:41:00,929] | [DEBUG] urllib3.connectionpool |        _make_request() | [MainThread] | https://api.shoonya.com:443 "POST /NorenWClientTP//QuickAuth HTTP/1.1" 200 1194
+[2023-11-27 09:41:00,931] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [MainThread] | Reply:{"request_time":"09:41:00 27-11-2023","actid":"FA175610","access_type":["WEB","TT","MOB","API"],"uname":"RAYI MAHI PRANEETH","prarr":[{"prd":"C","s_prdt_ali":"CNC","exch":["NSE","BSE","NIPO","BSTAR"]},{"prd":"M","s_prdt_ali":"NRML","exch":[]},{"prd":"I","s_prdt_ali":"MIS","exch":["NSE","BSE"]},{"prd":"H","s_prdt_ali":"CO","exch":["NSE","BSE"]},{"prd":"B","s_prdt_ali":"BO","exch":["NSE","BSE"]}],"exch_prd":[{"exch":"NSE","prds":["C","I","H","B"]},{"exch":"NIPO","prds":["C"]},{"exch":"BSE","prds":["C","I","H","B"]},{"exch":"BSTAR","prds":["C"]}],"stat":"Ok","susertoken":"c326c226d30b0ab592151c0e6974cae858273e542331b7256812c7607b4d1900","email":"mahipraneeth948@gmail.com","uid":"FA175610","brnchid":"HO","totp_set":"1","m_num":"7671974342","orarr":["MKT","LMT","SL-LMT","SL-MKT"],"exarr":["NSE","NIPO","BSE","BSTAR"],"values":["1","5"],"mws":{"1":[{"exch":"BSE","token":"543320","tsym":"ZOMATO","instname":"A","pp":"2","ls":"1","ti":"0.05"},{"exch":"NSE","token":"10576","tsym":"NIFTYBEES-EQ","instname":"EQ","pp":"2","ls":"1","ti":"0.01"}],"5":[{"exch":"NSE","token":"2475","tsym":"ONGC-EQ","instname":"EQ","pp":"2","ls":"1","ti":"0.05"}]},"brkname":"FINV","lastaccesstime":"1701058260"}
+[2023-11-27 09:41:00,934] | [DEBUG] commons.broker.Shoonya |            api_login() | [MainThread] | api_login: Post api.login; Resp: {'request_time': '09:41:00 27-11-2023', 'actid': 'FA175610', 'access_type': ['WEB', 'TT', 'MOB', 'API'], 'uname': 'RAYI MAHI PRANEETH', 'prarr': [{'prd': 'C', 's_prdt_ali': 'CNC', 'exch': ['NSE', 'BSE', 'NIPO', 'BSTAR']}, {'prd': 'M', 's_prdt_ali': 'NRML', 'exch': []}, {'prd': 'I', 's_prdt_ali': 'MIS', 'exch': ['NSE', 'BSE']}, {'prd': 'H', 's_prdt_ali': 'CO', 'exch': ['NSE', 'BSE']}, {'prd': 'B', 's_prdt_ali': 'BO', 'exch': ['NSE', 'BSE']}], 'exch_prd': [{'exch': 'NSE', 'prds': ['C', 'I', 'H', 'B']}, {'exch': 'NIPO', 'prds': ['C']}, {'exch': 'BSE', 'prds': ['C', 'I', 'H', 'B']}, {'exch': 'BSTAR', 'prds': ['C']}], 'stat': 'Ok', 'susertoken': 'c326c226d30b0ab592151c0e6974cae858273e542331b7256812c7607b4d1900', 'email': 'mahipraneeth948@gmail.com', 'uid': 'FA175610', 'brnchid': 'HO', 'totp_set': '1', 'm_num': '7671974342', 'orarr': ['MKT', 'LMT', 'SL-LMT', 'SL-MKT'], 'exarr': ['NSE', 'NIPO', 'BSE', 'BSTAR'], 'values': ['1', '5'], 'mws': {'1': [{'exch': 'BSE', 'token': '543320', 'tsym': 'ZOMATO', 'instname': 'A', 'pp': '2', 'ls': '1', 'ti': '0.05'}, {'exch': 'NSE', 'token': '10576', 'tsym': 'NIFTYBEES-EQ', 'instname': 'EQ', 'pp': '2', 'ls': '1', 'ti': '0.01'}], '5': [{'exch': 'NSE', 'token': '2475', 'tsym': 'ONGC-EQ', 'instname': 'EQ', 'pp': '2', 'ls': '1', 'ti': '0.05'}]}, 'brkname': 'FINV', 'lastaccesstime': '1701058260'}
+[2023-11-27 09:41:00,936] | [INFO] __main__ |                start() | [MainThread] | API Login: {'request_time': '09:41:00 27-11-2023', 'actid': 'FA175610', 'access_type': ['WEB', 'TT', 'MOB', 'API'], 'uname': 'RAYI MAHI PRANEETH', 'prarr': [{'prd': 'C', 's_prdt_ali': 'CNC', 'exch': ['NSE', 'BSE', 'NIPO', 'BSTAR']}, {'prd': 'M', 's_prdt_ali': 'NRML', 'exch': []}, {'prd': 'I', 's_prdt_ali': 'MIS', 'exch': ['NSE', 'BSE']}, {'prd': 'H', 's_prdt_ali': 'CO', 'exch': ['NSE', 'BSE']}, {'prd': 'B', 's_prdt_ali': 'BO', 'exch': ['NSE', 'BSE']}], 'exch_prd': [{'exch': 'NSE', 'prds': ['C', 'I', 'H', 'B']}, {'exch': 'NIPO', 'prds': ['C']}, {'exch': 'BSE', 'prds': ['C', 'I', 'H', 'B']}, {'exch': 'BSTAR', 'prds': ['C']}], 'stat': 'Ok', 'susertoken': 'c326c226d30b0ab592151c0e6974cae858273e542331b7256812c7607b4d1900', 'email': 'mahipraneeth948@gmail.com', 'uid': 'FA175610', 'brnchid': 'HO', 'totp_set': '1', 'm_num': '7671974342', 'orarr': ['MKT', 'LMT', 'SL-LMT', 'SL-MKT'], 'exarr': ['NSE', 'NIPO', 'BSE', 'BSTAR'], 'values': ['1', '5'], 'mws': {'1': [{'exch': 'BSE', 'token': '543320', 'tsym': 'ZOMATO', 'instname': 'A', 'pp': '2', 'ls': '1', 'ti': '0.05'}, {'exch': 'NSE', 'token': '10576', 'tsym': 'NIFTYBEES-EQ', 'instname': 'EQ', 'pp': '2', 'ls': '1', 'ti': '0.01'}], '5': [{'exch': 'NSE', 'token': '2475', 'tsym': 'ONGC-EQ', 'instname': 'EQ', 'pp': '2', 'ls': '1', 'ti': '0.05'}]}, 'brkname': 'FINV', 'lastaccesstime': '1701058260'}
+[2023-11-27 09:41:00,953] | [DEBUG] commons.broker.Shoonya |   api_get_order_book() | [MainThread] | api_get_order_book: About to call api.get_order_book
+[2023-11-27 09:41:00,954] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [MainThread] | https://api.shoonya.com/NorenWClientTP//OrderBook
+[2023-11-27 09:41:00,954] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [MainThread] | jData={"ordersource": "API", "uid": "FA175610"}&jKey=c326c226d30b0ab592151c0e6974cae858273e542331b7256812c7607b4d1900
+[2023-11-27 09:41:00,968] | [DEBUG] urllib3.connectionpool |            _new_conn() | [MainThread] | Starting new HTTPS connection (1): api.shoonya.com:443
+[2023-11-27 09:41:01,847] | [DEBUG] urllib3.connectionpool |        _make_request() | [MainThread] | https://api.shoonya.com:443 "POST /NorenWClientTP//OrderBook HTTP/1.1" 200 652
+[2023-11-27 09:41:01,849] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [MainThread] | [{"stat":"Ok","norenordno":"23112700002476","kidid":"1","uid":"FA175610","actid":"FA175610","exch":"NSE","tsym":"BANDHANBNK-EQ","qty":"56","ordenttm":"1701057637","trantype":"B","prctyp":"MKT","ret":"DAY","rejreason":"RED:Margin Shortfall:INR 283.66 Available:INR 2,216.82 for C-FA175610 [SHOONYA]","token":"2263","mult":"1","prcftr":"1.000000","instname":"EQ","ordersource":"API","pp":"2","ls":"1","ti":"0.05","prc":"0.00","blprc":"4.65","bpprc":"2.65","rprc":"0.00","dscqty":"0","s_prdt_ali":"BO","prd":"B","status":"REJECTED","st_intrn":"REJECTED","norentm":"09:30:37 27-11-2023","remarks":"BO:trainer.strategies.rfcV2:NSE_BANDHANBNK:0","rqty":"0"}]
+[2023-11-27 09:41:01,851] | [DEBUG] commons.broker.Shoonya |   api_get_order_book() | [MainThread] | api_get_order_book: Resp from api.get_order_book [{'stat': 'Ok', 'norenordno': '23112700002476', 'kidid': '1', 'uid': 'FA175610', 'actid': 'FA175610', 'exch': 'NSE', 'tsym': 'BANDHANBNK-EQ', 'qty': '56', 'ordenttm': '1701057637', 'trantype': 'B', 'prctyp': 'MKT', 'ret': 'DAY', 'rejreason': 'RED:Margin Shortfall:INR 283.66 Available:INR 2,216.82 for C-FA175610 [SHOONYA]', 'token': '2263', 'mult': '1', 'prcftr': '1.000000', 'instname': 'EQ', 'ordersource': 'API', 'pp': '2', 'ls': '1', 'ti': '0.05', 'prc': '0.00', 'blprc': '4.65', 'bpprc': '2.65', 'rprc': '0.00', 'dscqty': '0', 's_prdt_ali': 'BO', 'prd': 'B', 'status': 'REJECTED', 'st_intrn': 'REJECTED', 'norentm': '09:30:37 27-11-2023', 'remarks': 'BO:trainer.strategies.rfcV2:NSE_BANDHANBNK:0', 'rqty': '0'}]
+[2023-11-27 09:41:01,866] | [DEBUG] __main__ |          load_params() | [MainThread] | __load_params: Orders:   stat      norenordno kidid       uid     actid exch           tsym qty    ordenttm trantype prctyp  ret                                          rejreason token mult    prcftr instname ordersource pp ls    ti   prc blprc bpprc  rprc dscqty s_prdt_ali prd    status  st_intrn              norentm                                       remarks rqty tp_order_num tp_order_type
+0   Ok  23112700002476     1  FA175610  FA175610  NSE  BANDHANBNK-EQ  56  1701057637        B    MKT  DAY  RED:Margin Shortfall:INR 283.66 Available:INR ...  2263    1  1.000000       EQ         API  2  1  0.05  0.00  4.65  2.65  0.00      0         BO   B  REJECTED  REJECTED  09:30:37 27-11-2023  BO:trainer.strategies.rfcV2:NSE_BANDHANBNK:0    0            0     ENTRY_LEG
+[2023-11-27 09:41:45,861] | [INFO] __main__ |          load_params() | [MainThread] | __load_params: Params:
+    close  signal  target           scrip                     model exchange         symbol token  target_pct  sl_pct  trail_sl_pct  tick   type  risk  quantity entry_order_id sl_order_id target_order_id entry_order_status sl_order_status target_order_status entry_ts sl_ts target_ts  entry_price  sl_price  target_price  strength active  sl_update_cnt
+0  212.35       1   215.0  NSE_BANDHANBNK  trainer.strategies.rfcV2      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0        56           None        None            None               None            None                None     None  None      None          NaN       NaN           NaN       NaN      Y              0
+1  212.35       1   215.0  NSE_BANDHANBNK   trainer.strategies.row1      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0         1           None        None            None               None            None                None     None  None      None          NaN       NaN           NaN       NaN      Y              0
+[2023-11-27 09:41:48,655] | [DEBUG] commons.broker.Shoonya |  api_start_websocket() | [MainThread] | api_start_websocket: About to start api.start_websocket
+[2023-11-27 09:41:48,655] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [MainThread] | connecting to wss://api.shoonya.com/NorenWSTP/
+[2023-11-27 09:41:48,989] | [INFO] websocket |                 info() | [Thread-29 (__ws_run_forever)] | Websocket connected
+[2023-11-27 09:41:48,990] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [Thread-29 (__ws_run_forever)] | {"t": "c", "uid": "FA175610", "actid": "FA175610", "susertoken": "c326c226d30b0ab592151c0e6974cae858273e542331b7256812c7607b4d1900", "source": "API"}
+[2023-11-27 09:41:48,997] | [DEBUG] urllib3.connectionpool |            _new_conn() | [MainThread] | Starting new HTTP connection (1): trader.technotrix.co.in:80
+[2023-11-27 09:41:49,070] | [INFO] __main__ | event_handler_open_callback() | [Thread-29 (__ws_run_forever)] | Subscribed instruments: ['NSE|2263']
+[2023-11-27 09:41:49,070] | [DEBUG] commons.broker.Shoonya |        api_subscribe() | [Thread-29 (__ws_run_forever)] | api_subscribe: About to start api.subscribe
+[2023-11-27 09:41:49,071] | [DEBUG] commons.broker.Shoonya | api_subscribe_orders() | [Thread-29 (__ws_run_forever)] | api_subscribe_orders: About to start api.subscribe_orders
+[2023-11-27 09:41:49,071] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [Thread-29 (__ws_run_forever)] | {"t": "o", "actid": "FA175610"}
+[2023-11-27 09:41:53,109] | [DEBUG] urllib3.connectionpool |        _make_request() | [MainThread] | http://trader.technotrix.co.in:80 "POST /www/emailservice.php HTTP/1.1" 200 23
+[2023-11-27 09:41:54,999] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:41:58,003] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:01,004] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:04,006] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:04,541] | [DEBUG] __main__ | event_handler_quote_update() | [Thread-29 (__ws_run_forever)] | Quote_Update: Entered Quote Callback with {'t': 'dk', 'e': 'NSE', 'tk': '2263', 'ts': 'BANDHANBNK-EQ', 'pp': '2', 'ls': '1', 'ti': '0.05', 'lp': '212.35', 'pc': '0.00', 'c': '212.35', 'uc': '233.55', 'lc': '191.15', '52h': '272.00', '52l': '182.15', '52hd': '01-JUN-2023', '52ld': '28-MAR-2023'}
+[2023-11-27 09:42:07,009] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:08,606] | [DEBUG] __main__ | event_handler_quote_update() | [Thread-29 (__ws_run_forever)] | Entry_Leg: Entries:
+    close  signal  target           scrip                     model exchange         symbol token  target_pct  sl_pct  trail_sl_pct  tick   type  risk  quantity entry_order_id sl_order_id target_order_id entry_order_status sl_order_status target_order_status entry_ts sl_ts target_ts  entry_price  sl_price  target_price  strength active  sl_update_cnt
+0  212.35       1   215.0  NSE_BANDHANBNK  trainer.strategies.rfcV2      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0        56           None        None            None               None            None                None     None  None      None          NaN       NaN           NaN       NaN      Y              0
+1  212.35       1   215.0  NSE_BANDHANBNK   trainer.strategies.row1      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0         1           None        None            None               None            None                None     None  None      None          NaN       NaN           NaN       NaN      Y              0
+[2023-11-27 09:42:09,973] | [DEBUG] __main__ | __get_signal_strength() | [Thread-29 (__ws_run_forever)] | Params with strength:
+    close  signal  target           scrip                     model exchange         symbol token  target_pct  sl_pct  trail_sl_pct  tick   type  risk  quantity entry_order_id sl_order_id target_order_id entry_order_status sl_order_status target_order_status entry_ts sl_ts target_ts  entry_price  sl_price  target_price  strength active  sl_update_cnt
+0  212.35       1   215.0  NSE_BANDHANBNK  trainer.strategies.rfcV2      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0        56           None        None            None               None            None                None     None  None      None          NaN       NaN           NaN      2.65      Y              0
+1  212.35       1   215.0  NSE_BANDHANBNK   trainer.strategies.row1      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0         1           None        None            None               None            None                None     None  None      None          NaN       NaN           NaN      2.65      Y              0
+[2023-11-27 09:42:10,011] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:13,011] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:16,017] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:19,024] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:22,026] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:25,030] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:28,035] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:31,041] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:34,047] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:37,053] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:40,057] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:43,064] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:46,071] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:49,077] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:52,084] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:55,090] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:42:58,094] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:01,100] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:04,103] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:04,470] | [DEBUG] __main__ | __create_bracket_order() | [Thread-29 (__ws_run_forever)] | __create_bracket_order: Creating bracket order for trainer.strategies.rfcV2, NSE_BANDHANBNK, 0
+[2023-11-27 09:43:07,108] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:10,114] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:13,120] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:15,284] | [DEBUG] commons.utils.Misc |              calc_sl() | [Thread-29 (__ws_run_forever)] | Entered Calc SL with SL Factor: 2.2, Tick: 0.05, Scrip: NSE_BANDHANBNK
+[2023-11-27 09:43:15,285] | [DEBUG] commons.utils.Misc |              calc_sl() | [Thread-29 (__ws_run_forever)] | NSE_BANDHANBNK: Calc SL: 207.70
+[2023-11-27 09:43:16,126] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:19,132] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:21,891] | [DEBUG] commons.utils.Misc |          round_price() | [Thread-29 (__ws_run_forever)] | Entered Round Price with : 215.0, Tick: 0.05, Scrip: NSE_BANDHANBNK
+[2023-11-27 09:43:21,891] | [DEBUG] commons.utils.Misc |          round_price() | [Thread-29 (__ws_run_forever)] | NSE_BANDHANBNK: Calc Price: 215.00
+[2023-11-27 09:43:22,135] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:25,141] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:28,148] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:31,150] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:34,156] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:37,162] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:39,694] | [DEBUG] commons.broker.Shoonya |      api_place_order() | [Thread-29 (__ws_run_forever)] | api_place_order: About to call api.place_order with BO:trainer.strategies.rfcV2:NSE_BANDHANBNK:0
+[2023-11-27 09:43:39,694] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [Thread-29 (__ws_run_forever)] | https://api.shoonya.com/NorenWClientTP//PlaceOrder
+[2023-11-27 09:43:39,694] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [Thread-29 (__ws_run_forever)] | jData={"ordersource": "API", "uid": "FA175610", "actid": "FA175610", "trantype": "B", "prd": "B", "exch": "NSE", "tsym": "BANDHANBNK-EQ", "qty": "56", "dscqty": "0", "prctyp": "MKT", "prc": "0.0", "trgprc": "None", "ret": "DAY", "remarks": "BO:trainer.strategies.rfcV2:NSE_BANDHANBNK:0", "amo": "NO", "blprc": "4.65", "bpprc": "2.65"}&jKey=c326c226d30b0ab592151c0e6974cae858273e542331b7256812c7607b4d1900
+[2023-11-27 09:43:39,703] | [DEBUG] urllib3.connectionpool |            _new_conn() | [Thread-29 (__ws_run_forever)] | Starting new HTTPS connection (1): api.shoonya.com:443
+[2023-11-27 09:43:39,932] | [DEBUG] urllib3.connectionpool |        _make_request() | [Thread-29 (__ws_run_forever)] | https://api.shoonya.com:443 "POST /NorenWClientTP//PlaceOrder HTTP/1.1" 200 80
+[2023-11-27 09:43:39,933] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [Thread-29 (__ws_run_forever)] | {"request_time":"09:43:39 27-11-2023","stat":"Ok","norenordno":"23112700002941"}
+[2023-11-27 09:43:39,935] | [DEBUG] commons.broker.Shoonya |      api_place_order() | [Thread-29 (__ws_run_forever)] | api_place_order: Resp from api.place_order {'request_time': '09:43:39 27-11-2023', 'stat': 'Ok', 'norenordno': '23112700002941'} with BO:trainer.strategies.rfcV2:NSE_BANDHANBNK:0
+[2023-11-27 09:43:40,165] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:43,171] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:46,177] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:49,183] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:52,189] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:55,195] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:43:58,201] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:01,206] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:04,213] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:07,215] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:10,220] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:10,221] | [DEBUG] __main__ | __create_bracket_order() | [Thread-29 (__ws_run_forever)] | __create_bracket_order: BO Leg Resp: {'request_time': '09:43:39 27-11-2023', 'stat': 'Ok', 'norenordno': '23112700002941'}
+[2023-11-27 09:44:13,227] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:16,232] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:19,238] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:22,244] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:25,248] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:28,253] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:31,259] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:34,263] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:37,269] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:40,274] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:41,255] | [DEBUG] __main__ | __create_bracket_order() | [Thread-29 (__ws_run_forever)] | __create_bracket_order: Post Target: Params
+    close  signal  target           scrip                     model exchange         symbol token  target_pct  sl_pct  trail_sl_pct  tick   type  risk  quantity entry_order_id sl_order_id target_order_id entry_order_status sl_order_status target_order_status entry_ts sl_ts target_ts  entry_price  sl_price  target_price  strength active  sl_update_cnt
+0  212.35       1   215.0  NSE_BANDHANBNK  trainer.strategies.rfcV2      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0        56             -1        None            None               None            None                None     None  None      None          NaN       NaN           NaN      2.65      Y              0
+1  212.35       1   215.0  NSE_BANDHANBNK   trainer.strategies.row1      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0         1           None        None            None               None            None                None     None  None      None          NaN       NaN           NaN      2.65      Y              0
+[2023-11-27 09:44:43,280] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:46,286] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:49,293] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:49,388] | [DEBUG] __main__ | __create_bracket_order() | [Thread-29 (__ws_run_forever)] | __create_bracket_order: Creating bracket order for trainer.strategies.row1, NSE_BANDHANBNK, 1
+[2023-11-27 09:44:49,389] | [DEBUG] commons.utils.Misc |              calc_sl() | [Thread-29 (__ws_run_forever)] | Entered Calc SL with SL Factor: 2.2, Tick: 0.05, Scrip: NSE_BANDHANBNK
+[2023-11-27 09:44:49,389] | [DEBUG] commons.utils.Misc |              calc_sl() | [Thread-29 (__ws_run_forever)] | NSE_BANDHANBNK: Calc SL: 207.70
+[2023-11-27 09:44:49,390] | [DEBUG] commons.utils.Misc |          round_price() | [Thread-29 (__ws_run_forever)] | Entered Round Price with : 215.0, Tick: 0.05, Scrip: NSE_BANDHANBNK
+[2023-11-27 09:44:49,390] | [DEBUG] commons.utils.Misc |          round_price() | [Thread-29 (__ws_run_forever)] | NSE_BANDHANBNK: Calc Price: 215.00
+[2023-11-27 09:44:49,390] | [DEBUG] commons.broker.Shoonya |      api_place_order() | [Thread-29 (__ws_run_forever)] | api_place_order: About to call api.place_order with BO:trainer.strategies.row1:NSE_BANDHANBNK:1
+[2023-11-27 09:44:49,390] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [Thread-29 (__ws_run_forever)] | https://api.shoonya.com/NorenWClientTP//PlaceOrder
+[2023-11-27 09:44:49,390] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [Thread-29 (__ws_run_forever)] | jData={"ordersource": "API", "uid": "FA175610", "actid": "FA175610", "trantype": "B", "prd": "B", "exch": "NSE", "tsym": "BANDHANBNK-EQ", "qty": "1", "dscqty": "0", "prctyp": "MKT", "prc": "0.0", "trgprc": "None", "ret": "DAY", "remarks": "BO:trainer.strategies.row1:NSE_BANDHANBNK:1", "amo": "NO", "blprc": "4.65", "bpprc": "2.65"}&jKey=c326c226d30b0ab592151c0e6974cae858273e542331b7256812c7607b4d1900
+[2023-11-27 09:44:49,397] | [DEBUG] urllib3.connectionpool |            _new_conn() | [Thread-29 (__ws_run_forever)] | Starting new HTTPS connection (1): api.shoonya.com:443
+[2023-11-27 09:44:49,643] | [DEBUG] urllib3.connectionpool |        _make_request() | [Thread-29 (__ws_run_forever)] | https://api.shoonya.com:443 "POST /NorenWClientTP//PlaceOrder HTTP/1.1" 200 80
+[2023-11-27 09:44:49,644] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [Thread-29 (__ws_run_forever)] | {"request_time":"09:44:49 27-11-2023","stat":"Ok","norenordno":"23112700002961"}
+[2023-11-27 09:44:49,645] | [DEBUG] commons.broker.Shoonya |      api_place_order() | [Thread-29 (__ws_run_forever)] | api_place_order: Resp from api.place_order {'request_time': '09:44:49 27-11-2023', 'stat': 'Ok', 'norenordno': '23112700002961'} with BO:trainer.strategies.row1:NSE_BANDHANBNK:1
+[2023-11-27 09:44:49,645] | [DEBUG] __main__ | __create_bracket_order() | [Thread-29 (__ws_run_forever)] | __create_bracket_order: BO Leg Resp: {'request_time': '09:44:49 27-11-2023', 'stat': 'Ok', 'norenordno': '23112700002961'}
+[2023-11-27 09:44:49,664] | [DEBUG] __main__ | __create_bracket_order() | [Thread-29 (__ws_run_forever)] | __create_bracket_order: Post Target: Params
+    close  signal  target           scrip                     model exchange         symbol token  target_pct  sl_pct  trail_sl_pct  tick   type  risk  quantity entry_order_id sl_order_id target_order_id entry_order_status sl_order_status target_order_status entry_ts sl_ts target_ts  entry_price  sl_price  target_price  strength active  sl_update_cnt
+0  212.35       1   215.0  NSE_BANDHANBNK  trainer.strategies.rfcV2      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0        56             -1        None            None               None            None                None     None  None      None          NaN       NaN           NaN      2.65      Y              0
+1  212.35       1   215.0  NSE_BANDHANBNK   trainer.strategies.row1      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0         1             -1        None            None               None            None                None     None  None      None          NaN       NaN           NaN      2.65      Y              0
+[2023-11-27 09:44:49,678] | [INFO] __main__ | event_handler_quote_update() | [Thread-29 (__ws_run_forever)] | Entry_Leg: Post Update Params:
+    close  signal  target           scrip                     model exchange         symbol token  target_pct  sl_pct  trail_sl_pct  tick   type  risk  quantity entry_order_id sl_order_id target_order_id entry_order_status sl_order_status target_order_status entry_ts sl_ts target_ts  entry_price  sl_price  target_price  strength active  sl_update_cnt
+0  212.35       1   215.0  NSE_BANDHANBNK  trainer.strategies.rfcV2      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0        56             -1        None            None               None            None                None     None  None      None          NaN       NaN           NaN      2.65      Y              0
+1  212.35       1   215.0  NSE_BANDHANBNK   trainer.strategies.row1      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0         1             -1        None            None               None            None                None     None  None      None          NaN       NaN           NaN      2.65      Y              0
+[2023-11-27 09:44:49,681] | [DEBUG] __main__ | event_handler_quote_update() | [Thread-29 (__ws_run_forever)] | SL_Update: SL Entries:
+Empty DataFrame
+Columns: [close, signal, target, scrip, model, exchange, symbol, token, target_pct, sl_pct, trail_sl_pct, tick, type, risk, quantity, entry_order_id, sl_order_id, target_order_id, entry_order_status, sl_order_status, target_order_status, entry_ts, sl_ts, target_ts, entry_price, sl_price, target_price, strength, active, sl_update_cnt]
+Index: []
+[2023-11-27 09:44:52,298] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:55,304] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:44:58,310] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:01,312] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:04,317] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:07,323] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:09,274] | [DEBUG] __main__ | event_handler_order_update() | [Thread-29 (__ws_run_forever)] | order_update: Entered Order update Callback with {'t': 'om', 'norenordno': '23112700002941', 'uid': 'FA175610', 'actid': 'FA175610', 'exch': 'NSE', 'tsym': 'BANDHANBNK-EQ', 'trantype': 'B', 'qty': '56', 'prc': '0.00', 'pcode': 'B', 'remarks': 'BO:trainer.strategies.rfcV2:NSE_BANDHANBNK:0', 'status': 'PENDING', 'reporttype': 'NewAck', 'prctyp': 'MKT', 'ret': 'DAY', 'exchordid': '', 'dscqty': '0', 'blprc': '4.65', 'bpprc': '2.65'}
+[2023-11-27 09:45:10,324] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:13,330] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:16,333] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:18,196] | [DEBUG] __main__ | event_handler_order_update() | [Thread-29 (__ws_run_forever)] | order_update: Updated Entry Params:
+    close  signal  target           scrip                     model exchange         symbol token  target_pct  sl_pct  trail_sl_pct  tick   type  risk  quantity  entry_order_id sl_order_id target_order_id entry_order_status sl_order_status target_order_status    entry_ts sl_ts target_ts  entry_price  sl_price  target_price  strength active  sl_update_cnt
+0  212.35       1   215.0  NSE_BANDHANBNK  trainer.strategies.rfcV2      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0        56  23112700002941        None            None            PENDING            None                None  1701058512  None      None          0.0       NaN           NaN      2.65      Y              0
+1  212.35       1   215.0  NSE_BANDHANBNK   trainer.strategies.row1      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0         1              -1        None            None               None            None                None        None  None      None          NaN       NaN           NaN      2.65      Y              0
+[2023-11-27 09:45:19,339] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:22,345] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:25,351] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:28,352] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:31,358] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:34,364] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:37,370] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:40,373] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:43,377] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:46,383] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:49,388] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:51,811] | [DEBUG] __main__ | event_handler_order_update() | [Thread-29 (__ws_run_forever)] | order_update: Entered Order update Callback with {'t': 'om', 'norenordno': '23112700002941', 'uid': 'FA175610', 'actid': 'FA175610', 'exch': 'NSE', 'tsym': 'BANDHANBNK-EQ', 'trantype': 'B', 'qty': '56', 'prc': '0.00', 'pcode': 'B', 'remarks': 'BO:trainer.strategies.rfcV2:NSE_BANDHANBNK:0', 'rejreason': 'RED:Margin Shortfall:INR 283.66 Available:INR 2,216.82 for C-FA175610 [SHOONYA]', 'status': 'REJECTED', 'reporttype': 'Rejected', 'prctyp': 'MKT', 'ret': 'DAY', 'exchordid': '', 'dscqty': '0', 'blprc': '4.65', 'bpprc': '2.65'}
+[2023-11-27 09:45:52,390] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:55,396] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:45:58,398] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:01,404] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:02,125] | [DEBUG] __main__ | event_handler_order_update() | [Thread-29 (__ws_run_forever)] | order_update: Updated Entry Params:
+    close  signal  target           scrip                     model exchange         symbol token  target_pct  sl_pct  trail_sl_pct  tick   type  risk  quantity  entry_order_id sl_order_id target_order_id entry_order_status sl_order_status target_order_status    entry_ts sl_ts target_ts  entry_price  sl_price  target_price  strength active  sl_update_cnt
+0  212.35       1   215.0  NSE_BANDHANBNK  trainer.strategies.rfcV2      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0        56  23112700002941        None            None           REJECTED            None                None  1701058557  None      None          0.0       NaN           NaN      2.65      Y              0
+1  212.35       1   215.0  NSE_BANDHANBNK   trainer.strategies.row1      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0         1              -1        None            None               None            None                None        None  None      None          NaN       NaN           NaN      2.65      Y              0
+[2023-11-27 09:46:04,409] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:05,945] | [DEBUG] __main__ | event_handler_order_update() | [Thread-29 (__ws_run_forever)] | order_update: Updated Entry Rejection Status Params:
+    close  signal  target           scrip                     model exchange         symbol token  target_pct  sl_pct  trail_sl_pct  tick   type  risk  quantity  entry_order_id sl_order_id target_order_id entry_order_status sl_order_status target_order_status    entry_ts sl_ts target_ts  entry_price  sl_price  target_price  strength active  sl_update_cnt
+0  212.35       1   215.0  NSE_BANDHANBNK  trainer.strategies.rfcV2      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0        56  23112700002941        None            None           REJECTED            None                None  1701058557  None      None          0.0       NaN           NaN      2.65      N              0
+1  212.35       1   215.0  NSE_BANDHANBNK   trainer.strategies.row1      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0         1              -1        None            None               None            None                None        None  None      None          NaN       NaN           NaN      2.65      Y              0
+[2023-11-27 09:46:07,416] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:10,419] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:13,425] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:16,431] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:19,435] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:22,438] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:25,441] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:28,446] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:31,448] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:34,454] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:37,456] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:39,438] | [DEBUG] __main__ | event_handler_order_update() | [Thread-29 (__ws_run_forever)] | order_update: Entered Order update Callback with {'t': 'om', 'norenordno': '23112700002961', 'uid': 'FA175610', 'actid': 'FA175610', 'exch': 'NSE', 'tsym': 'BANDHANBNK-EQ', 'trantype': 'B', 'qty': '1', 'prc': '0.00', 'pcode': 'B', 'remarks': 'BO:trainer.strategies.row1:NSE_BANDHANBNK:1', 'status': 'PENDING', 'reporttype': 'NewAck', 'prctyp': 'MKT', 'ret': 'DAY', 'exchordid': '', 'dscqty': '0', 'blprc': '4.65', 'bpprc': '2.65'}
+[2023-11-27 09:46:40,461] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:43,465] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:45,281] | [DEBUG] __main__ | event_handler_order_update() | [Thread-29 (__ws_run_forever)] | order_update: Updated Entry Params:
+    close  signal  target           scrip                     model exchange         symbol token  target_pct  sl_pct  trail_sl_pct  tick   type  risk  quantity  entry_order_id sl_order_id target_order_id entry_order_status sl_order_status target_order_status    entry_ts sl_ts target_ts  entry_price  sl_price  target_price  strength active  sl_update_cnt
+0  212.35       1   215.0  NSE_BANDHANBNK  trainer.strategies.rfcV2      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0        56  23112700002941        None            None           REJECTED            None                None  1701058557  None      None          0.0       NaN           NaN      2.65      N              0
+1  212.35       1   215.0  NSE_BANDHANBNK   trainer.strategies.row1      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0         1  23112700002961        None            None            PENDING            None                None  1701058601  None      None          0.0       NaN           NaN      2.65      Y              0
+[2023-11-27 09:46:46,471] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:49,476] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:52,483] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:55,486] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:46:58,491] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:01,492] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:02,089] | [DEBUG] __main__ | event_handler_order_update() | [Thread-29 (__ws_run_forever)] | order_update: Entered Order update Callback with {'t': 'om', 'norenordno': '23112700002961', 'uid': 'FA175610', 'actid': 'FA175610', 'exch': 'NSE', 'tsym': 'BANDHANBNK-EQ', 'trantype': 'B', 'qty': '1', 'prc': '0.00', 'pcode': 'B', 'remarks': 'BO:trainer.strategies.row1:NSE_BANDHANBNK:1', 'status': 'PENDING', 'reporttype': 'PendingNew', 'prctyp': 'MKT', 'ret': 'DAY', 'exchordid': '', 'dscqty': '0', 'blprc': '4.65', 'bpprc': '2.65'}
+[2023-11-27 09:47:02,111] | [DEBUG] __main__ | event_handler_order_update() | [Thread-29 (__ws_run_forever)] | order_update: Updated Entry Params:
+    close  signal  target           scrip                     model exchange         symbol token  target_pct  sl_pct  trail_sl_pct  tick   type  risk  quantity  entry_order_id sl_order_id target_order_id entry_order_status sl_order_status target_order_status    entry_ts sl_ts target_ts  entry_price  sl_price  target_price  strength active  sl_update_cnt
+0  212.35       1   215.0  NSE_BANDHANBNK  trainer.strategies.rfcV2      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0        56  23112700002941        None            None           REJECTED            None                None  1701058557  None      None          0.0       NaN           NaN      2.65      N              0
+1  212.35       1   215.0  NSE_BANDHANBNK   trainer.strategies.row1      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0         1  23112700002961        None            None            PENDING            None                None  1701058622  None      None          0.0       NaN           NaN      2.65      Y              0
+[2023-11-27 09:47:04,498] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:07,502] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:10,509] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:13,513] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:16,515] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:19,521] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:22,367] | [DEBUG] __main__ | event_handler_order_update() | [Thread-29 (__ws_run_forever)] | order_update: Entered Order update Callback with {'t': 'om', 'norenordno': '23112700002961', 'uid': 'FA175610', 'actid': 'FA175610', 'exch': 'NSE', 'tsym': 'BANDHANBNK-EQ', 'trantype': 'B', 'qty': '1', 'prc': '0.00', 'pcode': 'B', 'remarks': 'BO:trainer.strategies.row1:NSE_BANDHANBNK:1', 'rejreason': 'SAF:Yel is down', 'status': 'REJECTED', 'reporttype': 'Rejected', 'prctyp': 'MKT', 'ret': 'DAY', 'exchordid': '', 'dscqty': '0', 'blprc': '4.65', 'bpprc': '2.65'}
+[2023-11-27 09:47:22,524] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:25,530] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:28,536] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:31,542] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:34,548] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:37,551] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:40,555] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:43,556] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:46,101] | [DEBUG] __main__ | event_handler_order_update() | [Thread-29 (__ws_run_forever)] | order_update: Updated Entry Params:
+    close  signal  target           scrip                     model exchange         symbol token  target_pct  sl_pct  trail_sl_pct  tick   type  risk  quantity  entry_order_id sl_order_id target_order_id entry_order_status sl_order_status target_order_status    entry_ts sl_ts target_ts  entry_price  sl_price  target_price  strength active  sl_update_cnt
+0  212.35       1   215.0  NSE_BANDHANBNK  trainer.strategies.rfcV2      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0        56  23112700002941        None            None           REJECTED            None                None  1701058557  None      None          0.0       NaN           NaN      2.65      N              0
+1  212.35       1   215.0  NSE_BANDHANBNK   trainer.strategies.row1      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0         1  23112700002961        None            None           REJECTED            None                None  1701058643  None      None          0.0       NaN           NaN      2.65      Y              0
+[2023-11-27 09:47:46,114] | [DEBUG] __main__ | event_handler_order_update() | [Thread-29 (__ws_run_forever)] | order_update: Updated Entry Rejection Status Params:
+    close  signal  target           scrip                     model exchange         symbol token  target_pct  sl_pct  trail_sl_pct  tick   type  risk  quantity  entry_order_id sl_order_id target_order_id entry_order_status sl_order_status target_order_status    entry_ts sl_ts target_ts  entry_price  sl_price  target_price  strength active  sl_update_cnt
+0  212.35       1   215.0  NSE_BANDHANBNK  trainer.strategies.rfcV2      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0        56  23112700002941        None            None           REJECTED            None                None  1701058557  None      None          0.0       NaN           NaN      2.65      N              0
+1  212.35       1   215.0  NSE_BANDHANBNK   trainer.strategies.row1      NSE  BANDHANBNK-EQ  2263         NaN     2.2          0.85  0.05  Fixed     0         1  23112700002961        None            None           REJECTED            None                None  1701058643  None      None          0.0       NaN           NaN      2.65      N              0
+[2023-11-27 09:47:46,562] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:49,565] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:52,571] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:55,575] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:47:58,581] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:01,585] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:04,587] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:07,590] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:10,612] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:13,624] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:16,627] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:19,633] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:22,635] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:25,639] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:28,644] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:31,648] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:34,654] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:37,661] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:40,666] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:43,673] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:46,679] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:49,684] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:52,690] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:55,697] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:48:58,704] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:01,710] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:04,717] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:07,725] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:10,729] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:13,735] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:16,739] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:19,746] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:22,751] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:25,755] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:28,762] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:31,769] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:34,775] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:37,781] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:40,788] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:43,794] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:46,800] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:49,808] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:52,814] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:55,820] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:49:58,827] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:01,829] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:04,836] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:07,842] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:10,849] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:13,855] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:16,861] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:19,867] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:22,874] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:25,880] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:28,888] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:31,890] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:34,893] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:37,897] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:40,903] | [DEBUG] websocket |                debug() | [Thread-30 (_send_ping)] | Sending ping
+[2023-11-27 09:50:40,949] | [ERROR] __main__ |  event_handler_error() | [Thread-29 (__ws_run_forever)] | Error message Connection to remote host was lost.
+[2023-11-27 09:50:40,963] | [DEBUG] urllib3.connectionpool |            _new_conn() | [Thread-29 (__ws_run_forever)] | Starting new HTTP connection (1): trader.technotrix.co.in:80
+[2023-11-27 09:50:44,267] | [DEBUG] urllib3.connectionpool |        _make_request() | [Thread-29 (__ws_run_forever)] | http://trader.technotrix.co.in:80 "POST /www/emailservice.php HTTP/1.1" 200 23
+[2023-11-27 09:50:44,271] | [INFO] commons.broker.Shoonya |      api_unsubscribe() | [Thread-29 (__ws_run_forever)] | api_unsubscribe: About to unsubscribe
+[2023-11-27 09:50:44,272] | [DEBUG] commons.broker.Shoonya |  api_start_websocket() | [Thread-29 (__ws_run_forever)] | api_start_websocket: About to start api.start_websocket
+[2023-11-27 09:50:44,272] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [Thread-29 (__ws_run_forever)] | connecting to wss://api.shoonya.com/NorenWSTP/
+[2023-11-27 09:50:44,274] | [ERROR] websocket |                error() | [Thread-29 (__ws_run_forever)] | Connection to remote host was lost. - goodbye
+[2023-11-27 09:50:44,275] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [Thread-29 (__ws_run_forever)] | None
+[2023-11-27 09:50:44,275] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [Thread-29 (__ws_run_forever)] | <websocket._app.WebSocketApp object at 0x13fc8b890>
+[2023-11-27 09:50:44,383] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:44,489] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:44,590] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:44,694] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:44,797] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:44,814] | [INFO] websocket |                 info() | [Thread-188 (__ws_run_forever)] | Websocket connected
+[2023-11-27 09:50:44,817] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [Thread-188 (__ws_run_forever)] | {"t": "c", "uid": "FA175610", "actid": "FA175610", "susertoken": "c326c226d30b0ab592151c0e6974cae858273e542331b7256812c7607b4d1900", "source": "API"}
+[2023-11-27 09:50:44,875] | [INFO] __main__ | event_handler_open_callback() | [Thread-188 (__ws_run_forever)] | Subscribed instruments: ['NSE|2263']
+[2023-11-27 09:50:44,875] | [DEBUG] commons.broker.Shoonya |        api_subscribe() | [Thread-188 (__ws_run_forever)] | api_subscribe: About to start api.subscribe
+[2023-11-27 09:50:44,876] | [DEBUG] commons.broker.Shoonya | api_subscribe_orders() | [Thread-188 (__ws_run_forever)] | api_subscribe_orders: About to start api.subscribe_orders
+[2023-11-27 09:50:44,877] | [DEBUG] NorenRestApiPy.NorenApi |            reportmsg() | [Thread-188 (__ws_run_forever)] | {"t": "o", "actid": "FA175610"}
+[2023-11-27 09:50:44,903] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:45,009] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:45,111] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:45,214] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:45,315] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:45,418] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:45,520] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:45,626] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:45,727] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:45,831] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:45,936] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:46,042] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:46,149] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:46,253] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:46,359] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:46,465] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:46,569] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:46,674] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:46,780] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:46,885] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:46,991] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:47,093] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:47,198] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:47,304] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:47,406] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:47,509] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:47,611] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:47,715] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:47,819] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:47,925] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:48,027] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:48,128] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:48,233] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:48,338] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:48,441] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:48,545] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:48,650] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:48,755] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:48,861] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:48,967] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:49,071] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:49,175] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:49,278] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:49,380] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:49,484] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:49,588] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:49,691] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:49,792] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:49,894] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:49,996] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:50,102] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:50,208] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:50,308] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:50,414] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:50,520] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:50,626] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:50,731] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:50,821] | [DEBUG] websocket |                debug() | [Thread-189 (_send_ping)] | Sending ping
+[2023-11-27 09:50:50,837] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:50,941] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:51,047] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:51,153] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:51,255] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:51,361] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:51,464] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:51,567] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:51,673] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:51,778] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:51,883] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:51,987] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:52,090] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:52,196] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:52,301] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:52,403] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:52,508] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:52,611] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:52,717] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:52,821] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:52,922] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:53,026] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:53,131] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:53,232] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:53,337] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:53,438] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:53,541] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:53,647] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:53,752] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:53,827] | [DEBUG] websocket |                debug() | [Thread-189 (_send_ping)] | Sending ping
+[2023-11-27 09:50:53,857] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:53,963] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:54,068] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:54,170] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:54,275] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:54,377] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:54,483] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:54,588] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:54,692] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:54,794] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:54,899] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:55,002] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:55,105] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:55,208] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:55,312] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:55,415] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:55,518] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:55,621] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:55,725] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:55,828] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:55,930] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:56,033] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:56,138] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:56,242] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:56,347] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:56,453] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:56,557] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:56,663] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:56,768] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:56,830] | [DEBUG] websocket |                debug() | [Thread-189 (_send_ping)] | Sending ping
+[2023-11-27 09:50:56,874] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:56,979] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:57,083] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:57,186] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:57,291] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:57,397] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:57,502] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:57,603] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:57,708] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:57,813] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:57,913] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:58,019] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:58,120] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:58,225] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:58,328] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:58,433] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:58,538] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:58,641] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:58,744] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:58,850] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:58,955] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:59,056] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:59,160] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:59,265] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:59,370] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:59,473] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:59,576] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:59,681] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:59,785] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:59,836] | [DEBUG] websocket |                debug() | [Thread-189 (_send_ping)] | Sending ping
+[2023-11-27 09:50:59,890] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:50:59,992] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:00,094] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:00,199] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:00,305] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:00,410] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:00,513] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:00,619] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:00,725] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:00,830] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:00,933] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:01,038] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:01,142] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:01,246] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:01,350] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:01,453] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:01,556] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:01,661] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:01,767] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:01,873] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:01,978] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:02,082] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:02,188] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:02,294] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:02,399] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:02,504] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:02,610] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:02,716] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:02,821] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:02,839] | [DEBUG] websocket |                debug() | [Thread-189 (_send_ping)] | Sending ping
+[2023-11-27 09:51:02,926] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:03,032] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:03,137] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:03,239] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:03,344] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:03,450] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:03,555] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:03,661] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:03,765] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:03,870] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:03,975] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:04,077] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:04,179] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:04,280] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:04,386] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:04,489] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:04,592] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:04,698] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:04,804] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:04,908] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:05,012] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:05,113] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:05,215] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:05,320] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:05,423] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:05,528] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:05,633] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:05,737] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:05,843] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:05,843] | [DEBUG] websocket |                debug() | [Thread-189 (_send_ping)] | Sending ping
+[2023-11-27 09:51:05,945] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:06,050] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:06,151] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:06,256] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:06,362] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:06,468] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:06,573] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:06,678] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:06,784] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:06,888] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:06,993] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:07,098] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:07,204] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:07,310] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:07,412] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:07,518] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:07,623] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:07,728] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:07,834] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:07,938] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:08,041] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:08,143] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:08,249] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:08,354] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:08,460] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:08,565] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:08,670] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:08,774] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:08,845] | [DEBUG] websocket |                debug() | [Thread-189 (_send_ping)] | Sending ping
+[2023-11-27 09:51:08,879] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:08,985] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:09,087] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:09,191] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:09,294] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:09,400] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:09,505] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:09,607] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:09,713] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:09,818] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:09,920] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:10,021] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:10,127] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:10,232] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:10,337] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:10,440] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:10,540] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:10,646] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:10,752] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:10,853] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:10,958] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:11,061] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:11,163] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:11,266] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:11,369] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:11,475] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:11,581] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:11,686] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:11,792] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:11,847] | [DEBUG] websocket |                debug() | [Thread-189 (_send_ping)] | Sending ping
+[2023-11-27 09:51:11,897] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:12,002] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:12,108] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:12,213] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:12,317] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:12,419] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:12,524] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:12,629] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:12,735] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:12,837] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:12,942] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:13,047] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:13,150] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:13,255] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:13,361] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:13,464] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:13,569] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:13,675] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:13,780] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:13,883] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:13,988] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:14,091] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:14,195] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:14,301] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:14,404] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:14,510] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:14,616] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:14,721] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:14,825] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:14,853] | [DEBUG] websocket |                debug() | [Thread-189 (_send_ping)] | Sending ping
+[2023-11-27 09:51:14,926] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:15,032] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:15,136] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:15,239] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:15,345] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:15,446] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:15,551] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:15,657] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:15,762] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:15,865] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:15,971] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:16,075] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:16,181] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:16,286] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:16,392] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:16,497] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:16,602] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:16,708] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:16,812] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:16,914] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:17,020] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:17,122] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:17,228] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:17,333] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:17,436] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:17,542] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:17,648] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:17,752] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:17,856] | [DEBUG] websocket |                debug() | [Thread-189 (_send_ping)] | Sending ping
+[2023-11-27 09:51:17,858] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:17,963] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:18,069] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:18,171] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:18,276] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:18,377] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:18,483] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:18,587] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:18,691] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:18,793] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:18,898] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:19,004] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:19,105] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:19,211] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:19,316] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:19,422] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:19,525] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:19,627] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:19,733] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:19,837] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:19,937] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:20,043] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:20,148] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:20,250] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:20,353] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:20,459] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:20,564] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:20,666] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:20,771] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:20,859] | [DEBUG] websocket |                debug() | [Thread-189 (_send_ping)] | Sending ping
+[2023-11-27 09:51:20,874] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:20,976] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:21,082] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:21,184] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:21,287] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:21,393] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:21,498] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:21,604] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:21,708] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:21,813] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:21,918] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:22,021] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:22,127] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:22,232] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:22,338] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:22,443] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:22,548] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:22,654] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:22,755] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:22,861] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:22,963] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:23,068] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:23,171] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:23,277] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:23,382] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:23,484] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:23,589] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:23,694] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:23,801] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:23,865] | [DEBUG] websocket |                debug() | [Thread-189 (_send_ping)] | Sending ping
+[2023-11-27 09:51:23,901] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:24,007] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:24,111] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:24,213] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:24,318] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:24,424] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:24,529] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:24,635] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:24,739] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:24,843] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:24,949] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:25,052] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:25,158] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:25,263] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:25,369] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:25,471] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:25,577] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:25,683] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:25,786] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:25,887] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:25,992] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:26,095] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:26,201] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:26,303] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:26,404] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:26,508] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:26,614] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:26,720] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:26,825] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:26,871] | [DEBUG] websocket |                debug() | [Thread-189 (_send_ping)] | Sending ping
+[2023-11-27 09:51:26,928] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:27,034] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:27,139] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:27,241] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:27,344] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:27,448] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:27,552] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:27,655] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:27,759] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:27,860] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:27,962] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:28,068] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:28,173] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:28,276] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:28,378] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:28,483] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:28,585] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:28,688] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:28,793] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:28,895] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:29,001] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:29,104] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:29,209] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:29,314] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:29,414] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:29,519] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:29,625] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:29,728] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:29,831] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:29,875] | [DEBUG] websocket |                debug() | [Thread-189 (_send_ping)] | Sending ping
+[2023-11-27 09:51:29,936] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:30,041] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:30,145] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
+[2023-11-27 09:51:30,250] | [WARNING] NorenRestApiPy.NorenApi |     __ws_run_forever() | [Thread-29 (__ws_run_forever)] | websocket run forever ended in exception, socket is already opened
