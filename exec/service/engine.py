@@ -56,9 +56,9 @@ def __create_bracket_order(idx, row, ltp):
                        tick=row['tick'],
                        scrip=row['scrip']
                        )
-    sl_range = abs(ltp - float(sl_price))
+    sl_range = format(abs(ltp - float(sl_price)), '.2f')
     target = round_price(price=row['target'], tick=row['tick'], scrip=row['scrip'])
-    target_range = abs(ltp - float(target))
+    target_range = format(abs(ltp - float(target)), '.2f')
     resp = api.api_place_order(buy_or_sell=direction,
                                product_type='B',
                                exchange=row.exchange,

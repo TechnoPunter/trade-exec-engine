@@ -1,0 +1,16 @@
+[
+  {
+    "buy_or_sell": "B",
+    "product_type": "B",
+    "exchange": "NSE",
+    "trading_symbol": "ONGC-EQ",
+    "quantity": 71,
+    "disclose_qty": 0,
+    "price_type": "MKT",
+    "price": 0.0,
+    "trigger_price": null,
+    "retention": "DAY",
+    "remarks": "BO:trainer.strategies.rfcV2:NSE_ONGC:5",
+    "book_loss_price": "0.20",
+    "book_profit_price": "1.00"
+  }]

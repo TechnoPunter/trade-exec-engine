@@ -24,7 +24,7 @@ sm = engine
 TEST_RESOURCE_DIR = os.path.join(REPO_DIR, "resources/test")
 
 
-def read_file(name, ret_type: str = "DF"):
+def read_file(name, ret_type: str = "JSON"):
     res_file_path = os.path.join(TEST_RESOURCE_DIR, name)
     with open(res_file_path, 'r') as file:
         result = file.read()
@@ -32,6 +32,10 @@ def read_file(name, ret_type: str = "DF"):
             return pd.DataFrame(json.loads(result))
         else:
             return json.loads(result)
+
+
+def read_file_df(name):
+    return read_file(name, ret_type="DF")
 
 
 class TestEngine(unittest.TestCase):
@@ -51,16 +55,16 @@ class TestEngine(unittest.TestCase):
     @patch.dict('exec.service.engine.cfg', {"generated": os.path.join(TEST_RESOURCE_DIR, 'load_params')})
     @patch('exec.service.engine.api.api_get_order_book')
     def test_load_params(self, mock_api):
-        mock_response = Mock()
+        # mock_response = Mock()
         # file_path = os.path.join(TEST_RESOURCE_DIR, "test1-order-book.json")
         # with open(file_path, 'r') as file:
         #     mock_resp = file.read()
         # mock_response.return_value = json.loads(mock_resp)
-        mock_response = read_file("load_params/order-book-cob-order-type.json", ret_type="JSON")
+        mock_response = read_file("load_params/order-book-cob-order-type.json")
         mock_api.return_value = mock_response
 
         sm.load_params()
-        result = read_file("load_params/expected-params.json", ret_type="DF")
+        result = read_file_df("load_params/expected-params.json")
         result['target_pct'] = np.NaN
 
         pd.testing.assert_frame_equal(sm.params, result)
@@ -72,11 +76,11 @@ class TestEngine(unittest.TestCase):
         mock_response.return_value = None
         mock_api.return_value = mock_response.return_value
         sm.load_params()
-        recs = read_file("order_update/bo-entry-order-update.json", ret_type="JSON")
+        recs = read_file("order_update/bo-entry-order-update.json")
         for message in recs:
             sm.event_handler_order_update(curr_order=message)
 
-        result = read_file("order_update/expected-params.json", ret_type="DF")
+        result = read_file_df("order_update/expected-params.json")
         result['target_pct'] = np.NaN
         result['strength'] = np.NaN
         result['entry_price'] = result['entry_price'].astype(float)
@@ -88,3 +92,26 @@ class TestEngine(unittest.TestCase):
         output['target_ts'] = output['target_ts'].astype(float)
 
         pd.testing.assert_frame_equal(sm.params, result)
+
+    @patch.dict('exec.service.engine.cfg', {"generated": os.path.join(TEST_RESOURCE_DIR, 'create_bo')})
+    @patch('exec.service.engine.api.api_place_order')
+    def test_event_handler_quote_update(self, mock_create_bo):
+        mock_create_bo.side_effect = read_file("create_bo/create-bo-NSE_ONGC-resp.json")
+
+        sm.load_params()
+        quote = read_file("create_bo/quote-NSE_SUNPHARMA-invalid.json")
+        sm.event_handler_quote_update(quote)
+        self.assertEqual(mock_create_bo.call_count, 0)
+
+        quote = read_file("create_bo/quote-NSE_ONGC-valid.json")
+        sm.event_handler_quote_update(quote)
+        self.assertEqual(mock_create_bo.call_count, 1)
+
+        call_list = mock_create_bo.call_args_list
+
+        expected_kwargs = read_file_df("create_bo/create-bo-expected-kwargs.json")
+
+        for fn_call in call_list:
+            args, kwargs = fn_call
+            actual_kwargs = pd.DataFrame([kwargs])
+            pd.testing.assert_frame_equal(actual_kwargs, expected_kwargs)
