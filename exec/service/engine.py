@@ -352,7 +352,7 @@ def __store_params():
         logger.error(f"__store_orders: No Params found to store")
 
 
-def start(acct_param: str, post_proc: bool = True):
+def start(acct_param: str, post_proc: bool = False):
     """
 
     Args:
