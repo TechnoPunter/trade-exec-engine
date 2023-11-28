@@ -3,12 +3,12 @@ import logging
 import pandas as pd
 from commons.backtest.fastBT import FastBT
 from commons.broker.Shoonya import Shoonya
-from commons.consts.consts import TODAY, BROKER_TRADE_LOG_TYPE, S_TODAY, BT_TRADE_LOG_TYPE
+from commons.consts.consts import TODAY, BROKER_TRADE_LOG_TYPE, S_TODAY, BT_TRADE_LOG_TYPE, PARAMS_LOG_TYPE
 from commons.dataprovider.database import DatabaseEngine
 from commons.loggers.setup_logger import setup_logging
+from commons.service.LogService import LogService
 from commons.service.ScripDataService import ScripDataService
 from commons.utils.EmailAlert import send_df_email
-from commons.utils.Misc import log_entry
 
 logger = logging.getLogger(__name__)
 
@@ -23,13 +23,18 @@ class CloseOfBusiness:
     5. self.__store_bt_trades()
     """
 
-    def __init__(self, acct: str, params: pd.DataFrame, trader_db: DatabaseEngine):
+    def __init__(self, acct: str, params: pd.DataFrame = None, trader_db: DatabaseEngine = None):
         self.acct = acct
-        self.params = params
         if trader_db is None:
             self.trader_db = DatabaseEngine()
         else:
             self.trader_db = trader_db
+        self.ls = LogService(trader_db)
+        if params is None:
+            data = self.ls.get_log_entry_data(log_type=PARAMS_LOG_TYPE, keys=["COB"], log_date=S_TODAY, acct=acct)
+            self.params = pd.DataFrame(data)
+        else:
+            self.params = params
         self.shoonya = Shoonya(self.acct)
         self.sds = ScripDataService(shoonya=self.shoonya, trader_db=self.trader_db)
 
@@ -49,8 +54,8 @@ class CloseOfBusiness:
         orders = self.shoonya.api_get_order_book()
         if len(orders) > 0:
             order_date = str(TODAY)
-            log_entry(trader_db=self.trader_db, log_type=BROKER_TRADE_LOG_TYPE, keys=["COB"],
-                      data=orders, log_date=order_date, acct=self.acct)
+            self.ls.log_entry(log_type=BROKER_TRADE_LOG_TYPE, keys=["COB"], data=orders, log_date=order_date,
+                              acct=self.acct)
             logger.info(f"__store_broker_trades: Broker Trades created for {self.acct}")
         else:
             logger.error(f"__store_broker_trades: No Broker orders to store")
@@ -64,8 +69,7 @@ class CloseOfBusiness:
 
         f = FastBT(trader_db=self.trader_db)
         bt_trades, _ = f.run_cob_accuracy(params=df)
-        log_entry(trader_db=self.trader_db, log_type=BT_TRADE_LOG_TYPE, keys=["COB"],
-                  data=bt_trades, log_date=S_TODAY, acct=self.acct)
+        self.ls.log_entry(log_type=BT_TRADE_LOG_TYPE, keys=["COB"], data=bt_trades, log_date=S_TODAY, acct=self.acct)
 
     def __generate_reminders(self):
         send_df_email(df=self.params, subject="COB Params", acct=self.acct)
@@ -81,8 +85,6 @@ class CloseOfBusiness:
 
 
 if __name__ == '__main__':
-    setup_logging()
-    params_df = pd.read_json(
-        "/Users/pralhad/Documents/99-src/98-trading/trade-exec-engine/resources/test/cob/cob-params.json")
-    c = CloseOfBusiness(acct='Trader-V2-Pralhad', params=params_df)
+    setup_logging("cob.log")
+    c = CloseOfBusiness(acct='Trader-V2-Mahi', params=None)
     c.run_cob()

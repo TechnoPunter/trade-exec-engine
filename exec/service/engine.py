@@ -8,8 +8,9 @@ from commons.broker.Shoonya import Shoonya
 from commons.config.reader import cfg
 from commons.consts.consts import IST, S_TODAY, PARAMS_LOG_TYPE
 from commons.dataprovider.database import DatabaseEngine
+from commons.service.LogService import LogService
 from commons.utils.EmailAlert import send_email, send_df_email
-from commons.utils.Misc import get_epoch, calc_sl, get_new_sl, round_price, log_entry
+from commons.utils.Misc import get_epoch, calc_sl, get_new_sl, round_price
 
 from exec.service.cob import CloseOfBusiness
 from exec.utils.EngineUtils import *
@@ -32,6 +33,7 @@ acct = os.environ.get('ACCOUNT')
 api = Shoonya(acct)
 trader_db = DatabaseEngine()
 instruments = []
+ls = LogService(trader_db=trader_db)
 
 
 def __get_signal_strength(df: pd.DataFrame, ltp: float):
@@ -203,7 +205,7 @@ def load_params():
     else:
         logger.info("__load_params: No orders to stitch to params.")
 
-    log_entry(trader_db=trader_db, log_type=PARAMS_LOG_TYPE, keys=["BOD"], data=params, acct=acct, log_date=S_TODAY)
+    ls.log_entry(log_type=PARAMS_LOG_TYPE, keys=["BOD"], data=params, acct=acct, log_date=S_TODAY)
     logger.info(f"__load_params: Params:\n{params}")
 
 
@@ -344,8 +346,7 @@ def __store_params():
     global params
     order_date = str(TODAY)
     if len(params) > 0:
-        log_entry(trader_db=trader_db, log_type=PARAMS_LOG_TYPE, keys=["COB"],
-                  data=params, log_date=order_date, acct=acct)
+        ls.log_entry(log_type=PARAMS_LOG_TYPE, keys=["COB"], data=params, log_date=order_date, acct=acct)
         logger.info(f"__store_orders: Orders created for {acct}")
     else:
         logger.error(f"__store_orders: No Params found to store")
@@ -393,8 +394,8 @@ def start(acct_param: str, post_proc: bool = True):
 
     while datetime.datetime.now(IST).time() <= target_time_ist:
         if alert_pending and datetime.datetime.now(IST).time() >= alert_time_ist:
-            log_entry(trader_db=trader_db, log_type=PARAMS_LOG_TYPE, keys=["Post-BOD"], data=params,
-                      acct=acct, log_date=S_TODAY)
+            ls.log_entry(log_type=PARAMS_LOG_TYPE, keys=["Post-BOD"], data=params,
+                         acct=acct, log_date=S_TODAY)
             send_df_email(df=params, subject="BOD Params", acct=acct)
             alert_pending = False
         time.sleep(1)
