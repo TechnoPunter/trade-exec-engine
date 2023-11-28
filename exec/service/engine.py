@@ -257,10 +257,7 @@ def event_handler_quote_update(data):
                                                 new_price_type=SL_PRICE_TYPE,
                                                 new_trigger_price=new_sl
                                                 )
-                    hist = api.api_get_order_hist(order_no=order.sl_order_id)
-                    # !!!!!!!!!!!!!!!!!!!!
                     logger.debug(f"SL_Update: Modify order Resp: {resp}")
-                    params.loc[index, 'sl_price'] = float(new_sl)
                     logger.info(f"SL_Update: Post SL Update for {order}\nParams:\n{params}")
 
 
