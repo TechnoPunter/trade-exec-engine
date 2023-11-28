@@ -135,8 +135,8 @@ def __extract_order_book_params(df: pd.DataFrame):
         param_orders['entry_price'] = param_orders['entry_price'].astype(float)
         param_orders['sl_price'] = param_orders['sl_price'].astype(float)
         param_orders['target_price'] = param_orders['target_price'].astype(float)
-        param_orders.loc[(params.target_order_status != 'OPEN') |
-                         (params.sl_order_status != 'TRIGGER_PENDING'), 'active'] = 'N'
+        param_orders.loc[(param_orders.target_order_status == 'OPEN') &
+                         (param_orders.sl_order_status == 'TRIGGER_PENDING'), 'active'] = 'Y'
         param_orders.set_index("tp_order_num", inplace=True)
         return param_orders
     else:
@@ -188,6 +188,7 @@ def load_params():
                             (orders.status.isin(['OPEN', 'TRIGGER_PENDING', 'COMPLETE', 'CANCELED']))]
 
         orders.dropna(subset=['remarks'], inplace=True)
+        orders = orders.loc[orders.remarks != '']
         if len(orders) > 0:
             orders = __extract_order_book_params(orders)
             order_cols = ['entry_order_id', 'sl_order_id', 'target_order_id',
@@ -263,14 +264,26 @@ def event_handler_quote_update(data):
 
 
 def event_handler_order_update(curr_order):
+    """
+    1. Get Order type
+    2. Get Order Status i.e. Open (Entry --> N/A, SL --> Trigger Pending, Target --> Open) or Closed (i.e. Completed)
+    3. Update Stats to Params
+    4. If Closed (i.e. REJECTED, SL-HIT, TARGET-HIT) - Mark Params as inactive (N)
+    ** Handling SL Update issues courtesy Shoonya **
+    5. If Order Type = SL - Get Order Hist
+    6. If Order has Rejection - Mark Params as SL-Limit-Hit (S)
+    :param curr_order:
+    :return:
+        global params Updated as above
+    """
     global api
     global params
     logger.debug(f"order_update: Entered Order update Callback with {curr_order}")
     curr_order_id = curr_order['norenordno']
-    curr_order_status = curr_order.get('status', 'NA')
-    upd_order = api.get_order_type_order_update(curr_order)
+    upd_order = api.get_order_status_order_update(curr_order)
     order_idx = int(upd_order.get('tp_order_num', -1))
     order_type = upd_order.get('tp_order_type', 'X')
+    curr_order_status = upd_order.get('tp_order_status', 'NA')
     curr_order_ts = get_epoch(curr_order.get('exch_tm', '0'))
     if order_idx != -1:
         if order_type == 'ENTRY_LEG':
@@ -278,28 +291,38 @@ def event_handler_order_update(curr_order):
             params.loc[order_idx, ['entry_order_id', 'entry_order_status', 'entry_ts', 'entry_price']] = (
                 curr_order_id, curr_order_status, curr_order_ts, price)
             logger.debug(f"order_update: Updated Entry Params:\n{params}")
+
             if curr_order_status == 'REJECTED':
                 params.loc[order_idx, 'active'] = 'N'
                 logger.debug(f"order_update: Updated Entry Rejection Status Params:\n{params}")
-        elif order_type == 'SL_LEG':
-            price = float(curr_order.get("trgprc", -1))
-            params.loc[order_idx, ['sl_order_id', 'sl_order_status', 'sl_ts', 'sl_price']] = (
-                curr_order_id, curr_order_status, curr_order_ts, price)
-            logger.debug(f"order_update: Updated SL Params:\n{params}")
-            if curr_order_status == 'COMPLETE':
-                params.loc[order_idx, 'active'] = 'N'
-                logger.debug(f"order_update: Updated SL Completion Status Params:\n{params}")
-            elif curr_order_status == 'TRIGGER_PENDING':
-                params.loc[order_idx, 'sl_update_cnt'] += 1
-                logger.debug(f"order_update: Updated SL Update Count Params:\n{params}")
+
         elif order_type == 'TARGET_LEG':
             price = float(curr_order.get("prc", -1))
             params.loc[order_idx, ['target_order_id', 'target_order_status', 'target_ts', 'target_price']] = (
                 curr_order_id, curr_order_status, curr_order_ts, price)
             logger.debug(f"order_update: Updated Target Params:\n{params}")
-            if curr_order_status == 'COMPLETE':
+
+            if curr_order_status == 'TARGET-HIT':
                 params.loc[order_idx, 'active'] = 'N'
                 logger.debug(f"order_update: Updated Target Completion Status Params:\n{params}")
+
+        elif order_type == 'SL_LEG':
+            price = float(curr_order.get("trgprc", -1))
+            params.loc[order_idx, ['sl_order_id', 'sl_order_status', 'sl_ts', 'sl_price']] = (
+                curr_order_id, curr_order_status, curr_order_ts, price)
+            logger.debug(f"order_update: Updated SL Params:\n{params}")
+
+            if curr_order_status == 'SL-HIT':
+                params.loc[order_idx, 'active'] = 'N'
+                logger.debug(f"order_update: Updated SL Completion Status Params:\n{params}")
+            elif curr_order_status == 'TRIGGER_PENDING':
+                params.loc[order_idx, 'sl_update_cnt'] += 1
+                logger.debug(f"order_update: Updated SL Update Count Params:\n{params}")
+                rejected, reason = api.is_sl_update_rejected(curr_order_id)
+                if rejected:
+                    logger.debug(f"order_update: Rejected SL Order:\n{curr_order_id}")
+                    params.loc[order_idx, 'active'] = 'S'
+                    logger.debug(f"order_update: Updated SL Update Count Params:\n{params}")
     else:
         logger.debug(f"Skipping order update for {curr_order_id}")
 
@@ -311,6 +334,7 @@ def event_handler_error(message):
     RECONNECT_COUNTER += 1
     send_email(body=f"Attempt: {RECONNECT_COUNTER} Error in websocket {message}", subject=f"Websocket Error! - {acct}")
     api.api_unsubscribe(instruments)
+    api.api.close_websocket()
     api.api_start_websocket(subscribe_callback=event_handler_quote_update,
                             socket_open_callback=event_handler_open_callback,
                             socket_error_callback=event_handler_error,
