@@ -69,6 +69,7 @@ class CloseOfBusiness:
 
         f = FastBT(trader_db=self.trader_db)
         bt_trades, _ = f.run_cob_accuracy(params=df)
+        bt_trades['date'] = bt_trades['date'].astype(str)
         self.ls.log_entry(log_type=BT_TRADE_LOG_TYPE, keys=["COB"], data=bt_trades, log_date=S_TODAY, acct=self.acct)
 
     def __generate_reminders(self):
