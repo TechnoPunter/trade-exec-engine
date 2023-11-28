@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 from commons.backtest.fastBT import FastBT
 from commons.broker.Shoonya import Shoonya
-from commons.consts.consts import TODAY, PARAMS_LOG_TYPE, BROKER_TRADE_LOG_TYPE, S_TODAY, BT_TRADE_LOG_TYPE
+from commons.consts.consts import TODAY, BROKER_TRADE_LOG_TYPE, S_TODAY, BT_TRADE_LOG_TYPE
 from commons.dataprovider.database import DatabaseEngine
 from commons.loggers.setup_logger import setup_logging
 from commons.service.ScripDataService import ScripDataService
@@ -23,10 +23,13 @@ class CloseOfBusiness:
     5. self.__store_bt_trades()
     """
 
-    def __init__(self, acct: str, params: pd.DataFrame):
+    def __init__(self, acct: str, params: pd.DataFrame, trader_db: DatabaseEngine):
         self.acct = acct
         self.params = params
-        self.trader_db = DatabaseEngine()
+        if trader_db is None:
+            self.trader_db = DatabaseEngine()
+        else:
+            self.trader_db = trader_db
         self.shoonya = Shoonya(self.acct)
         self.sds = ScripDataService(shoonya=self.shoonya, trader_db=self.trader_db)
 
@@ -41,15 +44,6 @@ class CloseOfBusiness:
         for item in recs:
             result[":".join([item.scrip, str(item.direction), item.strategy])] = item
         return result
-
-    def __store_orders(self):
-        order_date = str(TODAY)
-        if len(self.params) > 0:
-            log_entry(trader_db=self.trader_db, log_type=PARAMS_LOG_TYPE, keys=["COB"],
-                      data=self.params, log_date=order_date, acct=self.acct)
-            logger.info(f"__store_orders: Orders created for {self.acct}")
-        else:
-            logger.error(f"__store_orders: No Params found to store")
 
     def __store_broker_trades(self):
         orders = self.shoonya.api_get_order_book()
@@ -82,7 +76,6 @@ class CloseOfBusiness:
 
     def run_cob(self):
         self.__generate_reminders()
-        self.__store_orders()
         self.__store_broker_trades()
         self.__store_bt_trades()
 

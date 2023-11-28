@@ -340,6 +340,17 @@ def event_handler_error(message):
                             )
 
 
+def __store_params():
+    global params
+    order_date = str(TODAY)
+    if len(params) > 0:
+        log_entry(trader_db=trader_db, log_type=PARAMS_LOG_TYPE, keys=["COB"],
+                  data=params, log_date=order_date, acct=acct)
+        logger.info(f"__store_orders: Orders created for {acct}")
+    else:
+        logger.error(f"__store_orders: No Params found to store")
+
+
 def start(acct_param: str, post_proc: bool = True):
     """
 
@@ -370,6 +381,7 @@ def start(acct_param: str, post_proc: bool = True):
         return
 
     if len(params.loc[params.active == 'Y']) == 0:
+        __store_params()
         logger.error("No Active Params entries")
         return
 
@@ -388,8 +400,10 @@ def start(acct_param: str, post_proc: bool = True):
         time.sleep(1)
 
     __close_all_trades()
+    __store_params()
+
     if post_proc:
-        cob = CloseOfBusiness(acct=acct, params=params)
+        cob = CloseOfBusiness(acct=acct, params=params, trader_db=trader_db)
         cob.run_cob()
 
 
