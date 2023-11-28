@@ -135,6 +135,7 @@ def __extract_order_book_params(df: pd.DataFrame):
         param_orders['entry_price'] = param_orders['entry_price'].astype(float)
         param_orders['sl_price'] = param_orders['sl_price'].astype(float)
         param_orders['target_price'] = param_orders['target_price'].astype(float)
+        param_orders.loc[:, 'active'] = 'N'
         param_orders.loc[(param_orders.target_order_status == 'OPEN') &
                          (param_orders.sl_order_status == 'TRIGGER_PENDING'), 'active'] = 'Y'
         param_orders.set_index("tp_order_num", inplace=True)
