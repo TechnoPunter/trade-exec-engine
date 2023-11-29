@@ -55,12 +55,20 @@ class TestEngine(unittest.TestCase):
     @patch.dict('exec.service.engine.cfg', {"generated": os.path.join(TEST_RESOURCE_DIR, 'load_params')})
     @patch('exec.service.engine.api.api_get_order_book')
     def test_load_params(self, mock_api):
+        """
+        Scenarios:
+        1. Only Entries file and empty OB
+        2. Entries plus partial OB - only partially Open
+        :param mock_api:
+        :return:
+        """
+
         # mock_response = Mock()
         # file_path = os.path.join(TEST_RESOURCE_DIR, "test1-order-book.json")
         # with open(file_path, 'r') as file:
         #     mock_resp = file.read()
         # mock_response.return_value = json.loads(mock_resp)
-        mock_response = read_file("load_params/order-book-cob-order-type.json")
+        mock_response = read_file("load_params/open-order-book.json")
         mock_api.return_value = mock_response
 
         sm.load_params()
@@ -70,12 +78,16 @@ class TestEngine(unittest.TestCase):
         pd.testing.assert_frame_equal(sm.params, result)
 
     @patch.dict('exec.service.engine.cfg', {"generated": os.path.join(TEST_RESOURCE_DIR, 'order_update')})
+    @patch('exec.service.engine.api.api_get_order_hist')
     @patch('exec.service.engine.api.api_get_order_book')
-    def test_event_handler_order_update(self, mock_api):
+    def test_event_handler_order_update(self, mock_api, order_hist_api):
         mock_response = Mock()
         mock_response.return_value = None
         mock_api.return_value = mock_response.return_value
+        order_hist_api.return_value = pd.DataFrame([{"rpt": "y"}])
         sm.load_params()
+
+        # 1. New BO Creation 10 Order Updatas
         recs = read_file("order_update/bo-entry-order-update.json")
         for message in recs:
             sm.event_handler_order_update(curr_order=message)
@@ -92,6 +104,12 @@ class TestEngine(unittest.TestCase):
         output['target_ts'] = output['target_ts'].astype(float)
 
         pd.testing.assert_frame_equal(sm.params, result)
+
+        # 2. SL Update
+        # 3. SL Hit
+        # message = read_file("order_update/bo-entry-order-update.json")
+        # sm.event_handler_order_update(curr_order=message)
+        # output = sm.params
 
     @patch.dict('exec.service.engine.cfg', {"generated": os.path.join(TEST_RESOURCE_DIR, 'create_bo')})
     @patch('exec.service.engine.api.api_place_order')
