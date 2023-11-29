@@ -188,7 +188,7 @@ def load_params():
 
     if len(orders) > 0:
         orders = orders.loc[(orders.prd == 'B') &
-                            (orders.status.isin(['OPEN', 'TRIGGER_PENDING', 'COMPLETE', 'CANCELED']))]
+                            (orders.status.isin(['OPEN', 'TRIGGER_PENDING', 'COMPLETE', 'CANCELED', 'REJECTED']))]
 
         orders.dropna(subset=['remarks'], inplace=True)
         orders = orders.loc[orders.remarks != '']
