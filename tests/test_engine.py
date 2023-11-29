@@ -63,11 +63,6 @@ class TestEngine(unittest.TestCase):
         :return:
         """
 
-        # mock_response = Mock()
-        # file_path = os.path.join(TEST_RESOURCE_DIR, "test1-order-book.json")
-        # with open(file_path, 'r') as file:
-        #     mock_resp = file.read()
-        # mock_response.return_value = json.loads(mock_resp)
         mock_response = read_file("load_params/open-order-book.json")
         mock_api.return_value = mock_response
 
