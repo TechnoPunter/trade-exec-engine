@@ -138,14 +138,27 @@ class TestEngine(unittest.TestCase):
 
         sm.event_handler_order_update(curr_order=rec)
 
+        order_hist_api.return_value = None
+
         file_params = read_file_df("order_update/3-expected-params.json")
         output, expected_params = self.__format_dfs(sm.params, file_params)
 
         pd.testing.assert_frame_equal(output, expected_params)
 
-        # message = read_file("order_update/1-bo-entry-order-update.json")
-        # sm.event_handler_order_update(curr_order=message)
-        # output = sm.params
+        # 4. SL Hit
+        sm.load_params()
+        # Create Successful BO
+        recs = read_file("order_update/1-bo-entry-order-update.json")
+        for message in recs:
+            sm.event_handler_order_update(curr_order=message)
+
+        rec = read_file("order_update/4-sl-hit-order-update.json")
+        sm.event_handler_order_update(curr_order=rec)
+
+        file_params = read_file_df("order_update/4-expected-params.json")
+        output, expected_params = self.__format_dfs(sm.params, file_params)
+
+        pd.testing.assert_frame_equal(output, expected_params)
 
     @staticmethod
     def __format_dfs(i_params, i_expected_params):
