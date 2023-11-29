@@ -76,35 +76,71 @@ class TestEngine(unittest.TestCase):
     @patch('exec.service.engine.api.api_get_order_hist')
     @patch('exec.service.engine.api.api_get_order_book')
     def test_event_handler_order_update(self, mock_api, order_hist_api):
+        """
+        Order Update Tests:
+        1. BO Entry - 10 Orders
+        2. SL Update - Successful
+        3. SL Update - Failed
+        4. SL Hit
+        5. Target Hit
+        ** Non-Happy **
+        1. SL Update on closed param
+        2. SL Update on SL Limit param
+        3. Order Update on web generated BO
+        4.
+        :param mock_api: Order Book API mock
+        :param order_hist_api: Order History API mock
+        :return:
+        """
         mock_response = Mock()
         mock_response.return_value = None
         mock_api.return_value = mock_response.return_value
-        order_hist_api.return_value = pd.DataFrame([{"rpt": "y"}])
+        order_hist_api.return_value = None
         sm.load_params()
 
         # 1. New BO Creation 10 Order Updatas
-        recs = read_file("order_update/bo-entry-order-update.json")
+        recs = read_file("order_update/1-bo-entry-order-update.json")
         for message in recs:
             sm.event_handler_order_update(curr_order=message)
 
-        result = read_file_df("order_update/expected-params.json")
-        result['target_pct'] = np.NaN
-        result['strength'] = np.NaN
-        result['entry_price'] = result['entry_price'].astype(float)
-        result['sl_price'] = result['sl_price'].astype(float)
-        result['target_price'] = result['target_price'].astype(float)
-        output = sm.params
-        output['entry_ts'] = output['entry_ts'].astype(float)
-        output['sl_ts'] = output['sl_ts'].astype(float)
-        output['target_ts'] = output['target_ts'].astype(float)
+        file_params = read_file_df("order_update/1-expected-params.json")
+        output, expected_params = self.__format_dfs(sm.params, file_params)
 
-        pd.testing.assert_frame_equal(sm.params, result)
+        pd.testing.assert_frame_equal(output, expected_params)
 
-        # 2. SL Update
+        # 2. SL Update - Successful
+        sm.load_params()
+        # Create Successful BO
+        recs = read_file("order_update/1-bo-entry-order-update.json")
+        for message in recs:
+            sm.event_handler_order_update(curr_order=message)
+
+        rec = read_file("order_update/2-sl-update-order-update.json")
+        sm.event_handler_order_update(curr_order=rec)
+
+        file_params = read_file_df("order_update/2-expected-params.json")
+        output, expected_params = self.__format_dfs(sm.params, file_params)
+
+        pd.testing.assert_frame_equal(output, expected_params)
+
         # 3. SL Hit
-        # message = read_file("order_update/bo-entry-order-update.json")
+        # message = read_file("order_update/1-bo-entry-order-update.json")
         # sm.event_handler_order_update(curr_order=message)
         # output = sm.params
+
+    @staticmethod
+    def __format_dfs(i_params, i_expected_params):
+        expected_params = i_expected_params.copy()
+        actual_params = i_params.copy()
+        expected_params['target_pct'] = np.NaN
+        expected_params['strength'] = np.NaN
+        expected_params['entry_price'] = expected_params['entry_price'].astype(float)
+        expected_params['sl_price'] = expected_params['sl_price'].astype(float)
+        expected_params['target_price'] = expected_params['target_price'].astype(float)
+        actual_params['entry_ts'] = actual_params['entry_ts'].astype(float)
+        actual_params['sl_ts'] = actual_params['sl_ts'].astype(float)
+        actual_params['target_ts'] = actual_params['target_ts'].astype(float)
+        return actual_params, expected_params
 
     @patch.dict('exec.service.engine.cfg', {"generated": os.path.join(TEST_RESOURCE_DIR, 'create_bo')})
     @patch('exec.service.engine.api.api_place_order')
