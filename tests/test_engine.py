@@ -73,7 +73,7 @@ class TestEngine(unittest.TestCase):
         pd.testing.assert_frame_equal(sm.params, result)
 
     @patch.dict('exec.service.engine.cfg', {"generated": os.path.join(TEST_RESOURCE_DIR, 'order_update')})
-    @patch('exec.service.engine.api.api_get_order_hist')
+    @patch('exec.service.engine.api.api.single_order_history')
     @patch('exec.service.engine.api.api_get_order_book')
     def test_event_handler_order_update(self, mock_api, order_hist_api):
         """
@@ -123,7 +123,26 @@ class TestEngine(unittest.TestCase):
 
         pd.testing.assert_frame_equal(output, expected_params)
 
-        # 3. SL Hit
+        # 3. SL Update - Failed
+        sm.load_params()
+        # Create Successful BO
+        recs = read_file("order_update/1-bo-entry-order-update.json")
+        for message in recs:
+            sm.event_handler_order_update(curr_order=message)
+
+        rec = read_file("order_update/3-sl-update-order-update.json")
+        hist = read_file("order_update/3-sl-update-rejected-order-hist.json")
+
+        mock_response.return_value = hist
+        order_hist_api.return_value = mock_response.return_value
+
+        sm.event_handler_order_update(curr_order=rec)
+
+        file_params = read_file_df("order_update/3-expected-params.json")
+        output, expected_params = self.__format_dfs(sm.params, file_params)
+
+        pd.testing.assert_frame_equal(output, expected_params)
+
         # message = read_file("order_update/1-bo-entry-order-update.json")
         # sm.event_handler_order_update(curr_order=message)
         # output = sm.params
