@@ -10,7 +10,6 @@ from commons.service.LogService import LogService
 from commons.utils.EmailAlert import send_email, send_df_email
 from commons.utils.Misc import get_epoch, calc_sl, get_new_sl, round_price
 
-from exec.service.cob import CloseOfBusiness
 from exec.utils.EngineUtils import *
 from exec.utils.ParamBuilder import load_params
 
@@ -291,10 +290,6 @@ def start(acct_param: str, post_proc: bool = False):
 
     __close_all_trades()
     __store_params()
-
-    if post_proc:
-        cob = CloseOfBusiness(acct=acct, params=params, trader_db=trader_db)
-        cob.run_cob()
 
 
 if __name__ == "__main__":

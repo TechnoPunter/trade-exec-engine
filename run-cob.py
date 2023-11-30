@@ -12,11 +12,12 @@ if __name__ == "__main__":
 
     start_time = time.time()
     acct = os.environ.get('ACCOUNT')
-    setup_logging(f"cob-{acct}.log")
+    setup_logging(f"cob.log")
     logger.info("=====================================================================================================")
-    logger.info(f"Started COB Processing for {acct}")
-    cob = CloseOfBusiness(acct=acct)
-    cob.run_cob()
+    logger.info(f"Started COB Processing")
+    accounts = 'Trader-V2-Alan,Trader-V2-Pralhad,Trader-V2-Sundar,Trader-V2-Mahi'
+    cob = CloseOfBusiness()
+    cob.run_cob(accounts=accounts)
     logger.info('Finished COB Processing')
     end_time = time.time()
     logger.info(f"Time taken {end_time - start_time}")

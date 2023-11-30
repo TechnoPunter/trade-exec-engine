@@ -10,37 +10,36 @@ from commons.service.LogService import LogService
 from commons.service.ScripDataService import ScripDataService
 from commons.utils.EmailAlert import send_df_email
 
+from exec.utils.ParamBuilder import load_params
+
 logger = logging.getLogger(__name__)
 
 
 class CloseOfBusiness:
 
-    def __init__(self, acct: str, params: pd.DataFrame = None, trader_db: DatabaseEngine = None):
-        self.acct = acct
+    def __init__(self, trader_db: DatabaseEngine = None):
         if trader_db is None:
             self.trader_db = DatabaseEngine()
         else:
             self.trader_db = trader_db
         self.ls = LogService(trader_db)
+        self.acct = None
+        self.shoonya = None
+        self.params = None
+        self.sds = None
+
+    def __setup(self, acct: str, params: pd.DataFrame = None):
+        self.acct = acct
+        self.shoonya = Shoonya(self.acct)
         if params is None:
             data = self.ls.get_log_entry_data(log_type=PARAMS_LOG_TYPE, keys=["COB"], log_date=S_TODAY, acct=acct)
-            self.params = pd.DataFrame(data)
+            if data is None:
+                self.params = load_params(api=self.shoonya, acct=acct)
+            else:
+                self.params = pd.DataFrame(data)
         else:
             self.params = params
-        self.shoonya = Shoonya(self.acct)
         self.sds = ScripDataService(shoonya=self.shoonya, trader_db=self.trader_db)
-
-    def __get_sl_thresholds(self):
-        """
-        Read all data from stop_loss_thresholds
-        Returns: Dict { K: scrip + direction, V : sl, trail_sl}
-
-        """
-        result = {}
-        recs = self.trader_db.query("SlThresholds", "1==1")
-        for item in recs:
-            result[":".join([item.scrip, str(item.direction), item.strategy])] = item
-        return result
 
     def __store_broker_trades(self):
         orders = self.shoonya.api_get_order_book()
@@ -71,19 +70,28 @@ class CloseOfBusiness:
         if len(trades) > 0:
             send_df_email(df=trades, subject="COB Report", acct=self.acct)
 
-    def run_cob(self):
+    def run_cob(self, accounts: str, params_dict: dict = None):
         """
         This provides post process functions i.e. After all open orders are closed
-        1. self.__generate_reminders() - Password expiry checks
-        2. self.__store_broker_trades() - Store Trades to DB
-        3. self.__store_bt_trades()
+        For every account in the accounts list:
+            1. self.__generate_reminders() - Password expiry checks
+            2. self.__store_broker_trades() - Store Trades to DB
+            3. self.__store_bt_trades()
         """
-        self.__generate_reminders()
-        self.__store_broker_trades()
-        self.__store_bt_trades()
+
+        for acct in accounts.split(","):
+            account = acct.strip()
+            if params_dict is not None:
+                params = params_dict.get(account, None)
+            else:
+                params = None
+            self.__setup(acct=account, params=params)
+            self.__generate_reminders()
+            self.__store_broker_trades()
+            self.__store_bt_trades()
 
 
 if __name__ == '__main__':
     setup_logging("cob.log")
-    c = CloseOfBusiness(acct='Trader-V2-Mahi', params=None)
-    c.run_cob()
+    c = CloseOfBusiness()
+    c.run_cob(accounts='Trader-V2-Pralhad, Trader-V2-Alan', params_dict=None)
