@@ -186,6 +186,8 @@ def event_handler_order_update(curr_order):
 
         elif order_type == 'TARGET_LEG':
             price = float(curr_order.get("prc", -1))
+            if price == 0.0:
+                price = float(curr_order.get("avgprc", -1))
             params.loc[order_idx, ['target_order_id', 'target_order_status', 'target_ts', 'target_price']] = (
                 curr_order_id, curr_order_status, curr_order_ts, price)
             logger.debug(f"order_update: Updated Target Params:\n{params}")
