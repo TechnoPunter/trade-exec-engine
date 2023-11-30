@@ -14,14 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class CloseOfBusiness:
-    """
-    This provides post process functions i.e. After all open orders are closed
-    1. self.__generate_reminders() - Password expiry checks
-    2. self.__store_params() - Store Params to DB
-    3. self.__store_orders() - Get the orders from Shoonya and store them in the DB
-    4. self.__store_broker_trades() - Store Trades to DB
-    5. self.__store_bt_trades()
-    """
 
     def __init__(self, acct: str, params: pd.DataFrame = None, trader_db: DatabaseEngine = None):
         self.acct = acct
@@ -80,6 +72,12 @@ class CloseOfBusiness:
             send_df_email(df=trades, subject="COB Report", acct=self.acct)
 
     def run_cob(self):
+        """
+        This provides post process functions i.e. After all open orders are closed
+        1. self.__generate_reminders() - Password expiry checks
+        2. self.__store_broker_trades() - Store Trades to DB
+        3. self.__store_bt_trades()
+        """
         self.__generate_reminders()
         self.__store_broker_trades()
         self.__store_bt_trades()

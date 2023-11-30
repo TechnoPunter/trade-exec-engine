@@ -2,10 +2,8 @@ import datetime
 import os
 import time
 
-import numpy as np
 import pandas as pd
 from commons.broker.Shoonya import Shoonya
-from commons.config.reader import cfg
 from commons.consts.consts import IST, S_TODAY, PARAMS_LOG_TYPE
 from commons.dataprovider.database import DatabaseEngine
 from commons.service.LogService import LogService
@@ -14,6 +12,7 @@ from commons.utils.Misc import get_epoch, calc_sl, get_new_sl, round_price
 
 from exec.service.cob import CloseOfBusiness
 from exec.utils.EngineUtils import *
+from exec.utils.ParamBuilder import load_params
 
 MOCK = False
 RECONNECT_COUNTER = 0
@@ -97,116 +96,6 @@ def __close_all_trades():
         resp = api.api_close_bracket_order(order_no=order['entry_order_id'])
         logger.debug(f"__close_all_trades: Closed BO: {order['entry_order_id']}, Resp: {resp}")
     logger.info(f"__close_all_trades: Post Close params:\n{params}")
-
-
-def __extract_order_book_params(df: pd.DataFrame):
-    if len(df) == 0:
-        return pd.DataFrame()
-    orders = df.copy()
-    orders = orders[['norenordno', 'status', 'ordenttm', 'prc', 'avgprc', 'trgprc', 'tp_order_num', 'tp_order_type']]
-    entry_orders = orders.loc[orders.tp_order_type == 'ENTRY_LEG']
-    if len(entry_orders) > 0:
-        entry_orders.rename(columns={
-            'norenordno': 'entry_order_id',
-            'status': 'entry_order_status',
-            'ordenttm': 'entry_ts',
-            'avgprc': 'entry_price'}, inplace=True)
-        entry_orders.drop(['prc', 'trgprc', 'tp_order_type'], axis=1, inplace=True)
-    sl_orders = orders.loc[orders.tp_order_type == 'SL_LEG']
-    if len(sl_orders) > 0:
-        sl_orders.rename(columns={
-            'norenordno': 'sl_order_id',
-            'status': 'sl_order_status',
-            'ordenttm': 'sl_ts',
-            'trgprc': 'sl_price'}, inplace=True)
-        sl_orders.drop(['avgprc', 'prc', 'tp_order_type'], axis=1, inplace=True)
-    target_orders = orders.loc[orders.tp_order_type == 'TARGET_LEG']
-    if len(target_orders) > 0:
-        target_orders.rename(columns={
-            'norenordno': 'target_order_id',
-            'status': 'target_order_status',
-            'ordenttm': 'target_ts',
-            'prc': 'target_price'}, inplace=True)
-        target_orders.drop(['trgprc', 'avgprc', 'tp_order_type'], axis=1, inplace=True)
-    if len(entry_orders) > 0:
-        param_orders = pd.merge(left=entry_orders, right=sl_orders, how="left", left_on="tp_order_num",
-                                right_on="tp_order_num")
-        param_orders = pd.merge(left=param_orders, right=target_orders, how="left", left_on="tp_order_num",
-                                right_on="tp_order_num")
-        param_orders['tp_order_num'] = param_orders['tp_order_num'].astype(int)
-        param_orders['entry_price'] = param_orders['entry_price'].astype(float)
-        param_orders['sl_price'] = param_orders['sl_price'].astype(float)
-        param_orders['target_price'] = param_orders['target_price'].astype(float)
-        param_orders.loc[:, 'active'] = 'N'
-        param_orders.loc[(param_orders.target_order_status == 'OPEN') &
-                         (param_orders.sl_order_status == 'TRIGGER_PENDING'), 'active'] = 'Y'
-        param_orders.set_index("tp_order_num", inplace=True)
-        return param_orders
-    else:
-        pd.DataFrame()
-
-
-def load_params():
-    """
-    1. Reads Entries file
-    2. Gets Order Book
-    3. Overlays order type
-    4. Join Order book with Entries
-    5. Populate Global Params
-    :return:
-    """
-    global params
-    global api
-    global acct
-    # Get list of scrips params
-    params = pd.read_csv(os.path.join(cfg['generated'], 'summary', acct + '-Entries.csv'))
-
-    str_cols = [
-        'entry_order_id', 'sl_order_id', 'target_order_id',
-        'entry_order_status', 'sl_order_status', 'target_order_status',
-        'entry_ts', 'sl_ts', 'target_ts'
-    ]
-    params = params.assign(**{col: None for col in str_cols})
-
-    float_cols = [
-        'entry_price', 'sl_price', 'target_price', 'strength'
-    ]
-    params[float_cols] = np.NAN
-
-    params['active'] = 'Y'
-    params['sl_update_cnt'] = 0
-    params['token'] = params['token'].astype(str)
-    ob = api.api_get_order_book()
-    if ob is None:
-        orders = []
-    elif len(ob) > 0:
-        marked_ob = api.get_order_type_order_book(ob)
-        orders = pd.DataFrame(marked_ob)
-        logger.debug(f"__load_params: Orders: {orders}")
-    else:
-        orders = []
-
-    if len(orders) > 0:
-        orders = orders.loc[(orders.prd == 'B') &
-                            (orders.status.isin(['OPEN', 'TRIGGER_PENDING', 'COMPLETE', 'CANCELED', 'REJECTED']))]
-
-        orders.dropna(subset=['remarks'], inplace=True)
-        orders = orders.loc[orders.remarks != '']
-        if len(orders) > 0:
-            orders = __extract_order_book_params(orders)
-            order_cols = ['entry_order_id', 'sl_order_id', 'target_order_id',
-                          'entry_order_status', 'sl_order_status', 'target_order_status',
-                          'entry_ts', 'sl_ts', 'target_ts',
-                          'entry_price', 'sl_price', 'target_price',
-                          'active']
-            params.loc[orders.index, order_cols] = orders[order_cols]
-            params.loc[orders.index, 'strength'] = abs(params['target'] - params['entry_price'])
-
-    else:
-        logger.info("__load_params: No orders to stitch to params.")
-
-    ls.log_entry(log_type=PARAMS_LOG_TYPE, keys=["BOD"], data=params, acct=acct, log_date=S_TODAY)
-    logger.info(f"__load_params: Params:\n{params}")
 
 
 def event_handler_open_callback():
@@ -375,7 +264,7 @@ def start(acct_param: str, post_proc: bool = False):
     if ret is None:
         raise Exception("Unable to login to broker API")
 
-    load_params()
+    params = load_params(api=api, log_service=ls, acct=acct)
 
     if len(params) == 0:
         logger.error("No Params entries")
