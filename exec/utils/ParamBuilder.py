@@ -14,11 +14,21 @@ pd.set_option('display.max_rows', None)
 pd.set_option('display.width', None)
 pd.options.mode.chained_assignment = None
 
+ORDER_BOOK_COLS = ['norenordno', 'status', 'ordenttm', 'prc', 'avgprc', 'trgprc', 'tp_order_num', 'tp_order_type']
+ORDER_COLS = ['entry_order_id', 'sl_order_id', 'target_order_id',
+              'entry_order_status', 'sl_order_status', 'target_order_status',
+              'entry_ts', 'sl_ts', 'target_ts',
+              'entry_price', 'sl_price', 'target_price',
+              'active']
+
 
 def __extract_order_book_params(df: pd.DataFrame):
     if len(df) == 0:
         return pd.DataFrame()
     orders = df.copy()
+    for col in ORDER_BOOK_COLS:
+        if col not in orders.columns:
+            orders.loc[:, col] = np.NAN
     orders = orders[['norenordno', 'status', 'ordenttm', 'prc', 'avgprc', 'trgprc', 'tp_order_num', 'tp_order_type']]
     entry_orders = orders.loc[orders.tp_order_type == 'ENTRY_LEG']
     if len(entry_orders) > 0:
@@ -29,21 +39,19 @@ def __extract_order_book_params(df: pd.DataFrame):
             'avgprc': 'entry_price'}, inplace=True)
         entry_orders.drop(['prc', 'trgprc', 'tp_order_type'], axis=1, inplace=True)
     sl_orders = orders.loc[orders.tp_order_type == 'SL_LEG']
-    if len(sl_orders) > 0:
-        sl_orders.rename(columns={
-            'norenordno': 'sl_order_id',
-            'status': 'sl_order_status',
-            'ordenttm': 'sl_ts',
-            'trgprc': 'sl_price'}, inplace=True)
-        sl_orders.drop(['avgprc', 'prc', 'tp_order_type'], axis=1, inplace=True)
+    sl_orders.rename(columns={
+        'norenordno': 'sl_order_id',
+        'status': 'sl_order_status',
+        'ordenttm': 'sl_ts',
+        'trgprc': 'sl_price'}, inplace=True)
+    sl_orders.drop(['avgprc', 'prc', 'tp_order_type'], axis=1, inplace=True)
     target_orders = orders.loc[orders.tp_order_type == 'TARGET_LEG']
-    if len(target_orders) > 0:
-        target_orders.rename(columns={
-            'norenordno': 'target_order_id',
-            'status': 'target_order_status',
-            'ordenttm': 'target_ts',
-            'prc': 'target_price'}, inplace=True)
-        target_orders.drop(['trgprc', 'avgprc', 'tp_order_type'], axis=1, inplace=True)
+    target_orders.rename(columns={
+        'norenordno': 'target_order_id',
+        'status': 'target_order_status',
+        'ordenttm': 'target_ts',
+        'prc': 'target_price'}, inplace=True)
+    target_orders.drop(['trgprc', 'avgprc', 'tp_order_type'], axis=1, inplace=True)
     if len(entry_orders) > 0:
         param_orders = pd.merge(left=entry_orders, right=sl_orders, how="left", left_on="tp_order_num",
                                 right_on="tp_order_num")
@@ -107,12 +115,7 @@ def load_params(api: Shoonya, acct: str, log_service: LogService = None):
         orders = orders.loc[orders.remarks != '']
         if len(orders) > 0:
             orders = __extract_order_book_params(orders)
-            order_cols = ['entry_order_id', 'sl_order_id', 'target_order_id',
-                          'entry_order_status', 'sl_order_status', 'target_order_status',
-                          'entry_ts', 'sl_ts', 'target_ts',
-                          'entry_price', 'sl_price', 'target_price',
-                          'active']
-            params.loc[orders.index, order_cols] = orders[order_cols]
+            params.loc[orders.index, ORDER_COLS] = orders[ORDER_COLS]
             params.loc[orders.index, 'strength'] = abs(params['target'] - params['entry_price'])
 
     else:
