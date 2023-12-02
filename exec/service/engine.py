@@ -2,24 +2,22 @@ import datetime
 import os
 import time
 
-import numpy as np
 import pandas as pd
 from commons.broker.Shoonya import Shoonya
-from commons.config.reader import cfg
 from commons.consts.consts import IST, S_TODAY, PARAMS_LOG_TYPE
 from commons.dataprovider.database import DatabaseEngine
+from commons.service.LogService import LogService
 from commons.utils.EmailAlert import send_email, send_df_email
-from commons.utils.Misc import get_epoch, calc_sl, get_new_sl, round_price, log_entry
+from commons.utils.Misc import get_epoch, calc_sl, get_new_sl, round_price
 
-from exec.service.cob import CloseOfBusiness
 from exec.utils.EngineUtils import *
+from exec.utils.ParamBuilder import load_params
 
 MOCK = False
+RECONNECT_COUNTER = 0
 
-MIS_PROD_TYPE = 'I'
 MKT_PRICE_TYPE = 'MKT'
 SL_PRICE_TYPE = "SL-MKT"
-TARGET_PRICE_TYPE = "LMT"
 
 logger = logging.getLogger(__name__)
 pd.set_option('display.max_columns', None)
@@ -33,6 +31,7 @@ acct = os.environ.get('ACCOUNT')
 api = Shoonya(acct)
 trader_db = DatabaseEngine()
 instruments = []
+ls = LogService(trader_db=trader_db)
 
 
 def __get_signal_strength(df: pd.DataFrame, ltp: float):
@@ -45,14 +44,23 @@ def __get_signal_strength(df: pd.DataFrame, ltp: float):
     return df
 
 
-def __create_bracket_order(idx, row, data):
+def __create_bracket_order(idx, row, ltp):
     global params
     logger.debug(f"__create_bracket_order: Creating bracket order for {row.model}, {row.scrip}, {str(idx)}")
     params.loc[idx, 'entry_order_id'] = -1
     direction = 'B' if row.signal == 1 else 'S'
-    remarks = ":".join(["ENTRY_LEG", row.model, row.scrip, str(idx)])
+    remarks = ":".join(["BO", row.model, row.scrip, str(idx)])
+    sl_price = calc_sl(entry=ltp,
+                       signal=row['signal'],
+                       sl_factor=row['sl_pct'],
+                       tick=row['tick'],
+                       scrip=row['scrip']
+                       )
+    sl_range = format(abs(ltp - float(sl_price)), '.2f')
+    target = round_price(price=row['target'], tick=row['tick'], scrip=row['scrip'])
+    target_range = format(abs(ltp - float(target)), '.2f')
     resp = api.api_place_order(buy_or_sell=direction,
-                               product_type=MIS_PROD_TYPE,
+                               product_type='B',
                                exchange=row.exchange,
                                trading_symbol=row.symbol,
                                quantity=row.quantity,
@@ -61,85 +69,14 @@ def __create_bracket_order(idx, row, data):
                                price=0.00,
                                trigger_price=None,
                                retention='DAY',
-                               remarks=remarks
+                               remarks=remarks,
+                               book_loss_price=sl_range,
+                               book_profit_price=target_range
                                )
-    logger.debug(f"__create_bracket_order: Entry_Leg: Entry order Resp: {resp}")
+    logger.debug(f"__create_bracket_order: BO Leg Resp: {resp}")
     if resp is None:
         logger.error("__create_bracket_order: Error in creating entry leg")
         return
-    status, reason, price = api.api_get_order_hist(resp["norenordno"])
-    params.loc[idx, 'entry_order_status'] = status
-    if status == 'REJECTED':
-        logger.error(f"__create_bracket_order: Entry leg REJECTED with: {reason}")
-        params.loc[idx, 'active'] = 'N'
-        return
-    params.loc[idx, 'entry_order_id'] = resp['norenordno']
-    params.loc[idx, 'entry_price'] = price
-    params.loc[idx, 'entry_ts'] = data.get('ft', int(time.time()))
-    logger.debug(f"__create_bracket_order: Entry_Leg: Post Entry: Params\n{params}")
-    cover_direction = 'S' if direction == "B" else 'B'
-    # Create SL order
-    sl_remarks = remarks.replace("ENTRY_LEG", "SL_LEG")
-    sl_price = calc_sl(entry=price,
-                       signal=row['signal'],
-                       sl_factor=row['sl_pct'],
-                       tick=row['tick'],
-                       scrip=row['scrip']
-                       )
-    resp = api.api_place_order(buy_or_sell=cover_direction,
-                               product_type=MIS_PROD_TYPE,
-                               exchange=row.exchange,
-                               trading_symbol=row.symbol,
-                               quantity=row.quantity,
-                               disclose_qty=0,
-                               price_type=SL_PRICE_TYPE,
-                               price=0.00,
-                               trigger_price=sl_price,
-                               retention='DAY',
-                               remarks=sl_remarks
-                               )
-    logger.debug(f"__create_bracket_order: SL Order Creation Resp: {resp}")
-    if resp is None:
-        logger.error(f"__create_bracket_order: Error in creating SL order for message: {sl_remarks}")
-        return
-    status, reason, _ = api.api_get_order_hist(resp["norenordno"])
-    params.loc[idx, 'sl_order_status'] = status
-    if status == 'REJECTED':
-        logger.error(f"__create_bracket_order: SL leg REJECTED with: {reason}")
-        params.loc[idx, 'active'] = 'N'
-        return
-    params.loc[idx, 'sl_order_id'] = resp['norenordno']
-    params.loc[idx, 'sl_price'] = float(sl_price)
-    logger.debug(f"order_update: Post SL: Params\n{params}")
-    # Create Target Order
-    target_remarks = remarks.replace("ENTRY_LEG", "TARGET_LEG")
-    target = calc_target(org_target=row['target'], entry_price=price,
-                         direction=direction, target_range=row['strength'])
-    target = round_price(price=target, tick=row['tick'], scrip=row['scrip'])
-    resp = api.api_place_order(buy_or_sell=cover_direction,
-                               product_type=MIS_PROD_TYPE,
-                               exchange=row.exchange,
-                               trading_symbol=row.symbol,
-                               quantity=row.quantity,
-                               disclose_qty=0,
-                               price_type=TARGET_PRICE_TYPE,
-                               price=target,
-                               trigger_price=target,
-                               retention='DAY',
-                               remarks=target_remarks
-                               )
-    logger.debug(f"__create_bracket_order: Target Order Creation Resp: {resp}")
-    if resp is None:
-        logger.error(f"__create_bracket_order: Error in creating Target order for message: {target_remarks}")
-        return
-    status, reason, _ = api.api_get_order_hist(resp["norenordno"])
-    params.loc[idx, 'target_order_status'] = status
-    if status == 'REJECTED':
-        logger.error(f"__create_bracket_order: Target leg REJECTED with: {reason}")
-        params.loc[idx, 'active'] = 'N'
-        return
-    params.loc[idx, 'target_order_id'] = resp['norenordno']
-    params.loc[idx, 'target_price'] = float(target)
     logger.debug(f"__create_bracket_order: Post Target: Params\n{params}")
 
 
@@ -154,84 +91,10 @@ def __close_all_trades():
     logger.info(f"__close_all_trades: Will now close open trades:\n{open_params}")
     for idx, order in open_params.iterrows():
         logger.debug(f"__close_all_trades: About to close\n{order}")
-        # Exiting all SL-MKT orders by making them MKT orders.
-        resp = api.api_modify_order(order_no=order['sl_order_id'],
-                                    exchange=order['exchange'],
-                                    trading_symbol=order['symbol'],
-                                    new_quantity=order['quantity'],
-                                    new_price_type=MKT_PRICE_TYPE)
-        logger.debug(f"__close_all_trades: Closed SL Order: {order['sl_order_id']}, Resp: {resp}")
-        resp = api.api_cancel_order(order['target_order_id'])
-        logger.debug(f"__close_all_trades: Cancelled Target Order: {order['target_order_id']}, Resp: {resp}")
-        params.loc[idx, 'target_order_status'] = 'CANCELLED'
-        params.loc[idx, 'target_ts'] = int(time.time())
-        params.loc[idx, 'active'] = 'N'
+        # Exiting all Bracket orders by making them MKT orders.
+        resp = api.api_close_bracket_order(order_no=order['entry_order_id'])
+        logger.debug(f"__close_all_trades: Closed BO: {order['entry_order_id']}, Resp: {resp}")
     logger.info(f"__close_all_trades: Post Close params:\n{params}")
-
-
-def __load_params():
-    global params
-    global api
-    global acct
-    # Get list of scrips params
-    params = pd.read_csv(os.path.join(cfg['generated'], 'summary', acct + '-Entries.csv'))
-
-    str_cols = [
-        'entry_order_id', 'sl_order_id', 'target_order_id',
-        'entry_order_status', 'sl_order_status', 'target_order_status',
-        'entry_ts', 'sl_ts', 'target_ts'
-    ]
-    params = params.assign(**{col: None for col in str_cols})
-
-    float_cols = [
-        'entry_price', 'sl_price', 'target_price', 'strength'
-    ]
-    params[float_cols] = np.NAN
-
-    params['active'] = 'Y'
-    params['sl_update_cnt'] = 0
-    params['token'] = params['token'].astype(str)
-    orders = pd.DataFrame(api.api_get_order_book())
-
-    logger.debug(f"__load_params: Orders: {orders}")
-
-    if len(orders) > 0:
-        orders = orders.loc[(orders.prd == 'I') &
-                            (orders.status.isin(['OPEN', 'TRIGGER_PENDING', 'COMPLETE', 'CANCELED']))]
-
-        orders.dropna(subset=['remarks'], inplace=True)
-        if len(orders) > 0:
-            orders.loc[:, 'order_type'] = orders.apply(lambda x: get_order_type(x), axis=1)
-            orders.loc[:, 'order_index'] = orders['remarks'].apply(get_order_index)
-            orders.loc[:, 'norenordno'] = orders['norenordno'].astype(str)
-            orders.loc[:, 'order_index'] = orders['order_index'].astype(int)
-
-            for idx, row in orders.iterrows():
-                if row['order_type'] == 'ENTRY_LEG':
-                    params.loc[row.order_index, 'entry_order_id'] = row["norenordno"]
-                    params.loc[row.order_index, 'entry_price'] = float(row["avgprc"])
-                    params.loc[row.order_index, 'entry_order_status'] = row["status"]
-                    params.loc[row.order_index, 'entry_ts'] = row["ordenttm"]
-                elif row['order_type'] == 'SL_LEG':
-                    params.loc[row.order_index, 'sl_order_id'] = row["norenordno"]
-                    params.loc[row.order_index, 'sl_price'] = float(row["trgprc"])
-                    params.loc[row.order_index, 'sl_order_status'] = row["status"]
-                    params.loc[row.order_index, 'sl_ts'] = row["ordenttm"]
-                    params.loc[row.order_index, 'sl_update_cnt'] = int(row["kidid"])
-                    if row["status"] == 'COMPLETE':
-                        params.loc[row.order_index, 'active'] = 'N'
-                elif row['order_type'] == 'TARGET_LEG':
-                    params.loc[row.order_index, 'target_order_id'] = row["norenordno"]
-                    params.loc[row.order_index, 'target_price'] = float(row["prc"])
-                    params.loc[row.order_index, 'target_order_status'] = row["status"]
-                    params.loc[row.order_index, 'target_ts'] = row["ordenttm"]
-                    if row["status"] == 'COMPLETE':
-                        params.loc[row.order_index, 'active'] = 'N'
-        else:
-            logger.info("__load_params: No orders to stitch to params.")
-
-    log_entry(trader_db=trader_db, log_type=PARAMS_LOG_TYPE, keys=["BOD"], data=params, acct=acct, log_date=S_TODAY)
-    logger.info(f"__load_params: Params:\n{params}")
 
 
 def event_handler_open_callback():
@@ -261,7 +124,7 @@ def event_handler_quote_update(data):
         if len(entries) > 0:
             for idx, row in __get_signal_strength(entries, ltp).iterrows():
                 if row['strength'] > 0:
-                    __create_bracket_order(idx, row, data)
+                    __create_bracket_order(idx, row, ltp)
                 else:
                     # Invalid Signal for the day
                     params.loc[idx, 'active'] = 'N'
@@ -285,74 +148,83 @@ def event_handler_quote_update(data):
                                                 new_trigger_price=new_sl
                                                 )
                     logger.debug(f"SL_Update: Modify order Resp: {resp}")
-                    params.loc[index, 'sl_price'] = float(new_sl)
                     logger.info(f"SL_Update: Post SL Update for {order}\nParams:\n{params}")
 
 
 def event_handler_order_update(curr_order):
+    """
+    1. Get Order type
+    2. Get Order Status i.e. Open (Entry --> N/A, SL --> Trigger Pending, Target --> Open) or Closed (i.e. Completed)
+    3. Update Stats to Params
+    4. If Closed (i.e. REJECTED, SL-HIT, TARGET-HIT) - Mark Params as inactive (N)
+    ** Handling SL Update issues courtesy Shoonya **
+    5. If Order Type = SL - Get Order Hist
+    6. If Order has Rejection - Mark Params as SL-Limit-Hit (S)
+    :param curr_order:
+    :return:
+        global params Updated as above
+    """
     global api
     global params
     logger.debug(f"order_update: Entered Order update Callback with {curr_order}")
     curr_order_id = curr_order['norenordno']
-    curr_order_status = curr_order.get('status', 'NA')
-    order_type = get_order_type(curr_order)
+    upd_order = api.get_order_status_order_update(curr_order)
+    order_idx = int(upd_order.get('tp_order_num', -1))
+    order_type = upd_order.get('tp_order_type', 'X')
+    curr_order_status = upd_order.get('tp_order_status', 'NA')
     curr_order_ts = get_epoch(curr_order.get('exch_tm', '0'))
-    if curr_order_status == 'COMPLETE':
+    if order_idx != -1:
         if order_type == 'ENTRY_LEG':
-            params.loc[(params.entry_order_id == curr_order_id), 'entry_order_status'] = curr_order_status
-            logger.debug(f"order_update: Entry Leg completion notification for {curr_order['remarks']}; ignoring")
-        else:
-            # Either hit SL or Target need to cancel the other
-            curr_order_idx, entry_order, contra_order, hit_type = get_contra_leg(params, curr_order_id)
-            if hit_type == 'SL-HIT':
-                params.loc[curr_order_idx, 'sl_order_status'] = 'COMPLETE'
-                params.loc[curr_order_idx, 'sl_ts'] = curr_order_ts
-            else:
-                params.loc[curr_order_idx, 'target_order_status'] = 'COMPLETE'
-                params.loc[curr_order_idx, 'target_ts'] = curr_order_ts
-            logger.debug(f"order_update: About to cancel {entry_order}'s contra order: {contra_order}")
-            resp = api.api_cancel_order(contra_order)
-            logger.debug(f"order_update: Response from cancel {resp}")
-            if resp.get('stat', 0) == 'Ok':
-                logger.debug(f"About to inactivate {entry_order}")
-                params.loc[curr_order_idx, 'active'] = 'N'
-                if hit_type == 'SL-HIT':
-                    params.loc[curr_order_idx, 'target_order_status'] = 'CANCELLED'
-                    params.loc[curr_order_idx, 'target_ts'] = curr_order_ts
-                else:
-                    params.loc[curr_order_idx, 'sl_order_status'] = 'CANCELLED'
-                    params.loc[curr_order_idx, 'sl_ts'] = curr_order_ts
-            logger.info(f"order_update: Post Order Cancellation: Params\n{params}")
-    elif curr_order_status == 'TRIGGER_PENDING' and order_type == 'SL_LEG':
-        # SL Leg
-        recs = params.loc[params.sl_order_id == curr_order_id]
-        idx = recs.index[0]
-        params.loc[idx, 'sl_order_status'] = curr_order['status']
-        params.loc[idx, 'sl_price'] = float(curr_order['trgprc'])
-        params.loc[idx, 'sl_ts'] = curr_order_ts
-        params.loc[idx, 'sl_update_cnt'] += 1
-        logger.info(f"order_update: Updated SL Params:\n{params}")
-    elif curr_order_status == 'OPEN' and order_type == 'TARGET_LEG':
-        # Target Leg
-        recs = params.loc[params.target_order_id == curr_order_id]
-        idx = recs.index[0]
-        params.loc[idx, 'target_order_status'] = curr_order['status']
-        params.loc[idx, 'target_price'] = float(curr_order['prc'])
-        params.loc[idx, 'target_ts'] = curr_order_ts
-        logger.info(f"order_update: Updated Target Params:\n{params}")
-    elif curr_order_status == 'REJECTED' and order_type == 'ENTRY_LEG':
-        recs = params.loc[params.entry_order_id == curr_order_id]
-        if len(recs) > 0:
-            idx = recs.index[0]
-            params.loc[idx, 'entry_order_status'] = curr_order_status
-            logger.info(f"order_update: Updated Reject Params:\n{params}")
+            price = float(curr_order.get("avgprc", curr_order.get("prc")))
+            params.loc[order_idx, ['entry_order_id', 'entry_order_status', 'entry_ts', 'entry_price']] = (
+                curr_order_id, curr_order_status, curr_order_ts, price)
+            logger.debug(f"order_update: Updated Entry Params:\n{params}")
+
+            if curr_order_status == 'REJECTED':
+                params.loc[order_idx, 'active'] = 'N'
+                logger.debug(f"order_update: Updated Entry Rejection Status Params:\n{params}")
+
+        elif order_type == 'TARGET_LEG':
+            price = float(curr_order.get("prc", -1))
+            if price == 0.0:
+                price = float(curr_order.get("avgprc", -1))
+            params.loc[order_idx, ['target_order_id', 'target_order_status', 'target_ts', 'target_price']] = (
+                curr_order_id, curr_order_status, curr_order_ts, price)
+            logger.debug(f"order_update: Updated Target Params:\n{params}")
+
+            if curr_order_status == 'TARGET-HIT':
+                params.loc[order_idx, 'active'] = 'N'
+                logger.debug(f"order_update: Updated Target Completion Status Params:\n{params}")
+
+        elif order_type == 'SL_LEG':
+            price = float(curr_order.get("trgprc", -1))
+            params.loc[order_idx, ['sl_order_id', 'sl_order_status', 'sl_ts', 'sl_price']] = (
+                curr_order_id, curr_order_status, curr_order_ts, price)
+            logger.debug(f"order_update: Updated SL Params:\n{params}")
+
+            if curr_order_status == 'SL-HIT':
+                params.loc[order_idx, 'active'] = 'N'
+                logger.debug(f"order_update: Updated SL Completion Status Params:\n{params}")
+            elif curr_order_status == 'TRIGGER_PENDING':
+                params.loc[order_idx, 'sl_update_cnt'] += 1
+                logger.debug(f"order_update: Updated SL Update Count Params:\n{params}")
+                rejected, reason = api.is_sl_update_rejected(curr_order_id)
+                if rejected:
+                    logger.debug(f"order_update: Rejected SL Order:\n{curr_order_id}")
+                    params.loc[order_idx, 'active'] = 'S'
+                    logger.debug(f"order_update: Updated SL Update Count Params:\n{params}")
+    else:
+        logger.debug(f"Skipping order update for {curr_order_id}")
 
 
 def event_handler_error(message):
+    global RECONNECT_COUNTER
     global instruments
     logger.error(f"Error message {message}")
-    send_email(body=f"Error in websocket {message}", subject="Websocket Error!")
+    RECONNECT_COUNTER += 1
+    send_email(body=f"Attempt: {RECONNECT_COUNTER} Error in websocket {message}", subject=f"Websocket Error! - {acct}")
     api.api_unsubscribe(instruments)
+    api.api.close_websocket()
     api.api_start_websocket(subscribe_callback=event_handler_quote_update,
                             socket_open_callback=event_handler_open_callback,
                             socket_error_callback=event_handler_error,
@@ -360,7 +232,17 @@ def event_handler_error(message):
                             )
 
 
-def start(acct_param: str, post_proc: bool = True):
+def __store_params():
+    global params
+    order_date = str(TODAY)
+    if len(params) > 0:
+        ls.log_entry(log_type=PARAMS_LOG_TYPE, keys=["COB"], data=params, log_date=order_date, acct=acct)
+        logger.info(f"__store_orders: Orders created for {acct}")
+    else:
+        logger.error(f"__store_orders: No Params found to store")
+
+
+def start(acct_param: str, post_proc: bool = False):
     """
 
     Args:
@@ -383,13 +265,14 @@ def start(acct_param: str, post_proc: bool = True):
     if ret is None:
         raise Exception("Unable to login to broker API")
 
-    __load_params()
+    params = load_params(api=api, log_service=ls, acct=acct)
 
     if len(params) == 0:
         logger.error("No Params entries")
         return
 
     if len(params.loc[params.active == 'Y']) == 0:
+        __store_params()
         logger.error("No Active Params entries")
         return
 
@@ -401,16 +284,14 @@ def start(acct_param: str, post_proc: bool = True):
 
     while datetime.datetime.now(IST).time() <= target_time_ist:
         if alert_pending and datetime.datetime.now(IST).time() >= alert_time_ist:
-            log_entry(trader_db=trader_db, log_type=PARAMS_LOG_TYPE, keys=["Post-BOD"], data=params,
-                      acct=acct, log_date=S_TODAY)
+            ls.log_entry(log_type=PARAMS_LOG_TYPE, keys=["Post-BOD"], data=params,
+                         acct=acct, log_date=S_TODAY)
             send_df_email(df=params, subject="BOD Params", acct=acct)
             alert_pending = False
         time.sleep(1)
 
     __close_all_trades()
-    if post_proc:
-        cob = CloseOfBusiness(acct=acct, params=params)
-        cob.run_cob()
+    __store_params()
 
 
 if __name__ == "__main__":

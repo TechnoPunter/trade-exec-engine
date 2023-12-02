@@ -1,0 +1,22 @@
+{
+  't': 'om',
+  'norenordno': '23112700002476',
+  'uid': 'FA175610',
+  'actid': 'FA175610',
+  'exch': 'NSE',
+  'tsym': 'BANDHANBNK-EQ',
+  'trantype': 'B',
+  'qty': '56',
+  'prc': '0.00',
+  'pcode': 'B',
+  'remarks': 'BO:trainer.strategies.rfcV2:NSE_BANDHANBNK:0',
+  'rejreason': 'RED:Margin Shortfall:INR 283.66 Available:INR 2,216.82 for C-FA175610 [SHOONYA]',
+  'status': 'REJECTED',
+  'reporttype': 'Rejected',
+  'prctyp': 'MKT',
+  'ret': 'DAY',
+  'exchordid': '',
+  'dscqty': '0',
+  'blprc': '4.65',
+  'bpprc': '2.65'
+}
