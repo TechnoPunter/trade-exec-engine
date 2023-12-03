@@ -236,10 +236,10 @@ def __store_params():
     global params
     order_date = str(TODAY)
     if len(params) > 0:
-        ls.log_entry(log_type=PARAMS_LOG_TYPE, keys=["COB"], data=params, log_date=order_date, acct=acct)
-        logger.info(f"__store_orders: Orders created for {acct}")
+        ls.log_entry(log_type=PARAMS_LOG_TYPE, keys=["Pre-COB"], data=params, log_date=order_date, acct=acct)
+        logger.info(f"__store_params: Orders created for {acct}")
     else:
-        logger.error(f"__store_orders: No Params found to store")
+        logger.error(f"__store_params: No Params found to store")
 
 
 def start(acct_param: str, post_proc: bool = False):

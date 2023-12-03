@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 from commons.backtest.fastBT import FastBT
 from commons.broker.Shoonya import Shoonya
-from commons.consts.consts import TODAY, BROKER_TRADE_LOG_TYPE, S_TODAY, BT_TRADE_LOG_TYPE, PARAMS_LOG_TYPE
+from commons.consts.consts import *
 from commons.dataprovider.database import DatabaseEngine
 from commons.loggers.setup_logger import setup_logging
 from commons.service.LogService import LogService
@@ -28,11 +28,11 @@ class CloseOfBusiness:
         self.params = None
         self.sds = None
 
-    def __setup(self, acct: str, params: pd.DataFrame = None):
+    def __setup(self, acct: str, cob_date: str, params: pd.DataFrame = None):
         self.acct = acct
         self.shoonya = Shoonya(self.acct)
         if params is None:
-            data = self.ls.get_log_entry_data(log_type=PARAMS_LOG_TYPE, keys=["COB"], log_date=S_TODAY, acct=acct)
+            data = self.ls.get_log_entry_data(log_type=PARAMS_LOG_TYPE, keys=["COB"], log_date=cob_date, acct=acct)
             if data is None:
                 self.params = load_params(api=self.shoonya, acct=acct)
             else:
@@ -41,27 +41,36 @@ class CloseOfBusiness:
             self.params = params
         self.sds = ScripDataService(shoonya=self.shoonya, trader_db=self.trader_db)
 
-    def __store_broker_trades(self):
+    def __store_broker_trades(self, cob_date: str):
         orders = self.shoonya.api_get_order_book()
+        if orders is None:
+            logger.error(f"__store_broker_trades: No Broker orders to store")
+            return
         if len(orders) > 0:
-            order_date = str(TODAY)
-            self.ls.log_entry(log_type=BROKER_TRADE_LOG_TYPE, keys=["COB"], data=orders, log_date=order_date,
+            self.ls.log_entry(log_type=BROKER_TRADE_LOG_TYPE, keys=["COB"], data=orders, log_date=cob_date,
                               acct=self.acct)
             logger.info(f"__store_broker_trades: Broker Trades created for {self.acct}")
         else:
             logger.error(f"__store_broker_trades: No Broker orders to store")
+            return
 
-    def __store_bt_trades(self):
+    def __store_bt_trades(self, cob_date: str):
         scrips = list(set(self.params.scrip))
         df = self.params
-        df.loc[:, 'trade_date'] = S_TODAY
+        df.loc[:, 'trade_date'] = cob_date
 
         self.sds.load_scrips_data(scrip_names=scrips, opts=["TICK"])
 
-        f = FastBT(trader_db=self.trader_db)
-        bt_trades, _ = f.run_cob_accuracy(params=df)
+        f = FastBT()
+        bt_trades, _, bt_mtm = f.run_cob_accuracy(params=df)
         bt_trades['date'] = bt_trades['date'].astype(str)
-        self.ls.log_entry(log_type=BT_TRADE_LOG_TYPE, keys=["COB"], data=bt_trades, log_date=S_TODAY, acct=self.acct)
+        # bt_mtm_dict = {}
+        # for key, value in bt_mtm.items():
+        #     date_columns = value.select_dtypes(include=['datetime64']).columns.tolist()
+        #     value[date_columns] = value[date_columns].astype(str)
+        #     bt_mtm_dict[key] = value.to_dict(orient="records")
+        self.ls.log_entry(log_type=BT_TRADE_LOG_TYPE, keys=["COB"], data=bt_trades, log_date=cob_date, acct=self.acct)
+        # self.ls.log_entry(log_type=BT_MTM_LOG_TYPE, keys=["COB"], data=bt_mtm_dict, log_date=cob_date, acct=self.acct)
 
     def __generate_reminders(self):
         send_df_email(df=self.params, subject="COB Params", acct=self.acct)
@@ -70,7 +79,15 @@ class CloseOfBusiness:
         if len(trades) > 0:
             send_df_email(df=trades, subject="COB Report", acct=self.acct)
 
-    def run_cob(self, accounts: str, params_dict: dict = None):
+    def __store_params(self, cob_date):
+        if len(self.params) > 0:
+            self.ls.log_entry(log_type=PARAMS_LOG_TYPE, keys=["COB"], data=self.params, log_date=cob_date,
+                              acct=self.acct)
+            logger.info(f"__store_params: Orders created for {self.acct}")
+        else:
+            logger.error(f"__store_params: No Params found to store")
+
+    def run_cob(self, accounts: str, cob_date: str = S_TODAY, params_dict: dict = None):
         """
         This provides post process functions i.e. After all open orders are closed
         For every account in the accounts list:
@@ -85,13 +102,14 @@ class CloseOfBusiness:
                 params = params_dict.get(account, None)
             else:
                 params = None
-            self.__setup(acct=account, params=params)
+            self.__setup(acct=account, cob_date=cob_date, params=params)
             self.__generate_reminders()
-            self.__store_broker_trades()
-            self.__store_bt_trades()
+            self.__store_params(cob_date=cob_date)
+            self.__store_broker_trades(cob_date=cob_date)
+            self.__store_bt_trades(cob_date=cob_date)
 
 
 if __name__ == '__main__':
     setup_logging("cob.log")
     c = CloseOfBusiness()
-    c.run_cob(accounts='Trader-V2-Pralhad, Trader-V2-Alan', params_dict=None)
+    c.run_cob(accounts='Trader-V2-Pralhad, Trader-V2-Alan', cob_date='2023-12-01', params_dict=None)
