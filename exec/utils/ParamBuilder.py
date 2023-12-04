@@ -34,25 +34,26 @@ def __extract_order_book_params(api: Shoonya, df: pd.DataFrame):
     for idx, message in orders.iterrows():
         updated_orders.append(api.get_order_status_order_update(message))
     orders = pd.DataFrame(updated_orders)
+    orders.drop(['status'], axis=1, inplace=True)
     entry_orders = orders.loc[orders.tp_order_type == 'ENTRY_LEG']
     if len(entry_orders) > 0:
         entry_orders.rename(columns={
             'norenordno': 'entry_order_id',
-            'status': 'entry_order_status',
+            'tp_order_status': 'entry_order_status',
             'ordenttm': 'entry_ts',
             'avgprc': 'entry_price'}, inplace=True)
         entry_orders.drop(['prc', 'trgprc', 'tp_order_type'], axis=1, inplace=True)
     sl_orders = orders.loc[orders.tp_order_type == 'SL_LEG']
     sl_orders.rename(columns={
         'norenordno': 'sl_order_id',
-        'status': 'sl_order_status',
+        'tp_order_status': 'sl_order_status',
         'ordenttm': 'sl_ts',
         'trgprc': 'sl_price'}, inplace=True)
     sl_orders.drop(['avgprc', 'prc', 'tp_order_type'], axis=1, inplace=True)
     target_orders = orders.loc[orders.tp_order_type == 'TARGET_LEG']
     target_orders.rename(columns={
         'norenordno': 'target_order_id',
-        'status': 'target_order_status',
+        'tp_order_status': 'target_order_status',
         'ordenttm': 'target_ts',
         'prc': 'target_price'}, inplace=True)
     target_orders.drop(['trgprc', 'avgprc', 'tp_order_type'], axis=1, inplace=True)
