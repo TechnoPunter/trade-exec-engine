@@ -39,6 +39,8 @@ class CloseOfBusiness:
                 self.params = pd.DataFrame(data)
         else:
             self.params = params
+        self.params.loc[self.params.entry_order_id.isna(), 'entry_order_status'] = 'INVALID'
+        self.params.loc[:, 'active'] = 'N'
         self.sds = ScripDataService(shoonya=self.shoonya, trader_db=self.trader_db)
 
     def __store_broker_trades(self, cob_date: str):
@@ -112,4 +114,5 @@ class CloseOfBusiness:
 if __name__ == '__main__':
     setup_logging("cob.log")
     c = CloseOfBusiness()
-    c.run_cob(accounts='Trader-V2-Pralhad, Trader-V2-Alan', cob_date='2023-12-01', params_dict=None)
+    accounts_ = 'Trader-V2-Alan,Trader-V2-Pralhad,Trader-V2-Sundar,Trader-V2-Mahi'
+    c.run_cob(accounts=accounts_, cob_date='2023-12-04', params_dict=None)
