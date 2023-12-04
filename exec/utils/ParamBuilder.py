@@ -29,7 +29,8 @@ def __extract_order_book_params(api: Shoonya, df: pd.DataFrame):
     for col in ORDER_BOOK_COLS:
         if col not in orders.columns:
             orders.loc[:, col] = np.NAN
-    orders = orders[['norenordno', 'status', 'ordenttm', 'prc', 'avgprc', 'trgprc', 'tp_order_num', 'tp_order_type']]
+    orders = orders[['norenordno', 'status', 'ordenttm', 'prc', 'avgprc', 'trgprc', 'tp_order_num', 'tp_order_type',
+                     'prctyp']]
     updated_orders = []
     for idx, message in orders.iterrows():
         updated_orders.append(api.get_order_status_order_update(message))
