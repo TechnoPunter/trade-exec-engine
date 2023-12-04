@@ -22,7 +22,7 @@ ORDER_COLS = ['entry_order_id', 'sl_order_id', 'target_order_id',
               'active']
 
 
-def __extract_order_book_params(df: pd.DataFrame):
+def __extract_order_book_params(api: Shoonya, df: pd.DataFrame):
     if len(df) == 0:
         return pd.DataFrame()
     orders = df.copy()
@@ -30,25 +30,30 @@ def __extract_order_book_params(df: pd.DataFrame):
         if col not in orders.columns:
             orders.loc[:, col] = np.NAN
     orders = orders[['norenordno', 'status', 'ordenttm', 'prc', 'avgprc', 'trgprc', 'tp_order_num', 'tp_order_type']]
+    updated_orders = []
+    for idx, message in orders.iterrows():
+        updated_orders.append(api.get_order_status_order_update(message))
+    orders = pd.DataFrame(updated_orders)
+    orders.drop(['status'], axis=1, inplace=True)
     entry_orders = orders.loc[orders.tp_order_type == 'ENTRY_LEG']
     if len(entry_orders) > 0:
         entry_orders.rename(columns={
             'norenordno': 'entry_order_id',
-            'status': 'entry_order_status',
+            'tp_order_status': 'entry_order_status',
             'ordenttm': 'entry_ts',
             'avgprc': 'entry_price'}, inplace=True)
         entry_orders.drop(['prc', 'trgprc', 'tp_order_type'], axis=1, inplace=True)
     sl_orders = orders.loc[orders.tp_order_type == 'SL_LEG']
     sl_orders.rename(columns={
         'norenordno': 'sl_order_id',
-        'status': 'sl_order_status',
+        'tp_order_status': 'sl_order_status',
         'ordenttm': 'sl_ts',
         'trgprc': 'sl_price'}, inplace=True)
     sl_orders.drop(['avgprc', 'prc', 'tp_order_type'], axis=1, inplace=True)
     target_orders = orders.loc[orders.tp_order_type == 'TARGET_LEG']
     target_orders.rename(columns={
         'norenordno': 'target_order_id',
-        'status': 'target_order_status',
+        'tp_order_status': 'target_order_status',
         'ordenttm': 'target_ts',
         'prc': 'target_price'}, inplace=True)
     target_orders.drop(['trgprc', 'avgprc', 'tp_order_type'], axis=1, inplace=True)
@@ -114,7 +119,7 @@ def load_params(api: Shoonya, acct: str, log_service: LogService = None):
         orders.dropna(subset=['remarks'], inplace=True)
         orders = orders.loc[orders.remarks != '']
         if len(orders) > 0:
-            orders = __extract_order_book_params(orders)
+            orders = __extract_order_book_params(api, orders)
             params.loc[orders.index, ORDER_COLS] = orders[ORDER_COLS]
             params.loc[orders.index, 'strength'] = abs(params['target'] - params['entry_price'])
 
