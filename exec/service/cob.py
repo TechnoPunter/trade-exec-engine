@@ -29,6 +29,14 @@ class CloseOfBusiness:
         self.sds = None
 
     def __setup(self, acct: str, cob_date: str, params: pd.DataFrame = None):
+        """
+        Form the params structure based on Entries & Order book.
+        In case param is provided - will skip formation.
+        :param acct:
+        :param cob_date:
+        :param params:
+        :return:
+        """
         self.acct = acct
         self.cob_date = cob_date
         self.shoonya = Shoonya(self.acct)
@@ -71,6 +79,17 @@ class CloseOfBusiness:
             #     bt_mtm_dict[key] = value.to_dict(orient="records")
             self.ls.log_entry(log_type=BT_TRADE_LOG_TYPE, keys=["COB"], data=bt_trades, log_date=self.cob_date,
                               acct=self.acct)
+            trade_log = bt_trades.copy()
+            trade_log.rename(columns={"date": "trade_date",
+                                      "open": "entry_price",
+                                      "time": "entry_ts",
+                                      "strategy": "model"
+                                      }, inplace=True)
+            trade_log = trade_log.assign(acct=self.acct, trade_type="BT", quantity=1, )
+            predicate = f"m.{TRADE_LOG}.acct == '{self.acct}'"
+            predicate += f",m.{TRADE_LOG}.trade_date == '{self.cob_date}'"
+            self.trader_db.delete_recs(TRADE_LOG, predicate=predicate)
+            self.trader_db.bulk_insert(TRADE_LOG, data=trade_log)
             # self.ls.log_entry(log_type=BT_MTM_LOG_TYPE, keys=["COB"], data=bt_mtm_dict, log_date=cob_date,
             #                   acct=self.acct)
         else:
@@ -99,7 +118,7 @@ class CloseOfBusiness:
         else:
             logger.error(f"__store_params: No Params found to store")
 
-    def run_cob(self, accounts: str, cob_date: str = S_TODAY, params_dict: dict = None):
+    def run_cob(self, accounts: str, cob_date: str = S_TODAY, opts: list[str] = None, params_dict: dict = None):
         """
         This provides post process functions i.e. After all open orders are closed
         For every account in the accounts list:
@@ -108,6 +127,9 @@ class CloseOfBusiness:
             3. self.__store_bt_trades()
         """
 
+        if opts is None:
+            opts = ["generate_reminders", "store_params", "store_broker_trades", "store_bt_trades"]
+
         for acct in accounts.split(","):
             account = acct.strip()
             if params_dict is not None:
@@ -115,14 +137,19 @@ class CloseOfBusiness:
             else:
                 params = None
             self.__setup(acct=account, cob_date=cob_date, params=params)
-            self.__generate_reminders()
-            self.__store_params()
-            self.__store_broker_trades()
-            self.__store_bt_trades()
+            if "generate_reminders" in opts:
+                self.__generate_reminders()
+            if "store_params" in opts:
+                self.__store_params()
+            if "store_broker_trades" in opts:
+                self.__store_broker_trades()
+            if "store_bt_trades" in opts:
+                self.__store_bt_trades()
 
 
 if __name__ == '__main__':
     setup_logging("cob.log")
     c = CloseOfBusiness()
     accounts_ = 'Trader-V2-Alan,Trader-V2-Pralhad,Trader-V2-Sundar,Trader-V2-Mahi'
-    c.run_cob(accounts=accounts_, cob_date='2023-12-04', params_dict=None)
+    opts_ = ["generate_reminders", "store_params", "store_broker_trades", "store_bt_trades"]
+    c.run_cob(accounts=accounts_, cob_date='2023-12-04', opts=opts_, params_dict=None)
