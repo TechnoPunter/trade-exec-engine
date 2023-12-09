@@ -11,6 +11,6 @@
     "trigger_price": null,
     "retention": "DAY",
     "remarks": "BO:trainer.strategies.rfcV2:NSE_ONGC:5",
-    "book_loss_price": "0.20",
+    "book_loss_price": "1.00",
     "book_profit_price": "1.00"
   }]

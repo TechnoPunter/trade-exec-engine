@@ -7,8 +7,9 @@ from commons.broker.Shoonya import Shoonya
 from commons.consts.consts import IST, S_TODAY, PARAMS_LOG_TYPE
 from commons.dataprovider.database import DatabaseEngine
 from commons.service.LogService import LogService
+from commons.service.RiskCalc import RiskCalc
 from commons.utils.EmailAlert import send_email, send_df_email
-from commons.utils.Misc import get_epoch, calc_sl, get_new_sl, round_price
+from commons.utils.Misc import get_epoch, get_new_sl
 
 from exec.utils.EngineUtils import *
 from exec.utils.ParamBuilder import load_params
@@ -32,6 +33,7 @@ api = Shoonya(acct)
 trader_db = DatabaseEngine()
 instruments = []
 ls = LogService(trader_db=trader_db)
+rc = RiskCalc()
 
 
 def __get_signal_strength(df: pd.DataFrame, ltp: float):
@@ -50,15 +52,8 @@ def __create_bracket_order(idx, row, ltp):
     params.loc[idx, 'entry_order_id'] = -1
     direction = 'B' if row.signal == 1 else 'S'
     remarks = ":".join(["BO", row.model, row.scrip, str(idx)])
-    sl_price = calc_sl(entry=ltp,
-                       signal=row['signal'],
-                       sl_factor=row['sl_pct'],
-                       tick=row['tick'],
-                       scrip=row['scrip']
-                       )
-    sl_range = format(abs(ltp - float(sl_price)), '.2f')
-    target = round_price(price=row['target'], tick=row['tick'], scrip=row['scrip'])
-    target_range = format(abs(ltp - float(target)), '.2f')
+    target_range, sl_range = rc.calc_risk_params(scrip=row.scrip, strategy=row.model, signal=row.signal,
+                                                 tick=row.tick, acct=acct, entry=ltp, pred_target=row.target)
     resp = api.api_place_order(buy_or_sell=direction,
                                product_type='B',
                                exchange=row.exchange,
