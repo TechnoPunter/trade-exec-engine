@@ -115,7 +115,7 @@ class CloseOfBusiness:
             else:
                 params = None
             self.__setup(acct=account, cob_date=cob_date, params=params)
-            self.__generate_reminders()
+            # self.__generate_reminders()
             self.__store_params()
             self.__store_broker_trades()
             self.__store_bt_trades()
