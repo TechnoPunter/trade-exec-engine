@@ -14,6 +14,23 @@ from exec.utils.ParamBuilder import load_params
 logger = logging.getLogger(__name__)
 
 
+def calc_order_stats(row):
+    if row['sl_order_status'] == 'SL-HIT':
+        status = row['sl_order_status']
+        exit_time = row['sl_ts']
+        exit_price = float(row['sl_price'])
+    else:
+        status = row['target_order_status']
+        exit_time = row['target_ts']
+        exit_price = float(row['target_price'])
+
+    # PNL
+    signal = row['signal']
+    pnl = int(row['quantity']) * (signal * exit_price - signal * float(row['entry_price']))
+
+    return status, exit_time, exit_price, pnl
+
+
 class CloseOfBusiness:
 
     def __init__(self, trader_db: DatabaseEngine = None):
@@ -26,8 +43,9 @@ class CloseOfBusiness:
         self.shoonya = None
         self.params = None
         self.sds = None
+        self.cob_date = None
 
-    def __setup(self, acct: str, cob_date: str, params: pd.DataFrame = None):
+    def setup(self, acct: str, cob_date: str, params: pd.DataFrame = None):
         self.acct = acct
         self.cob_date = cob_date
         self.shoonya = Shoonya(self.acct)
@@ -39,18 +57,62 @@ class CloseOfBusiness:
         self.params.loc[:, 'active'] = 'N'
         self.sds = ScripDataService(shoonya=self.shoonya, trader_db=self.trader_db)
 
-    def store_broker_trades(self):
-        orders = self.shoonya.api_get_order_book()
+    def store_broker_trades(self, acct: str = None, cob_date: str = None, shoonya: Shoonya = None,
+                            ls: LogService = None, params: pd.DataFrame = None):
+        if acct is None:
+            acct = self.acct
+        if cob_date is None:
+            cob_date = self.cob_date
+        if shoonya is None:
+            shoonya = self.shoonya
+        if ls is None:
+            ls = self.ls
+        if params is None:
+            predicate = f"m.{PARAMS_HIST}.acct == '{acct}'"
+            predicate += f",m.{PARAMS_HIST}.trade_date == '{cob_date}'"
+            params = self.trader_db.query_df(PARAMS_HIST, predicate=predicate)
+        orders = shoonya.api_get_order_book()
         if orders is None:
             logger.error(f"__store_broker_trades: No Broker orders to store")
             return
-        if len(orders) > 0:
-            self.ls.log_entry(log_type=BROKER_TRADE_LOG_TYPE, keys=["COB"], data=orders, log_date=self.cob_date,
-                              acct=self.acct)
-            logger.info(f"__store_broker_trades: Broker Trades created for {self.acct}")
-        else:
+        if len(orders) == 0:
             logger.error(f"__store_broker_trades: No Broker orders to store")
             return
+        else:
+            ls.log_entry(log_type=BROKER_TRADE_LOG_TYPE, keys=["COB"], data=orders, log_date=cob_date, acct=acct)
+            logger.info(f"__store_broker_trades: Broker Trades created for {acct}")
+
+            # Update entry, SL, Target Prices in Params from OB
+            orders_df = pd.DataFrame(orders)
+            orders_df = orders_df[['norenordno', 'avgprc']]
+            params = params[["signal", "target", "scrip", "model", "quantity", "entry_order_id", "sl_order_id",
+                             "target_order_id", "sl_order_status", "target_order_status", "entry_ts", "sl_ts",
+                             "target_ts"]]
+
+            params = params.assign(acct=acct, trade_date=cob_date, trade_type="BROKER")
+
+            params = pd.merge(params, orders_df, how="left", left_on="entry_order_id", right_on="norenordno")
+            params.drop(["norenordno"], axis=1, inplace=True)
+            params.rename(columns={"avgprc": "entry_price"}, inplace=True)
+
+            params = pd.merge(params, orders_df, how="left", left_on="sl_order_id", right_on="norenordno")
+            params.drop(["norenordno"], axis=1, inplace=True)
+            params.rename(columns={"avgprc": "sl_price"}, inplace=True)
+
+            params = pd.merge(params, orders_df, how="left", left_on="target_order_id", right_on="norenordno")
+            params.drop(["norenordno"], axis=1, inplace=True)
+            params.rename(columns={"avgprc": "target_price"}, inplace=True)
+            params.drop(["entry_order_id", "sl_order_id", "target_order_id"], axis=1, inplace=True)
+
+            params[["status", "exit_time", "exit_price", "pnl"]] = params.apply(calc_order_stats, axis=1,
+                                                                                result_type='expand')
+            params.fillna(0, inplace=True)
+            predicate = f"m.{TRADE_LOG}.acct == '{acct}'"
+            predicate += f",m.{TRADE_LOG}.trade_date == '{cob_date}'"
+            predicate += f",m.{TRADE_LOG}.trade_type == 'BROKER'"
+            self.trader_db.delete_recs(TRADE_LOG, predicate=predicate)
+            self.trader_db.bulk_insert(TRADE_LOG, data=params)
+            logger.info("Done")
 
     def store_bt_trades(self, acct: str = None, cob_date: str = None, params: pd.DataFrame = None,
                         exec_mode: str = "SERVER", sds: ScripDataService = None, ls: LogService = None):
@@ -88,6 +150,7 @@ class CloseOfBusiness:
             ls.log_entry(log_type=BT_TRADE_LOG_TYPE, keys=["COB"], data=bt_trades, log_date=cob_date, acct=acct)
             predicate = f"m.{TRADE_LOG}.acct == '{acct}'"
             predicate += f",m.{TRADE_LOG}.trade_date == '{cob_date}'"
+            predicate += f",m.{TRADE_LOG}.trade_type == 'BACKTEST'"
             self.trader_db.delete_recs(TRADE_LOG, predicate=predicate)
             self.trader_db.bulk_insert(TRADE_LOG, data=bt_trades)
 
@@ -102,7 +165,7 @@ class CloseOfBusiness:
             self.ls.log_entry(log_type=BT_TRADE_LOG_TYPE, keys=["COB"], data=pd.DataFrame(), log_date=self.cob_date,
                               acct=self.acct)
 
-    def store_params(self):
+    def store_params(self, acct: str = None, cob_date: str = None, params: pd.DataFrame = None):
         """
         Form the params structure based on Entries & Order book.
         In case param is provided - will skip formation.
@@ -111,20 +174,26 @@ class CloseOfBusiness:
         :param params:
         :return:
         """
-        if len(self.params) > 0:
-            self.ls.log_entry(log_type=PARAMS_LOG_TYPE, keys=["COB"], data=self.params, log_date=self.cob_date,
-                              acct=self.acct)
-            db_params = self.params.fillna(0)
-            db_params = db_params.assign(acct=self.acct, trade_date=self.cob_date)
-            predicate = f"m.{PARAMS_HIST}.acct == '{self.acct}'"
-            predicate += f",m.{PARAMS_HIST}.trade_date == '{self.cob_date}'"
+        if acct is None:
+            acct = self.acct
+        if cob_date is None:
+            cob_date = self.cob_date
+        if params is None:
+            params = self.params
+
+        if len(params) > 0:
+            self.ls.log_entry(log_type=PARAMS_LOG_TYPE, keys=["COB"], data=params, log_date=cob_date, acct=acct)
+            db_params = params.fillna(0)
+            db_params = db_params.assign(acct=acct, trade_date=cob_date)
+            predicate = f"m.{PARAMS_HIST}.acct == '{acct}'"
+            predicate += f",m.{PARAMS_HIST}.trade_date == '{cob_date}'"
             self.trader_db.delete_recs(PARAMS_HIST, predicate=predicate)
             self.trader_db.bulk_insert(PARAMS_HIST, data=db_params)
-            logger.info(f"__store_params: Orders created for {self.acct}")
+            logger.info(f"store_params: Orders created for {acct}")
         else:
-            logger.error(f"__store_params: No Params found to store")
+            logger.error(f"store_params: No Params found to store")
 
-    def run_cob(self, accounts: str, cob_date: str = S_TODAY, opts: list[str] = None, params_dict: dict = None):
+    def run_cob(self, accounts: str, cob_date: str = None, opts: list[str] = None, params_dict: dict = None):
         """
         This provides post process functions i.e. After all open orders are closed
         For every account in the accounts list:
@@ -135,17 +204,21 @@ class CloseOfBusiness:
         if opts is None:
             opts = ["generate_reminders", "store_params", "store_broker_trades", "store_bt_trades"]
 
+        if cob_date is None:
+            cob_date = S_TODAY
+
         for acct in accounts.split(","):
             account = acct.strip()
             if params_dict is not None:
                 params = params_dict.get(account, None)
             else:
                 params = None
-            self.__setup(acct=account, cob_date=cob_date, params=params)
+            if "setup" in opts:
+                self.setup(acct=account, cob_date=cob_date, params=params)
             if "store_params" in opts:
-                self.store_params()
+                self.store_params(acct=account, cob_date=cob_date, params=params)
             if "store_broker_trades" in opts:
-                self.store_broker_trades()
+                self.store_broker_trades(acct=account, cob_date=cob_date)
             if "store_bt_trades" in opts:
                 self.store_bt_trades(acct=account, cob_date=cob_date, params=params)
 
@@ -154,4 +227,6 @@ if __name__ == '__main__':
     setup_logging("cob.log")
     c = CloseOfBusiness()
     accounts_ = 'Trader-V2-Pralhad'
-    c.run_cob(accounts=accounts_, cob_date='2023-12-08', params_dict=None)
+    # cob_ = '2023-12-08'
+    cob_ = None
+    c.run_cob(accounts=accounts_, cob_date=cob_, params_dict=None)
