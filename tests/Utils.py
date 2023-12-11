@@ -6,10 +6,10 @@ import unittest
 
 import pandas as pd
 
-if os.path.exists('/var/www/TechnoPunter-Commons'):
-    REPO_PATH = '/var/www/TechnoPunter-Commons/'
+if os.path.exists('/var/www/trade-exec-engine'):
+    REPO_PATH = '/var/www/trade-exec-engine/'
 else:
-    REPO_PATH = '/Users/pralhad/Documents/99-src/98-trading/TechnoPunter-Commons/'
+    REPO_PATH = '/Users/pralhad/Documents/99-src/98-trading/trade-exec-engine/'
 
 ACCT = 'Trader-V2-Pralhad'
 TEST_RESOURCE_DIR = os.path.join(REPO_PATH, 'resources/test')
