@@ -202,7 +202,7 @@ class CloseOfBusiness:
             3. self.store_bt_trades() - Store Backtesting results to DB
         """
         if opts is None:
-            opts = ["generate_reminders", "store_params", "store_broker_trades", "store_bt_trades"]
+            opts = ["setup", "store_params", "store_broker_trades", "store_bt_trades"]
 
         if cob_date is None:
             cob_date = S_TODAY
