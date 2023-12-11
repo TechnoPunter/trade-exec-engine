@@ -13,8 +13,9 @@ else:
     REPO_DIR = '/Users/pralhad/Documents/99-src/98-trading/trade-exec-engine'
 
 ACCT = "Trader-V2-Pralhad"
+TEST_RESOURCE_DIR = os.path.join(REPO_DIR, "resources/test")
 os.environ["ACCOUNT"] = ACCT
-os.environ["GENERATED_PATH"] = os.path.join(REPO_DIR, "generated")
+os.environ["GENERATED_PATH"] = TEST_RESOURCE_DIR
 os.environ["LOG_PATH"] = os.path.join(REPO_DIR, "logs")
 os.environ["RESOURCE_PATH"] = os.path.join(REPO_DIR, "resources/config")
 
@@ -22,8 +23,6 @@ from exec.service import engine
 from exec.utils.ParamBuilder import load_params
 
 sm = engine
-
-TEST_RESOURCE_DIR = os.path.join(REPO_DIR, "resources/test")
 
 
 def read_file(name, ret_type: str = "JSON"):
@@ -177,12 +176,12 @@ class TestEngine(unittest.TestCase):
         actual_params['target_ts'] = actual_params['target_ts'].astype(float)
         return actual_params, expected_params
 
-    @patch.dict('exec.service.engine.cfg', {"generated": os.path.join(TEST_RESOURCE_DIR, 'create_bo')})
+    @patch.dict('exec.utils.ParamBuilder.cfg', {"generated": os.path.join(TEST_RESOURCE_DIR, 'create_bo')})
     @patch('exec.service.engine.api.api_place_order')
     def test_event_handler_quote_update(self, mock_create_bo):
         mock_create_bo.side_effect = read_file("create_bo/create-bo-NSE_ONGC-resp.json")
+        self.sm.params = load_params(api=mock_create_bo, acct=ACCT)
 
-        sm.load_params()
         quote = read_file("create_bo/quote-NSE_SUNPHARMA-invalid.json")
         sm.event_handler_quote_update(quote)
         self.assertEqual(mock_create_bo.call_count, 0)

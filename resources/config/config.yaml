@@ -4,3 +4,4 @@ include:
   - secrets
   - trade-exec-params
   - alert
+  - risk-params
