@@ -265,7 +265,7 @@ def start(acct_param: str, post_proc: bool = False):
     if ret is None:
         raise Exception("Unable to login to broker API")
 
-    params = load_params(api=api, log_service=ls, acct=acct)
+    params = load_params(api=api, log_service=ls, acct=acct, rc=rc)
 
     if len(params) == 0:
         logger.error("No Params entries")
