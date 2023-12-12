@@ -101,7 +101,7 @@ class CloseOfBusiness:
 
             params = pd.merge(params, orders_df, how="left", left_on="target_order_id", right_on="norenordno")
             params.drop(["norenordno"], axis=1, inplace=True)
-            params.rename(columns={"avgprc": "target_price"}, inplace=True)
+            params.rename(columns={"avgprc": "target_price", "entry_ts": "entry_time"}, inplace=True)
             params.drop(["entry_order_id", "sl_order_id", "target_order_id"], axis=1, inplace=True)
 
             params[["status", "exit_time", "exit_price", "pnl"]] = params.apply(calc_order_stats, axis=1,

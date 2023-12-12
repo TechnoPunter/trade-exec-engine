@@ -52,8 +52,9 @@ def __create_bracket_order(idx, row, ltp):
     params.loc[idx, 'entry_order_id'] = -1
     direction = 'B' if row.signal == 1 else 'S'
     remarks = ":".join(["BO", row.model, row.scrip, str(idx)])
-    target_range, sl_range = rc.calc_risk_params(scrip=row.scrip, strategy=row.model, signal=row.signal,
-                                                 tick=row.tick, acct=acct, entry=ltp, pred_target=row.target)
+    target_range, sl_range, trail_sl = rc.calc_risk_params(scrip=row.scrip, strategy=row.model, signal=row.signal,
+                                                           tick=row.tick, acct=acct, entry=ltp,
+                                                           pred_target=row.target)
     resp = api.api_place_order(buy_or_sell=direction,
                                product_type='B',
                                exchange=row.exchange,
@@ -68,6 +69,8 @@ def __create_bracket_order(idx, row, ltp):
                                book_loss_price=sl_range,
                                book_profit_price=target_range
                                )
+    params.loc[idx, 'sl_range'] = sl_range
+    params.loc[idx, 'trail_sl'] = trail_sl
     logger.debug(f"__create_bracket_order: BO Leg Resp: {resp}")
     if resp is None:
         logger.error("__create_bracket_order: Error in creating entry leg")
