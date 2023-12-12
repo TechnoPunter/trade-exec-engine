@@ -69,8 +69,10 @@ def __create_bracket_order(idx, row, ltp):
                                book_loss_price=sl_range,
                                book_profit_price=target_range
                                )
-    params.loc[idx, 'sl_range'] = sl_range
-    params.loc[idx, 'trail_sl'] = trail_sl
+    params.loc[idx, 'target_range'] = float(target_range)
+    params.loc[idx, 'sl_range'] = float(sl_range)
+    params.loc[idx, 'trail_sl'] = float(trail_sl)
+    params.loc[idx, 'bod_sl'] = ltp - row.signal * float(sl_range)
     logger.debug(f"__create_bracket_order: BO Leg Resp: {resp}")
     if resp is None:
         logger.error("__create_bracket_order: Error in creating entry leg")
@@ -263,7 +265,7 @@ def start(acct_param: str, post_proc: bool = False):
     if ret is None:
         raise Exception("Unable to login to broker API")
 
-    params = load_params(api=api, log_service=ls, acct=acct)
+    params = load_params(api=api, log_service=ls, acct=acct, rc=rc)
 
     if len(params) == 0:
         logger.error("No Params entries")
