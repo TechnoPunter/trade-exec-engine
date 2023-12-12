@@ -7,6 +7,7 @@ from commons.broker.Shoonya import Shoonya
 from commons.config.reader import cfg
 from commons.consts.consts import S_TODAY, PARAMS_LOG_TYPE
 from commons.service.LogService import LogService
+from commons.service.RiskCalc import RiskCalc
 
 logger = logging.getLogger(__name__)
 pd.set_option('display.max_columns', None)
@@ -76,7 +77,7 @@ def __extract_order_book_params(api: Shoonya, df: pd.DataFrame):
         pd.DataFrame()
 
 
-def load_params(api: Shoonya, acct: str, log_service: LogService = None):
+def load_params(api: Shoonya, acct: str, log_service: LogService = None, rc: RiskCalc = None):
     """
     1. Reads Entries file
     2. Gets Order Book
@@ -85,6 +86,8 @@ def load_params(api: Shoonya, acct: str, log_service: LogService = None):
     5. Populate Global Params
     :return:
     """
+    if rc is None:
+        rc = RiskCalc()
     # Get list of scrips params
     params = pd.read_csv(os.path.join(cfg['generated'], 'summary', acct + '-Entries.csv'))
 
@@ -96,7 +99,8 @@ def load_params(api: Shoonya, acct: str, log_service: LogService = None):
     params = params.assign(**{col: None for col in str_cols})
 
     float_cols = [
-        'entry_price', 'sl_price', 'target_price', 'strength'
+        'entry_price', 'sl_price', 'target_price', 'strength',
+        'target_range', 'sl_range', 'trail_sl', 'bod_sl'
     ]
     params[float_cols] = np.NAN
 
@@ -123,7 +127,15 @@ def load_params(api: Shoonya, acct: str, log_service: LogService = None):
             orders = __extract_order_book_params(api, orders)
             params.loc[orders.index, ORDER_COLS] = orders[ORDER_COLS]
             params.loc[orders.index, 'strength'] = abs(params['target'] - params['entry_price'])
-
+            for idx, row in params.loc[params.entry_order_status == "ENTERED"].iterrows():
+                target_range, sl_range, trail_sl = rc.calc_risk_params(scrip=row.scrip, strategy=row.model,
+                                                                       signal=row.signal,
+                                                                       tick=row.tick, acct=acct, entry=row.entry_price,
+                                                                       pred_target=row.target)
+                params.loc[idx, 'target_range'] = float(target_range)
+                params.loc[idx, 'sl_range'] = float(sl_range)
+                params.loc[idx, 'trail_sl'] = float(trail_sl)
+                params.loc[idx, 'bod_sl'] = row.entry_price - row.signal * float(sl_range)
     else:
         logger.info("__load_params: No orders to stitch to params.")
 
