@@ -9,7 +9,7 @@ from commons.loggers.setup_logger import setup_logging
 from commons.service.LogService import LogService
 from commons.service.ScripDataService import ScripDataService
 
-from exec.utils.ParamBuilder import load_params
+from exec.utils.ParamBuilder import load_params, store_param_hist
 
 logger = logging.getLogger(__name__)
 
@@ -203,14 +203,7 @@ class CloseOfBusiness:
 
         if len(params) > 0:
             self.ls.log_entry(log_type=PARAMS_LOG_TYPE, keys=["COB"], data=params, log_date=cob_date, acct=acct)
-            db_params = params.fillna(0)
-            db_params = db_params.assign(acct=acct, trade_date=cob_date)
-            predicate = f"m.{PARAMS_HIST}.acct == '{acct}'"
-            predicate += f",m.{PARAMS_HIST}.trade_date == '{cob_date}'"
-            self.trader_db.delete_recs(PARAMS_HIST, predicate=predicate)
-            logger.debug(f"About to store:\n{db_params}")
-            self.trader_db.bulk_insert(PARAMS_HIST, data=db_params)
-            logger.info(f"store_params: Orders created for {acct}")
+            store_param_hist(trader_db=self.trader_db, acct=acct, cob_date=cob_date, params=params)
         else:
             logger.error(f"store_params: No Params found to store")
 

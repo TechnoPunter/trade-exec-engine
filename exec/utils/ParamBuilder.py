@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from commons.broker.Shoonya import Shoonya
 from commons.config.reader import cfg
-from commons.consts.consts import S_TODAY, PARAMS_LOG_TYPE
+from commons.consts.consts import S_TODAY, PARAMS_LOG_TYPE, PARAMS_HIST
 from commons.service.LogService import LogService
 from commons.service.RiskCalc import RiskCalc
 
@@ -143,6 +143,17 @@ def load_params(api: Shoonya, acct: str, log_service: LogService = None, rc: Ris
         log_service.log_entry(log_type=PARAMS_LOG_TYPE, keys=["BOD"], data=params, acct=acct, log_date=S_TODAY)
     logger.info(f"__load_params: Params:\n{params}")
     return params
+
+
+def store_param_hist(trader_db, acct, cob_date, params):
+    db_params = params.fillna(0)
+    db_params = db_params.assign(acct=acct, trade_date=cob_date)
+    predicate = f"m.{PARAMS_HIST}.acct == '{acct}'"
+    predicate += f",m.{PARAMS_HIST}.trade_date == '{cob_date}'"
+    trader_db.delete_recs(PARAMS_HIST, predicate=predicate)
+    logger.debug(f"About to store:\n{db_params}")
+    trader_db.bulk_insert(PARAMS_HIST, data=db_params)
+    logger.info(f"store_params: Orders created for {acct}")
 
 
 if __name__ == '__main__':

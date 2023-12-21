@@ -12,7 +12,7 @@ from commons.utils.EmailAlert import send_email, send_df_email
 from commons.utils.Misc import get_epoch, get_new_sl
 
 from exec.utils.EngineUtils import *
-from exec.utils.ParamBuilder import load_params
+from exec.utils.ParamBuilder import load_params, store_param_hist
 
 MOCK = False
 RECONNECT_COUNTER = 0
@@ -287,6 +287,7 @@ def start(acct_param: str, post_proc: bool = False):
             ls.log_entry(log_type=PARAMS_LOG_TYPE, keys=["Post-BOD"], data=params,
                          acct=acct, log_date=S_TODAY)
             send_df_email(df=params, subject="BOD Params", acct=acct)
+            store_param_hist(trader_db=trader_db, acct=acct, cob_date=S_TODAY, params=params)
             alert_pending = False
         time.sleep(1)
 
