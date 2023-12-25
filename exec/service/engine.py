@@ -33,7 +33,7 @@ api = Shoonya(acct)
 trader_db = DatabaseEngine()
 instruments = []
 ls = LogService(trader_db=trader_db)
-rc = RiskCalc()
+rc = RiskCalc(mode="PRESET")
 
 
 def __get_signal_strength(df: pd.DataFrame, ltp: float):
