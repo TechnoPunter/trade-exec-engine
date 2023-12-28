@@ -223,8 +223,13 @@ def event_handler_error(message):
     logger.error(f"Error message {message}")
     RECONNECT_COUNTER += 1
     send_email(body=f"Attempt: {RECONNECT_COUNTER} Error in websocket {message}", subject=f"Websocket Error! - {acct}")
+    logger.error(f"About to api_unsubscribe")
     api.api_unsubscribe(instruments)
+    logger.error(f"About to close_websocket")
     api.api.close_websocket()
+    logger.error(f"About to sleep")
+    time.sleep(1)
+    logger.error(f"About to api_start_websocket")
     api.api_start_websocket(subscribe_callback=event_handler_quote_update,
                             socket_open_callback=event_handler_open_callback,
                             socket_error_callback=event_handler_error,
