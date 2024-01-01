@@ -54,7 +54,7 @@ def __create_bracket_order(idx, row, ltp):
     remarks = ":".join(["BO", row.model, row.scrip, str(idx)])
     target_range, sl_range, trail_sl = rc.calc_risk_params(scrip=row.scrip, strategy=row.model, signal=row.signal,
                                                            tick=row.tick, acct=acct, entry=ltp,
-                                                           pred_target=row.target)
+                                                           prev_close=row.close, pred_target=row.target)
     resp = api.api_place_order(buy_or_sell=direction,
                                product_type='B',
                                exchange=row.exchange,
