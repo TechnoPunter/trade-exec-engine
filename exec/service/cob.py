@@ -173,6 +173,7 @@ class CloseOfBusiness:
             self.trader_db.delete_recs(TRADES_MTM_TABLE, predicate=predicate)
             for key, bt_mtm_entries in bt_mtm.items():
                 bt_mtm_entries['time'] = bt_mtm_entries['time'].astype(int)
+                bt_mtm_entries['datetime'] = bt_mtm_entries['datetime'].astype(str)
                 bt_mtm_entries.fillna(0, inplace=True)
                 bt_mtm_entries = bt_mtm_entries.assign(acct=acct)
                 logger.debug(f"About to store trade_log for {key}:\n{bt_mtm_entries}")
@@ -248,9 +249,9 @@ if __name__ == '__main__':
     setup_logging("cob.log")
     c = CloseOfBusiness()
     accounts_ = 'Trader-V2-Pralhad'
-    cob_ = '2023-12-08'
-    # cob_ = None
-    # c.run_cob(accounts=accounts_, cob_date=cob_, params_dict=None)
-    sh = Shoonya(acct=accounts_)
-    sds_ = ScripDataService(sh)
-    c.store_bt_trades(acct=accounts_, cob_date=cob_, exec_mode="LOCAL", sds=sds_)
+    # cob_ = '2023-12-08'
+    cob_ = None
+    c.run_cob(accounts=accounts_, cob_date=cob_, params_dict=None)
+    # sh = Shoonya(acct=accounts_)
+    # sds_ = ScripDataService(sh)
+    # c.store_bt_trades(acct=accounts_, cob_date=cob_, exec_mode="LOCAL", sds=sds_)
