@@ -131,7 +131,7 @@ def load_params(api: Shoonya, acct: str, log_service: LogService = None, rc: Ris
                 target_range, sl_range, trail_sl = rc.calc_risk_params(scrip=row.scrip, strategy=row.model,
                                                                        signal=row.signal,
                                                                        tick=row.tick, acct=acct, entry=row.entry_price,
-                                                                       pred_target=row.target)
+                                                                       prev_close=row.close, pred_target=row.target)
                 params.loc[idx, 'target_range'] = float(target_range)
                 params.loc[idx, 'sl_range'] = float(sl_range)
                 params.loc[idx, 'trail_sl'] = float(trail_sl)
