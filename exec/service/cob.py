@@ -146,6 +146,7 @@ class CloseOfBusiness:
 
         f = FastBT(exec_mode=exec_mode)
         bt_trades, _, bt_mtm = f.run_cob_accuracy(params=params)
+        params.rename(columns={"model": "strategy"}, inplace=True)
         logger.debug(f"run_cob_accuracy: Completed with BT trades: {len(bt_trades)} & {len(bt_mtm)} entries")
         if len(bt_trades) > 0:
             if ls is None:
@@ -154,7 +155,11 @@ class CloseOfBusiness:
             bt_trades.fillna(0, inplace=True)
             bt_trades['entry_time'] = bt_trades['entry_time'].astype(int)
             bt_trades['exit_time'] = bt_trades['exit_time'].astype(int)
-            bt_trades = bt_trades.assign(acct=acct, trade_type='BACKTEST', quantity=1)
+            bt_trades = bt_trades.merge(params[['scrip', 'strategy', 'quantity']], how='left',
+                                        left_on=['scrip', 'strategy'], right_on=['scrip', 'strategy'])
+            bt_trades['pnl'] = bt_trades.pnl * bt_trades.quantity
+            bt_trades['max_mtm'] = bt_trades.max_mtm * bt_trades.quantity
+            bt_trades = bt_trades.assign(acct=acct, trade_type='BACKTEST')
             bt_trades.rename(columns={
                 'date': 'trade_date',
                 'strategy': 'model'}, inplace=True)
@@ -172,6 +177,9 @@ class CloseOfBusiness:
             predicate += f",m.{TRADES_MTM_TABLE}.trade_date == '{cob_date}'"
             self.trader_db.delete_recs(TRADES_MTM_TABLE, predicate=predicate)
             for key, bt_mtm_entries in bt_mtm.items():
+                bt_mtm_entries = bt_mtm_entries.merge(params[['scrip', 'strategy', 'quantity']], how='left',
+                                                      left_on=['scrip', 'strategy'], right_on=['scrip', 'strategy'])
+                bt_mtm_entries['mtm'] = bt_mtm_entries.mtm * bt_mtm_entries.quantity
                 bt_mtm_entries['time'] = bt_mtm_entries['time'].astype(int)
                 bt_mtm_entries['datetime'] = bt_mtm_entries['datetime'].astype(str)
                 bt_mtm_entries.fillna(0, inplace=True)
@@ -249,9 +257,9 @@ if __name__ == '__main__':
     setup_logging("cob.log")
     c = CloseOfBusiness()
     accounts_ = 'Trader-V2-Pralhad'
-    # cob_ = '2023-12-08'
-    cob_ = None
-    c.run_cob(accounts=accounts_, cob_date=cob_, params_dict=None)
-    # sh = Shoonya(acct=accounts_)
-    # sds_ = ScripDataService(sh)
-    # c.store_bt_trades(acct=accounts_, cob_date=cob_, exec_mode="LOCAL", sds=sds_)
+    cob_ = '2024-01-01'
+    # cob_ = None
+    # c.run_cob(accounts=accounts_, cob_date=cob_, params_dict=None)
+    sh = Shoonya(acct=accounts_)
+    sds_ = ScripDataService(sh)
+    c.store_bt_trades(acct=accounts_, cob_date=cob_, exec_mode="LOCAL", sds=sds_)
