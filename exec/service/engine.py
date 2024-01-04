@@ -263,7 +263,7 @@ def start(acct_param: str, post_proc: bool = False):
     acct = acct_param
     target_time_ist = IST.localize(datetime.datetime.strptime("15:15", "%H:%M")).time()
     alert_time_ist = IST.localize(datetime.datetime.strptime("09:30", "%H:%M")).time()
-    alert_pending = True
+    store_bod_params = True
 
     ret = api.api_login()
     logger.info(f"API Login: {ret}")
@@ -288,12 +288,11 @@ def start(acct_param: str, post_proc: bool = False):
                             )
 
     while datetime.datetime.now(IST).time() <= target_time_ist:
-        if alert_pending and datetime.datetime.now(IST).time() >= alert_time_ist:
+        if store_bod_params and datetime.datetime.now(IST).time() >= alert_time_ist:
             ls.log_entry(log_type=PARAMS_LOG_TYPE, keys=["Post-BOD"], data=params,
                          acct=acct, log_date=S_TODAY)
-            send_df_email(df=params, subject="BOD Params", acct=acct)
             store_param_hist(trader_db=trader_db, acct=acct, cob_date=S_TODAY, params=params)
-            alert_pending = False
+            store_bod_params = False
         time.sleep(1)
 
     __close_all_trades()
