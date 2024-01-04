@@ -6,3 +6,4 @@ resources/config/
 .pytest_cache
 Trader
 generated
+.vscode
