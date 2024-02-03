@@ -44,7 +44,7 @@ fi
 ln -sf "$dropbox"/Trader .
 ln -sf "$dropbox"/Trader/secret .
 cd logs || exit 1
-ln -sf "$dropbox"/Trader/trade-exec-engine-V1/logs/archive .
+ln -sf "$dropbox"/Trader/trade-exec-engine-V2/logs/archive .
 
 
 FILE=resources/config/secrets-local.yaml

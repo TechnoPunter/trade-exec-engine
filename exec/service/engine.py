@@ -1,5 +1,6 @@
 import datetime
 import os
+import sys
 import time
 
 import pandas as pd
@@ -8,7 +9,7 @@ from commons.consts.consts import IST, S_TODAY, PARAMS_LOG_TYPE
 from commons.dataprovider.database import DatabaseEngine
 from commons.service.LogService import LogService
 from commons.service.RiskCalc import RiskCalc
-from commons.utils.EmailAlert import send_email, send_df_email
+from commons.utils.EmailAlert import send_email
 from commons.utils.Misc import get_epoch, get_new_sl
 
 from exec.utils.EngineUtils import *
@@ -218,23 +219,9 @@ def event_handler_order_update(curr_order):
 
 
 def event_handler_error(message):
-    global RECONNECT_COUNTER
-    global instruments
     logger.error(f"Error message {message}")
-    RECONNECT_COUNTER += 1
-    send_email(body=f"Attempt: {RECONNECT_COUNTER} Error in websocket {message}", subject=f"Websocket Error! - {acct}")
-    logger.error(f"About to api_unsubscribe")
-    api.api_unsubscribe(instruments)
-    logger.error(f"About to close_websocket")
-    api.api.close_websocket()
-    logger.error(f"About to sleep")
-    time.sleep(1)
-    logger.error(f"About to api_start_websocket")
-    api.api_start_websocket(subscribe_callback=event_handler_quote_update,
-                            socket_open_callback=event_handler_open_callback,
-                            socket_error_callback=event_handler_error,
-                            order_update_callback=event_handler_order_update
-                            )
+    send_email(body=f"Error in websocket {message}", subject=f"Websocket Error! - {acct}")
+    sys.exit()
 
 
 def __store_params():
@@ -305,5 +292,5 @@ if __name__ == "__main__":
     setup_logging("engine.log")
 
     MOCK = True
-    start(acct_param='Trader-V2-Pralhad')
+    start(acct_param='Trader-V2-Sundar')
     logger.info("Done")
