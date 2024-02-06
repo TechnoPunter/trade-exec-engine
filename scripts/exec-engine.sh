@@ -2,7 +2,7 @@
 BASE_DIR=/var/www/trade-exec-engine
 cd "$BASE_DIR"
 
-TARGET_TIME="15:15"
+TARGET_TIME="$(date -d '15:13' +'%s')"
 
 if [ -z "$1" ]; then
   echo "Error: missing Account parameter."
@@ -21,8 +21,8 @@ export LOG_PATH="$BASE_DIR"/logs
 sleep 1
 while true;
 do
-    current_time=$(date +"%H:%M")
-    if [[ "$current_time" > "$TARGET_TIME" ]]; then
+    current_time="$(date +'%s')"
+    if [ "${current_time}" -gt "${TARGET_TIME}" ]; then
         echo "Stopping the loop at 15:15 hours."
         break
     fi
