@@ -2,7 +2,7 @@
 BASE_DIR=/var/www/trade-exec-engine
 cd "$BASE_DIR"
 
-TARGET_TIME="21:35"
+TARGET_TIME="15:15"
 
 if [ -z "$1" ]; then
   echo "Error: missing Account parameter."
